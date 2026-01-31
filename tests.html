@@ -33,29 +33,47 @@
     <main>
         <h1 style="margin-bottom: 40px; font-weight: 700; font-size: 2.2rem;">Available Assessments</h1>
         <div id="testGrid" class="grid">
-            <p style="color: #94a3b8;">Syncing with database...</p>
+            <p id="statusMsg">Syncing with database...</p>
         </div>
     </main>
 
     <script>
-        const supabase = supabase.createClient('https://ijxsnunkfhudwnkrwmzk.supabase.co', 'sb_publishable_V-KT1zvp-73dqHHvmx3fNA_iHw53TCl');
+        const _url = 'https://ijxsnunkfhudwnkrwmzk.supabase.co';
+        const _key = 'sb_publishable_V-KT1zvp-73dqHHvmx3fNA_iHw53TCl';
+        const supabase = supabase.createClient(_url, _key);
 
         async function loadTests() {
-            const { data, error } = await supabase.from('questions_table').select('subject, test_name');
-            const grid = document.getElementById('testGrid');
-            if (data && data.length > 0) {
-                const uniqueTests = Array.from(new Set(data.map(t => t.test_name))).map(name => data.find(t => t.test_name === name));
-                grid.innerHTML = uniqueTests.map(test => `
-                    <div class="test-card" onclick="launch('${test.test_name}')">
-                        <span class="subject-badge">${test.subject}</span>
-                        <h3 class="test-title">${test.test_name}</h3>
-                        <button class="launch-btn">Start Test</button>
-                    </div>
-                `).join('');
-            } else {
-                grid.innerHTML = '<p>No tests available.</p>';
+            const statusMsg = document.getElementById('statusMsg');
+            try {
+                const { data, error } = await supabase
+                    .from('questions_table')
+                    .select('subject, test_name');
+
+                if (error) throw error;
+
+                const grid = document.getElementById('testGrid');
+                if (data && data.length > 0) {
+                    // Create unique cards based on test_name
+                    const uniqueNames = [...new Set(data.map(t => t.test_name))];
+                    grid.innerHTML = uniqueNames.map(name => {
+                        const test = data.find(t => t.test_name === name);
+                        return `
+                            <div class="test-card" onclick="launch('${test.test_name}')">
+                                <span class="subject-badge">${test.subject}</span>
+                                <h3 class="test-title">${test.test_name}</h3>
+                                <button class="launch-btn">Start Test</button>
+                            </div>
+                        `;
+                    }).join('');
+                } else {
+                    grid.innerHTML = '<p>No tests found in the questions_table.</p>';
+                }
+            } catch (err) {
+                console.error(err);
+                statusMsg.innerText = "Error: " + err.message;
             }
         }
+
         function launch(name) {
             localStorage.setItem('currentTestName', name);
             window.location.href = 'active-test.html';
