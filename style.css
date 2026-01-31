@@ -1,0 +1,62 @@
+/* 1. Reset and Body */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Inter', sans-serif; background-color: #f8fafc; display: flex; }
+
+/* 2. Sidebar */
+nav {
+    width: 260px;
+    height: 100vh;
+    background: #0b4a8f;
+    padding: 60px 0;
+    position: fixed;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 3. The Links */
+.nav-link {
+    position: relative;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: block;
+    padding: 18px 40px;
+    text-decoration: none;
+    color: rgba(255, 255, 255, 0.5); 
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    overflow: hidden; /* Keeps the effect contained */
+}
+
+/* 4. THE FIX: The Vertical Line */
+/* We remove the line from .active-link::before so it's not 'stuck' */
+.nav-link::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 0; /* Hidden by default */
+    background-color: #ffffff;
+    transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* Smooth grow/shrink */
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+/* 5. HOVER: The line grows ONLY where you hover */
+.nav-link:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.05);
+    padding-left: 50px; /* Slight push to the right */
+}
+
+.nav-link:hover::before {
+    height: 60%; /* The line grows to life here */
+}
+
+/* 6. ACTIVE STATE: Use background instead of a line to avoid 'stuck' look */
+.active-link {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.12); /* Subtle glow on the box */
+    font-weight: 700;
+}

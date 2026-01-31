@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JEE Portal | Performance</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #f8fafc; display: flex; }
+        
+        nav { width: 280px; background: #0b4a8f; color: white; padding: 60px 0; position: fixed; height: 100vh; }
+        .nav-link { display: block; padding: 18px 40px; text-decoration: none; color: rgba(255,255,255,0.5); font-size: 0.85rem; text-transform: uppercase; }
+        .active-link { color: white; background: rgba(255,255,255,0.1); font-weight: 700; }
+
+        main { margin-left: 280px; flex: 1; padding: 80px 60px; }
+        .results-card { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 30px; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th { text-align: left; padding: 15px; color: #64748b; font-size: 0.8rem; text-transform: uppercase; border-bottom: 1px solid #e2e8f0; }
+        td { padding: 15px; border-bottom: 1px solid #f1f5f9; }
+        .score-pill { background: #ecfdf5; color: #10b981; padding: 4px 12px; border-radius: 50px; font-weight: 700; }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div style="padding: 0 40px; margin-bottom: 60px;"><h2>JEE Portal</h2></div>
+        <a href="tests.html" class="nav-link">Available Tests</a>
+        <a href="performance.html" class="nav-link active-link">Performance</a>
+    </nav>
+
+    <main>
+        <h1 style="margin-bottom: 40px;">Your Performance</h1>
+        <div class="results-card">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Subject</th>
+                        <th>Date</th>
+                        <th>Score</th>
+                    </tr>
+                </thead>
+                <tbody id="historyTable">
+                    </tbody>
+            </table>
+        </div>
+    </main>
+
+<script>
+    window.onload = function() {
+        const history = JSON.parse(localStorage.getItem('testHistory') || '[]');
+        const tableBody = document.getElementById('historyTable');
+
+        if (history.length === 0) {
+            tableBody.innerHTML = "<tr><td colspan='3' style='text-align:center; padding: 40px; color: #94a3b8;'>No tests completed yet.</td></tr>";
+            return;
+        }
+
+        tableBody.innerHTML = history.reverse().map(item => `
+            <tr>
+                <td style="font-weight:600; text-transform: capitalize;">${item.subject}</td>
+                <td>${item.date}</td>
+                <td><span class="score-pill">${item.score}/100</span></td>
+            </tr>
+        `).join('');
+    };
+</script>
+</body>
+</html>

@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JEE Portal | Available Tests</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* --- Restoration of Premium Styles --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; display: flex; color: #1e293b; }
+
+        /* Sidebar Navigation */
+        nav { width: 280px; background: #0b4a8f; color: white; padding: 60px 0; position: fixed; height: 100vh; z-index: 100; }
+        .logo-area { padding: 0 40px; margin-bottom: 60px; }
+        .logo-area h2 { font-size: 1.2rem; letter-spacing: 4px; font-weight: 700; text-transform: uppercase; }
+        
+        .nav-link {
+            position: relative;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: block;
+            padding: 18px 40px;
+            text-decoration: none;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.85rem;
+            font-weight: 500;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        .nav-link:hover { color: white; padding-left: 50px; }
+        .active-link { color: white; background: rgba(255, 255, 255, 0.1); font-weight: 700; }
+
+        /* Main Content */
+        main { margin-left: 280px; flex: 1; padding: 80px 0; }
+        .content-container { max-width: 1100px; margin: 0 auto; padding: 0 60px; }
+        h1 { font-size: 2.4rem; font-weight: 300; letter-spacing: -1px; margin-bottom: 40px; }
+
+        /* Filter Chips */
+        .filter-container { display: flex; gap: 15px; margin-bottom: 40px; }
+        .filter-chip {
+            padding: 10px 24px; border-radius: 50px; background: white; border: 1px solid #e2e8f0;
+            font-size: 0.85rem; font-weight: 600; color: #64748b; cursor: pointer; transition: all 0.2s;
+        }
+        .filter-chip.active { background: #0b4a8f; color: white; border-color: #0b4a8f; }
+
+        /* Test Grid & Cards */
+        .test-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 25px; }
+        
+        .test-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            padding: 35px;
+            border-radius: 16px;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            min-height: 300px;
+        }
+        .test-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.05); }
+
+        /* --- THE GLOWING INDICATOR --- */
+        .live-indicator {
+            position: absolute;
+            top: 25px;
+            right: 25px;
+            width: 12px;
+            height: 12px;
+            background-color: #10b981;
+            border-radius: 50%;
+            display: none; /* Only shows when .is-active is added */
+        }
+
+        .test-card.is-active .live-indicator {
+            display: block;
+            animation: pulse-glow 1.5s infinite ease-in-out;
+        }
+
+        @keyframes pulse-glow {
+            0% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { transform: scale(1.2); box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+            100% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+
+        /* Standardized Glassmorphism Navy Button */
+        .btn-navy-glass {
+            width: 100%;
+            padding: 14px;
+            background: rgba(11, 74, 143, 0.9);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            backdrop-filter: blur(8px);
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(11, 74, 143, 0.2);
+        }
+
+        .btn-navy-glass:hover {
+            background: rgba(11, 74, 143, 1);
+            transform: translateY(-2px);
+        }
+
+        /* Typography & Tags */
+        .tag { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; display: inline-block; }
+        .tag.physics { color: #f59e0b; }
+        .tag.maths { color: #8b5cf6; }
+        .tag.chemistry { color: #10b981; }
+
+        .test-title { font-size: 1.3rem; font-weight: 600; color: #1e293b; margin-bottom: 8px; }
+        .test-info { font-size: 0.9rem; color: #64748b; margin-bottom: 25px; line-height: 1.6; }
+        .status-lbl { font-weight: 700; font-size: 0.8rem; }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="logo-area"><h2>JEE Portal</h2></div>
+        <a href="index.html" class="nav-link">Dashboard</a>
+        <a href="tests.html" class="nav-link active-link">Available Tests</a>
+        <a href="#" class="nav-link">Performance</a>
+        <a href="#" class="nav-link">Account</a>
+    </nav>
+
+    <main>
+        <div class="content-container">
+            <h1>Practice Tests</h1>
+
+            <div class="filter-container">
+                <button class="filter-chip active" onclick="filterBy('all', this)">All Subjects</button>
+                <button class="filter-chip" onclick="filterBy('physics', this)">Physics</button>
+                <button class="filter-chip" onclick="filterBy('chemistry', this)">Chemistry</button>
+                <button class="filter-chip" onclick="filterBy('maths', this)">Mathematics</button>
+            </div>
+
+            <div class="test-grid">
+                <div class="test-card" id="card-physics" data-subject="physics">
+                    <div class="live-indicator"></div>
+                    <div>
+                        <span class="tag physics">Physics</span>
+                        <h3 class="test-title">Electrostatics Mastery</h3>
+                        <p class="test-info">45 Questions • 60 Mins<br><span class="status-lbl">Ready to Start</span></p>
+                    </div>
+                    <button class="btn-navy-glass" onclick="handleStart('card-physics')">Start Test</button>
+                </div>
+
+                <div class="test-card" id="card-maths" data-subject="maths">
+                    <div class="live-indicator"></div>
+                    <div>
+                        <span class="tag maths">Mathematics</span>
+                        <h3 class="test-title">Integral Calculus II</h3>
+                        <p class="test-info">30 Questions • 90 Mins<br><span class="status-lbl">Ready to Start</span></p>
+                    </div>
+                    <button class="btn-navy-glass" onclick="handleStart('card-maths')">Start Test</button>
+                </div>
+
+                <div class="test-card" id="card-chemistry" data-subject="chemistry">
+                    <div class="live-indicator"></div>
+                    <div>
+                        <span class="tag chemistry">Chemistry</span>
+                        <h3 class="test-title">Organic: Alcohols</h3>
+                        <p class="test-info">25 Questions • 45 Mins<br><span class="status-lbl">Ready to Start</span></p>
+                    </div>
+                    <button class="btn-navy-glass" onclick="handleStart('card-chemistry')">Start Test</button>
+                </div>
+            </div>
+
+            <p onclick="clearSession()" style="margin-top:60px; color:#cbd5e1; cursor:pointer; font-size:10px; text-align:center; text-decoration:underline;">RESET SESSION (DEV ONLY)</p>
+        </div>
+    </main>
+
+    <script>
+        // --- LOGIC 1: SESSION PERSISTENCE ---
+        window.onload = function() {
+            const activeId = localStorage.getItem('activeTestId');
+            if (activeId) {
+                const activeCard = document.getElementById(activeId);
+                if (activeCard) {
+                    applyActiveState(activeCard);
+                }
+            }
+        };
+
+        function applyActiveState(card) {
+            card.classList.add('is-active');
+            card.querySelector('.status-lbl').innerText = "ACTIVE NOW";
+            card.querySelector('.status-lbl').style.color = "#10b981";
+            card.querySelector('.btn-navy-glass').innerText = "Resume Test";
+        }
+
+        // --- LOGIC 2: LOCKING MECHANISM ---
+        function handleStart(id) {
+            const activeId = localStorage.getItem('activeTestId');
+
+            // LOCK: Block if another test is active
+            if (activeId && activeId !== id) {
+                alert("⚠️ Access Denied: You already have an active test session. Finish it first!");
+                return;
+            }
+
+            // Save session and redirect
+            localStorage.setItem('activeTestId', id);
+            window.location.href = 'active-test.html';
+        }
+
+        // --- LOGIC 3: FILTERS ---
+        function filterBy(subject, btn) {
+            document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+            btn.classList.add('active');
+            
+            document.querySelectorAll('.test-card').forEach(card => {
+                const matches = (subject === 'all' || card.dataset.subject === subject);
+                card.classList.toggle('hidden', !matches);
+            });
+        }
+
+        function clearSession() {
+            localStorage.clear();
+            location.reload();
+        }
+    </script>
+</body>
+</html>

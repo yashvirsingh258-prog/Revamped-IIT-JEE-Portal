@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JEE Portal | Live Exam</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #f8fafc; color: #1e293b; height: 100vh; display: flex; flex-direction: column; }
+        
+        header { height: 70px; background: #fff; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; padding: 0 40px; }
+        .test-info { font-weight: 700; color: #0b4a8f; text-transform: uppercase; letter-spacing: 1px; }
+        
+        .main-container { flex: 1; display: flex; overflow: hidden; }
+        .question-area { flex: 1; padding: 60px; overflow-y: auto; }
+        .sidebar { width: 300px; background: #fff; border-left: 1px solid #e2e8f0; padding: 30px; display: flex; flex-direction: column; }
+        
+        .q-box { background: white; border: 1px solid #e2e8f0; padding: 30px; border-radius: 12px; }
+        .q-text { font-size: 1.2rem; line-height: 1.6; margin-bottom: 25px; }
+        
+        .option { display: block; padding: 15px 20px; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 10px; cursor: pointer; transition: 0.2s; }
+        .option:hover { background: #f1f5f9; border-color: #0b4a8f; }
+        
+        .submit-btn { 
+            background: #e11d48; color: white; border: none; padding: 15px; width: 100%; 
+            border-radius: 8px; font-weight: 700; cursor: pointer; margin-top: auto; 
+        }
+        .submit-btn:hover { background: #be123c; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="test-info" id="testNameDisplay">Loading Session...</div>
+    <div id="timer" style="font-weight: 700; color: #e11d48;">Time Remaining: 59:59</div>
+</header>
+
+<div class="main-container">
+    <div class="question-area">
+        <div class="q-box">
+            <p class="q-text">Which of the following describes the behavior of a session lock in a local storage environment?</p>
+            <label class="option"><input type="radio" name="q1"> A. It persists until manually cleared</label>
+            <label class="option"><input type="radio" name="q1"> B. It clears on page refresh</label>
+            <label class="option"><input type="radio" name="q1"> C. It allows multiple sessions</label>
+        </div>
+    </div>
+
+    <aside class="sidebar">
+        <h3>Exam Summary</h3>
+        <p style="margin: 20px 0; font-size: 0.9rem; color: #64748b;">Once you submit, you will be able to start other tests.</p>
+        <button class="submit-btn" onclick="finalizeTest()">FINISH & SUBMIT</button>
+    </aside>
+</div>
+
+<script>
+    // 1. Identify what test we are in
+    const activeId = localStorage.getItem('activeTestId');
+    if (!activeId) {
+        window.location.href = 'tests.html'; // Kick out if no lock exists
+    } else {
+        document.getElementById('testNameDisplay').innerText = "Exam: " + activeId.replace('card-', '').toUpperCase();
+    }
+
+    // 2. The Submission (The Unlocker)
+    function finalizeTest() {
+        if (confirm("Are you sure you want to submit? This will unlock other tests.")) {
+            
+            // Generate a random score for demonstration
+            const testResult = {
+                id: activeId,
+                subject: activeId.replace('card-', ''),
+                score: Math.floor(Math.random() * 25) + 75, // 75-100
+                date: new Date().toLocaleDateString()
+            };
+
+            // Save to Results History
+            let history = JSON.parse(localStorage.getItem('testHistory') || '[]');
+            history.push(testResult);
+            localStorage.setItem('testHistory', JSON.stringify(history));
+
+            // CRITICAL: CLEAR THE SESSION LOCK
+            localStorage.removeItem('activeTestId');
+
+            alert("Test Submitted! Your results are saved.");
+            window.location.href = 'tests.html'; 
+        }
+    }
+</script>
+</body>
+</html>

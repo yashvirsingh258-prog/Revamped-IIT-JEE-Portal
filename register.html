@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JEE Portal | Create Account</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 20px;
+        }
+
+        .auth-card {
+            background: #ffffff;
+            width: 100%;
+            max-width: 550px; /* Slightly wider for two-column fields */
+            padding: 50px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.02);
+            text-align: center;
+        }
+
+        h2 { font-size: 2rem; font-weight: 300; color: #1e293b; letter-spacing: -1px; margin-bottom: 8px; }
+        .subtitle { color: #64748b; font-size: 0.95rem; margin-bottom: 35px; }
+
+        form { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; text-align: left; }
+        .full-width { grid-column: span 2; }
+
+        .input-group { position: relative; }
+        
+        label {
+            display: block;
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: #0b4a8f;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 8px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px 16px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            background: white;
+            transition: all 0.2s ease;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #0b4a8f;
+            box-shadow: 0 0 0 4px rgba(11, 74, 143, 0.05);
+        }
+
+        /* Glassmorphism Button */
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+            background: rgba(11, 74, 143, 0.85);
+            color: #ffffff;
+            font-weight: 600;
+            letter-spacing: 1px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 8px 20px -5px rgba(11, 74, 143, 0.3);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            margin-top: 10px;
+        }
+
+        .submit-btn:hover {
+            background: rgba(11, 74, 143, 1);
+            transform: translateY(-2px);
+        }
+
+        .footer-link {
+            grid-column: span 2;
+            text-align: center;
+            margin-top: 25px;
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+
+        .footer-link a { color: #0b4a8f; text-decoration: none; font-weight: 600; }
+    </style>
+</head>
+<body>
+
+    <div class="auth-card">
+        <h2>Create Account</h2>
+        <p class="subtitle">Join the elite preparation portal for JEE 2026/27.</p>
+
+        <form id="registerForm">
+            <div class="input-group">
+                <label>First Name</label>
+                <input type="text" placeholder="e.g. Rahul" required>
+            </div>
+            <div class="input-group">
+                <label>Last Name</label>
+                <input type="text" placeholder="e.g. Sharma" required>
+            </div>
+
+            <div class="input-group full-width">
+                <label>Email Address</label>
+                <input type="email" placeholder="name@email.com" required>
+            </div>
+
+            <div class="input-group">
+                <label>Target Year</label>
+                <select required>
+                    <option value="" disabled selected>Select Year</option>
+                    <option value="2026">JEE 2026</option>
+                    <option value="2027">JEE 2027</option>
+                    <option value="other">Later</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>Stream</label>
+                <select required>
+                    <option value="pcm">PCM</option>
+                    <option value="pcbm">PCBM</option>
+                </select>
+            </div>
+
+            <div class="input-group full-width">
+                <label>Create Password</label>
+                <input type="password" placeholder="••••••••" required>
+            </div>
+
+            <div class="full-width">
+                <button type="submit" class="submit-btn">GET STARTED</button>
+            </div>
+
+            <div class="footer-link">
+                Already have an account? <a href="login.html">Sign In</a>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            // Simulate account creation
+            alert("Account created successfully! Please login.");
+            window.location.href = "login.html";
+        });
+    </script>
+</body>
+</html>
