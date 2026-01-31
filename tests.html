@@ -33,24 +33,27 @@
         .test-card.hidden { display: none; }
 
         /* Completed State */
-        .test-card.completed { border-left: 5px solid #10b981; pointer-events: none; opacity: 1; background: #f0fdf4; }
+        .test-card.completed { border-left: 5px solid #10b981; pointer-events: none; opacity: 1; }
         .test-card.completed .launch-btn { background: #10b981 !important; cursor: not-allowed; }
 
-        /* Score Badge */
-        .score-display { 
-            margin-top: 15px; padding: 10px; background: white; 
-            border-radius: 12px; border: 1px solid #bbf7d0;
-            display: none; flex-direction: column; gap: 4px;
+        /* Plain Text Score Styles */
+        .score-info { 
+            display: none; 
+            margin-bottom: 20px; 
+            font-size: 0.95rem; 
+            color: #1e293b;
+            line-height: 1.5;
         }
-        .completed .score-display { display: flex; }
-        .score-val { font-weight: 700; color: #166534; font-size: 1.1rem; }
-        .score-pct { font-size: 0.8rem; color: #15803d; font-weight: 500; }
+        .completed .score-info { display: block; }
+        .score-val { font-weight: 700; color: #10b981; }
+        .score-pct { font-weight: 600; color: #64748b; }
 
         .subject-badge { display: inline-block; padding: 6px 12px; background: #f1f5f9; color: #64748b; border-radius: 8px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; margin-bottom: 16px; }
         .active .subject-badge { background: #eff6ff; color: #0b4a8f; }
         
         .test-title { font-size: 1.4rem; font-weight: 700; margin-bottom: 8px; color: #0f172a; }
         .test-name-db { font-size: 0.9rem; color: #0b4a8f; font-weight: 600; margin-bottom: 20px; }
+        
         .launch-btn { background: #cbd5e1; color: white; border: none; padding: 14px; border-radius: 12px; font-weight: 600; width: 100%; cursor: not-allowed; transition: 0.3s; }
         .active .launch-btn { background: #0b4a8f; cursor: pointer; }
     </style>
@@ -66,6 +69,7 @@
 
     <main>
         <h1 style="margin-bottom: 10px; font-weight: 700; font-size: 2.2rem;">Select Subject</h1>
+        
         <div class="tabs-container">
             <button class="tab-btn active-tab" onclick="filterTests('all', this)">All Tests</button>
             <button class="tab-btn" onclick="filterTests('physics', this)">Physics</button>
@@ -78,9 +82,9 @@
                 <span class="subject-badge">Physics</span>
                 <h3 class="test-title">Physics Mock</h3>
                 <div class="test-name-db" id="name-physics">No active tests</div>
-                <div class="score-display" id="score-physics">
-                    <span class="score-val" id="val-physics">Score: 0/0</span>
-                    <span class="score-pct" id="pct-physics">0% Accuracy</span>
+                <div class="score-info">
+                    Score: <span class="score-val" id="val-physics">0/0</span> <br>
+                    Accuracy: <span class="score-pct" id="pct-physics">0%</span>
                 </div>
                 <button class="launch-btn" id="btn-physics">Start Test</button>
             </div>
@@ -89,9 +93,9 @@
                 <span class="subject-badge">Chemistry</span>
                 <h3 class="test-title">Chemistry Mock</h3>
                 <div class="test-name-db" id="name-chemistry">No active tests</div>
-                <div class="score-display" id="score-chemistry">
-                    <span class="score-val" id="val-chemistry">Score: 0/0</span>
-                    <span class="score-pct" id="pct-chemistry">0% Accuracy</span>
+                <div class="score-info">
+                    Score: <span class="score-val" id="val-chemistry">0/0</span> <br>
+                    Accuracy: <span class="score-pct" id="pct-chemistry">0%</span>
                 </div>
                 <button class="launch-btn" id="btn-chemistry">Start Test</button>
             </div>
@@ -100,9 +104,9 @@
                 <span class="subject-badge">Mathematics</span>
                 <h3 class="test-title">Maths Mock</h3>
                 <div class="test-name-db" id="name-mathematics">No active tests</div>
-                <div class="score-display" id="score-mathematics">
-                    <span class="score-val" id="val-mathematics">Score: 0/0</span>
-                    <span class="score-pct" id="pct-mathematics">0% Accuracy</span>
+                <div class="score-info">
+                    Score: <span class="score-val" id="val-mathematics">0/0</span> <br>
+                    Accuracy: <span class="score-pct" id="pct-mathematics">0%</span>
                 </div>
                 <button class="launch-btn" id="btn-mathematics">Start Test</button>
             </div>
@@ -136,12 +140,10 @@
         async function syncWithDB() {
             const user = await checkAuth();
 
-            // 1. Fetch available tests and their total questions
             const { data: questions } = await supabaseClient
                 .from('questions_table')
                 .select('subject, test_name, question_data');
 
-            // 2. Fetch student progress
             const { data: progress } = await supabaseClient
                 .from('student_progress')
                 .select('test_name, confirmed_answered')
@@ -157,7 +159,6 @@
                     if (card) {
                         nameLabel.innerText = row.test_name;
                         
-                        // Check if student completed this test
                         const userAttempt = progress ? progress.find(p => p.test_name === row.test_name) : null;
 
                         if (userAttempt) {
@@ -165,13 +166,12 @@
                             card.classList.remove('active');
                             btn.innerText = "Submitted";
 
-                            // Calculate Score (Based on length of confirmed_answered vs total questions)
                             const correctCount = userAttempt.confirmed_answered ? userAttempt.confirmed_answered.length : 0;
                             const totalQuestions = row.question_data ? row.question_data.length : 0;
                             const percentage = totalQuestions > 0 ? Math.round((correctCount / totalQuestions) * 100) : 0;
 
-                            document.getElementById(`val-${subject}`).innerText = `Score: ${correctCount}/${totalQuestions}`;
-                            document.getElementById(`pct-${subject}`).innerText = `${percentage}% Accuracy`;
+                            document.getElementById(`val-${subject}`).innerText = `${correctCount}/${totalQuestions}`;
+                            document.getElementById(`pct-${subject}`).innerText = `${percentage}%`;
                         } else {
                             card.classList.add('active');
                             btn.innerText = "Start Test";
