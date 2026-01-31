@@ -3,30 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JEE Portal | Question Palette</title>
+    <title>JEE Portal | Active Exam</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background: #f8fafc; color: #1e293b; height: 100vh; display: flex; flex-direction: column; }
+        body { font-family: 'Inter', sans-serif; background: #f8fafc; color: #1e293b; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         
+        /* Header */
         header { height: 70px; background: #fff; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; padding: 0 40px; z-index: 10; }
         .test-info { font-weight: 700; color: #0b4a8f; text-transform: uppercase; letter-spacing: 1px; }
+        #timer { font-weight: 700; color: #e11d48; font-variant-numeric: tabular-nums; font-size: 1.1rem; }
 
         .main-container { flex: 1; display: flex; overflow: hidden; }
 
+        /* Left side: Question Area */
         .question-area { flex: 1; padding: 60px; overflow-y: auto; background: #fff; }
         .q-box { max-width: 800px; margin: 0 auto; }
-        .q-num { font-weight: 700; color: #64748b; margin-bottom: 10px; display: block; }
+        .q-num { font-weight: 700; color: #64748b; margin-bottom: 10px; display: block; text-transform: uppercase; font-size: 0.8rem; }
         .q-text { font-size: 1.25rem; line-height: 1.6; margin-bottom: 30px; font-weight: 500; }
         
         .option { display: block; padding: 18px 24px; border: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: 12px; cursor: pointer; transition: 0.2s; }
         .option:hover { background: #f1f5f9; border-color: #0b4a8f; }
+        .option input { margin-right: 15px; transform: scale(1.2); }
 
         /* STANDARDIZED ACTION BUTTONS */
         .action-bar { margin-top: 40px; display: flex; gap: 15px; }
         .btn { 
-            width: 160px; /* Fixed width for uniform size */
-            height: 48px; /* Fixed height for uniform shape */
+            width: 160px; 
+            height: 48px; 
             border-radius: 8px; 
             font-weight: 600; 
             cursor: pointer; 
@@ -40,61 +44,66 @@
         .btn-save { background: #10b981; color: white; }
         .btn-review { background: #8b5cf6; color: white; }
         .btn-clear { background: #f1f5f9; color: #64748b; border: 1px solid #e2e8f0; }
+        .btn:hover { opacity: 0.9; transform: translateY(-1px); }
 
-        /* PALETTE SIDEBAR */
+        /* Right side: Question Palette (Glassmorphism) */
         .sidebar { 
             width: 340px; 
-            background: rgba(255, 255, 255, 0.7); 
-            backdrop-filter: blur(12px); 
-            border-left: 1px solid #e2e8f0; 
+            background: rgba(255, 255, 255, 0.6); 
+            backdrop-filter: blur(15px); 
+            -webkit-backdrop-filter: blur(15px);
+            border-left: 1px solid rgba(226, 232, 240, 0.8); 
             padding: 30px; 
             display: flex; 
             flex-direction: column; 
         }
 
-        .palette-title { font-size: 0.75rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px; }
+        .palette-title { font-size: 0.75rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 25px; }
         .palette-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 40px; }
         
         .q-circle {
             width: 42px; height: 42px; border-radius: 50%;
-            border: 1px solid #e2e8f0; background: white;
+            border: 1px solid #cbd5e1; background: white;
             display: flex; align-items: center; justify-content: center;
             font-size: 0.85rem; font-weight: 600; color: #64748b;
-            cursor: pointer; transition: all 0.2s;
+            cursor: pointer; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .q-circle:hover { border-color: #0b4a8f; transform: scale(1.1); }
+        .q-circle:hover { border-color: #0b4a8f; box-shadow: 0 4px 10px rgba(11, 74, 143, 0.15); transform: scale(1.1); }
         
         /* State Colors */
         .q-circle.answered { background: #10b981; color: white; border-color: #10b981; }
         .q-circle.review { background: #8b5cf6; color: white; border-color: #8b5cf6; }
-        .q-circle.current { border: 2px solid #0b4a8f; color: #0b4a8f; }
+        .q-circle.current { border: 2.5px solid #0b4a8f; color: #0b4a8f; background: #eff6ff; }
 
-        /* FINISH BUTTON */
+        /* Finish Button - Navy Blue */
         .btn-finish { 
-            background: #0b4a8f; color: white; border: none; padding: 16px; 
-            width: 100%; border-radius: 10px; font-weight: 700; cursor: pointer; 
-            margin-top: auto; transition: 0.3s;
+            background: #0b4a8f; color: white; border: none; padding: 18px; 
+            width: 100%; border-radius: 12px; font-weight: 700; cursor: pointer; 
+            margin-top: auto; box-shadow: 0 4px 15px rgba(11, 74, 143, 0.2); 
+            transition: 0.3s; text-transform: uppercase; letter-spacing: 1px;
         }
-        .btn-finish:hover { background: #083a70; }
+        .btn-finish:hover { background: #083a70; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(11, 74, 143, 0.3); }
     </style>
 </head>
 <body>
 
 <header>
-    <div class="test-info" id="testHeader">JEE Main Mock Test</div>
-    <div id="timer" style="font-weight: 700; color: #e11d48; font-variant-numeric: tabular-nums;">Remaining: 01:00:00</div>
+    <div class="test-info">Physics: Electrostatics & Current</div>
+    <div id="timer">Remaining: 60:00</div>
 </header>
 
 <div class="main-container">
     <main class="question-area">
         <div class="q-box">
             <span class="q-num">Question #<span id="currentNum">1</span></span>
-            <p class="q-text">Which of the following describes the relationship between current ($I$), voltage ($V$), and resistance ($R$) in a circuit?</p>
+            <p class="q-text" id="questionText">Two point charges are separated by a distance $r$. If the distance is doubled, the force between them becomes:</p>
             
-            <label class="option"><input type="radio" name="jee-q" value="A"> $V = I^2 R$</label>
-            <label class="option"><input type="radio" name="jee-q" value="B"> $V = I / R$</label>
-            <label class="option"><input type="radio" name="jee-q" value="C"> $V = IR$</label>
-            <label class="option"><input type="radio" name="jee-q" value="D"> $R = VI$</label>
+            <div id="optionsContainer">
+                <label class="option"><input type="radio" name="jee-q" value="A"> One-half</label>
+                <label class="option"><input type="radio" name="jee-q" value="B"> One-fourth</label>
+                <label class="option"><input type="radio" name="jee-q" value="C"> Double</label>
+                <label class="option"><input type="radio" name="jee-q" value="D"> Four times</label>
+            </div>
 
             <div class="action-bar">
                 <button class="btn btn-save" onclick="updateStatus('answered')">Save & Next</button>
@@ -107,27 +116,28 @@
     <aside class="sidebar">
         <h3 class="palette-title">Question Palette</h3>
         <div class="palette-grid" id="paletteGrid"></div>
-        <button class="btn-finish" onclick="finalizeExam(true)">FINISH TEST</button>
+        <button class="btn-finish" onclick="finalizeExam(true)">Finish Test</button>
     </aside>
 </div>
 
 <script>
     let currentIdx = 1;
     const totalQuestions = 30;
-    let timeLeft = 3600; // 60 minutes in seconds
+    let timeLeft = 3600; // 60 minutes
 
-    // Initialize Palette
+    // 1. Initialize Palette with Navigation
     const grid = document.getElementById('paletteGrid');
     for(let i=1; i<=totalQuestions; i++) {
         const circle = document.createElement('div');
         circle.id = `palette-q-${i}`;
         circle.className = 'q-circle';
         circle.innerText = i;
+        circle.onclick = () => jumpToQuestion(i);
         if(i === 1) circle.classList.add('current');
         grid.appendChild(circle);
     }
 
-    // Timer Logic
+    // 2. Timer Logic (Auto-Submit at 0)
     const timerDisplay = document.getElementById('timer');
     const countdown = setInterval(() => {
         timeLeft--;
@@ -137,28 +147,41 @@
         
         if (timeLeft <= 0) {
             clearInterval(countdown);
-            alert("Time is up! Your test will be submitted automatically.");
+            alert("Time's up! Your test is being submitted.");
             finalizeExam(false);
         }
     }, 1000);
 
+    // 3. Question Navigation
+    function jumpToQuestion(n) {
+        document.getElementById(`palette-q-${currentIdx}`).classList.remove('current');
+        currentIdx = n;
+        document.getElementById('currentNum').innerText = currentIdx;
+        document.getElementById(`palette-q-${currentIdx}`).classList.add('current');
+        clearSelection();
+    }
+
     function updateStatus(type) {
         const circle = document.getElementById(`palette-q-${currentIdx}`);
-        circle.classList.remove('answered', 'review', 'current');
+        circle.classList.remove('answered', 'review');
         
         if (type === 'answered') circle.classList.add('answered');
         else if (type === 'review') circle.classList.add('review');
+        else if (type === 'clear') circle.classList.remove('answered', 'review');
 
-        if(currentIdx < totalQuestions) {
-            currentIdx++;
-            document.getElementById('currentNum').innerText = currentIdx;
-            document.getElementById(`palette-q-${currentIdx}`).classList.add('current');
-            document.querySelectorAll('input[type="radio"]').forEach(r => r.checked = false);
+        // Auto-next logic for Save & Review
+        if(type !== 'clear' && currentIdx < totalQuestions) {
+            jumpToQuestion(currentIdx + 1);
         }
     }
 
+    function clearSelection() {
+        document.querySelectorAll('input[type="radio"]').forEach(r => r.checked = false);
+    }
+
+    // 4. Submission
     function finalizeExam(isManual) {
-        if(isManual && !confirm("Are you sure you want to submit?")) return;
+        if(isManual && !confirm("Are you sure you want to finish the test?")) return;
 
         clearInterval(countdown);
         localStorage.removeItem('activeTestId');
@@ -166,7 +189,7 @@
         let history = JSON.parse(localStorage.getItem('testHistory') || '[]');
         history.push({
             subject: 'Physics Mock',
-            score: Math.floor(Math.random() * 20) + 80,
+            score: Math.floor(Math.random() * 25) + 75,
             date: new Date().toLocaleDateString()
         });
         localStorage.setItem('testHistory', JSON.stringify(history));
@@ -174,5 +197,6 @@
         window.location.href = 'performance.html';
     }
 </script>
+
 </body>
 </html>
