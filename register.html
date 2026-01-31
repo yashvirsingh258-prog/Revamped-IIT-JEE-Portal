@@ -104,15 +104,18 @@
 
     // Social Signup
     async function handleSocialSignup(provider) {
-        const { error } = await supabaseClient.auth.signInWithOAuth({
-            provider: provider,
-            options: {
-                // Change this from index.html to login.html
-                redirectTo: 'https://revamped-iit-jee-portal.vercel.app/login.html'
+    const { error } = await supabaseClient.auth.signInWithOAuth({
+        provider: provider,
+        options: {
+            redirectTo: 'https://revamped-iit-jee-portal.vercel.app/login.html',
+            queryParams: {
+                prompt: 'select_account', // This forces the "Choose an account" screen
+                access_type: 'offline'
             }
-        });
-        if (error) alert("Error: " + error.message);
-    }
+        }
+    });
+    if (error) alert("Error: " + error.message);
+}
 
     // Manual Form
     document.getElementById('registerForm').addEventListener('submit', async (e) => {
