@@ -9,16 +9,28 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
         body { background: #f8fafc; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
+        
         .auth-card { background: white; width: 100%; max-width: 500px; padding: 40px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
         .header { text-align: center; margin-bottom: 30px; }
         .header h1 { font-size: 2rem; color: #1e293b; margin-bottom: 8px; }
+        .header p { color: #64748b; font-size: 0.95rem; }
+
         .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .full-width { grid-column: span 2; }
-        .input-group { margin-bottom: 20px; }
-        .input-group label { display: block; font-size: 0.75rem; font-weight: 700; color: #4a6da7; text-transform: uppercase; margin-bottom: 8px; }
-        .input-group input, .input-group select { width: 100%; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 1rem; }
+
+        .input-group { margin-bottom: 20px; position: relative; }
+        .input-group label { display: block; font-size: 0.75rem; font-weight: 700; color: #4a6da7; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px; }
+        .input-group input, .input-group select { width: 100%; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 1rem; color: #1e293b; transition: 0.2s; background: #fdfdfd; }
+        .input-group input:focus { border-color: #4a6da7; outline: none; box-shadow: 0 0 0 3px rgba(74, 109, 167, 0.1); }
+
+        /* Password Toggle Styling */
+        .toggle-password { position: absolute; right: 15px; top: 38px; cursor: pointer; color: #64748b; font-size: 0.8rem; font-weight: 600; user-select: none; }
+        .toggle-password:hover { color: #4a6da7; }
+
         .btn-submit { width: 100%; background: #4a6da7; color: white; padding: 14px; border: none; border-radius: 8px; font-size: 1rem; font-weight: 700; cursor: pointer; transition: 0.3s; margin-top: 10px; }
-        .btn-submit:hover { background: #3b598a; }
+        .btn-submit:hover { background: #3b598a; transform: translateY(-1px); }
+        .btn-submit:disabled { background: #94a3b8; cursor: not-allowed; }
+
         .footer-link { text-align: center; margin-top: 25px; font-size: 0.9rem; color: #64748b; }
         .footer-link a { color: #4a6da7; text-decoration: none; font-weight: 600; }
     </style>
@@ -28,22 +40,24 @@
 <div class="auth-card">
     <div class="header">
         <h1>Create Account</h1>
-        <p>Join the elite preparation portal.</p>
+        <p>Join the elite preparation portal for JEE 2026/27.</p>
     </div>
 
     <form id="registerForm" class="form-grid">
         <div class="input-group">
             <label>First Name</label>
-            <input type="text" id="firstName" required>
+            <input type="text" id="firstName" placeholder="Rahul" required>
         </div>
         <div class="input-group">
             <label>Last Name</label>
-            <input type="text" id="lastName" required>
+            <input type="text" id="lastName" placeholder="Sharma" required>
         </div>
+
         <div class="input-group full-width">
             <label>Email Address</label>
-            <input type="email" id="email" required>
+            <input type="email" id="email" placeholder="name@email.com" required>
         </div>
+
         <div class="input-group">
             <label>Target Year</label>
             <select id="targetYear">
@@ -58,19 +72,38 @@
                 <option value="PCB">PCB</option>
             </select>
         </div>
+
         <div class="input-group full-width">
-            <label>Password</label>
-            <input type="password" id="password" required minlength="6">
+            <label>Create Password</label>
+            <input type="password" id="password" placeholder="••••••••" required minlength="6">
+            <span class="toggle-password" onclick="togglePassword()">SHOW</span>
         </div>
+
         <button type="submit" class="btn-submit full-width" id="submitBtn">GET STARTED</button>
     </form>
-    <div class="footer-link">Already have an account? <a href="login.html">Sign In</a></div>
+
+    <div class="footer-link">
+        Already have an account? <a href="login.html">Sign In</a>
+    </div>
 </div>
 
 <script>
     const supabaseUrl = 'https://ijxsnunkfhudwnkrwmzk.supabase.co';
     const supabaseKey = 'sb_publishable_V-KT1zvp-73dqHHvmx3fNA_iHw53TCl'; 
     const client = supabase.createClient(supabaseUrl, supabaseKey);
+
+    // Toggle Password Function
+    function togglePassword() {
+        const pwdInput = document.getElementById('password');
+        const toggleBtn = document.querySelector('.toggle-password');
+        if (pwdInput.type === 'password') {
+            pwdInput.type = 'text';
+            toggleBtn.innerText = 'HIDE';
+        } else {
+            pwdInput.type = 'password';
+            toggleBtn.innerText = 'SHOW';
+        }
+    }
 
     document.getElementById('registerForm').addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -86,24 +119,19 @@
         const stream = document.getElementById('stream').value;
 
         try {
-            // 1. Auth Sign Up
             const { data: authData, error: authError } = await client.auth.signUp({
                 email,
                 password,
-                options: {
-                    data: { first_name: firstName, last_name: lastName } // Saves to metadata as backup
-                }
             });
 
             if (authError) throw authError;
 
             if (authData.user) {
-                // 2. DELAY: Give Supabase a moment to propagate the user ID
-                await new Promise(resolve => setTimeout(resolve, 1000));
+                // Short delay to ensure Auth ID is searchable
+                await new Promise(res => setTimeout(res, 800));
 
                 const studentId = 'JEE' + Math.floor(100000 + Math.random() * 900000);
 
-                // 3. Insert Profile
                 const { error: profileError } = await client
                     .from('students')
                     .insert([{
@@ -117,14 +145,9 @@
                         student_id_number: studentId
                     }]);
 
-                if (profileError) {
-                    console.error("Profile Error:", profileError);
-                    // If profile fails but auth worked, we still tell them success 
-                    // and we can fix the profile on their first login.
-                    alert("Account created! Please login to complete your profile setup.");
-                } else {
-                    alert("Registration successful!");
-                }
+                if (profileError) throw profileError;
+
+                alert("Registration successful! Proceeding to login.");
                 window.location.href = 'login.html';
             }
         } catch (error) {
@@ -134,5 +157,6 @@
         }
     });
 </script>
+
 </body>
 </html>
