@@ -17,13 +17,28 @@
         .active-link { color: white; background: rgba(255,255,255,0.1); border-right: 4px solid #fff; font-weight: 700; }
         
         main { margin-left: 280px; flex: 1; padding: 80px 60px; }
+        
+        /* --- TAB SYSTEM --- */
+        .tabs-container { display: flex; gap: 10px; margin-bottom: 40px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; }
+        .tab-btn { 
+            padding: 12px 24px; border: none; background: transparent; 
+            font-size: 0.9rem; font-weight: 600; color: #64748b; 
+            cursor: pointer; border-radius: 10px; transition: 0.3s; 
+            text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .tab-btn:hover { color: #0b4a8f; background: #eff6ff; }
+        .tab-btn.active-tab { color: #0b4a8f; background: #eff6ff; box-shadow: inset 0 -2px 0 #0b4a8f; border-radius: 10px 10px 0 0; }
+
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 30px; }
         
+        /* Test Cards */
         .test-card { background: white; padding: 32px; border-radius: 24px; border: 1px solid #e2e8f0; transition: 0.3s; opacity: 0.6; pointer-events: none; position: relative; }
         .test-card.active { opacity: 1; pointer-events: auto; cursor: pointer; border-left: 5px solid #0b4a8f; }
         .test-card.active:hover { transform: translateY(-8px); box-shadow: 0 12px 24px rgba(11, 74, 143, 0.1); }
         
-        /* State for completed tests */
+        /* Hidden state for filtering */
+        .test-card.hidden { display: none; }
+
         .test-card.completed { border-left: 5px solid #10b981; pointer-events: none; opacity: 0.8; }
         .test-card.completed .launch-btn { background: #10b981 !important; cursor: not-allowed; }
 
@@ -47,24 +62,31 @@
 
     <main>
         <h1 style="margin-bottom: 10px; font-weight: 700; font-size: 2.2rem;">Select Subject</h1>
-        <p style="color: #64748b; margin-bottom: 40px;">Choose a subject to see active test sets from the database.</p>
+        <p style="color: #64748b; margin-bottom: 30px;">Filter and start your targeted practice sessions.</p>
         
-        <div class="grid">
-            <div class="test-card" id="card-physics">
+        <div class="tabs-container">
+            <button class="tab-btn active-tab" onclick="filterTests('all', this)">All Tests</button>
+            <button class="tab-btn" onclick="filterTests('physics', this)">Physics</button>
+            <button class="tab-btn" onclick="filterTests('chemistry', this)">Chemistry</button>
+            <button class="tab-btn" onclick="filterTests('mathematics', this)">Mathematics</button>
+        </div>
+
+        <div class="grid" id="test-grid">
+            <div class="test-card" id="card-physics" data-subject="physics">
                 <span class="subject-badge">Physics</span>
                 <h3 class="test-title">Physics Mock</h3>
                 <div class="test-name-db" id="name-physics">No active tests</div>
                 <button class="launch-btn" id="btn-physics">Start Test</button>
             </div>
 
-            <div class="test-card" id="card-chemistry">
+            <div class="test-card" id="card-chemistry" data-subject="chemistry">
                 <span class="subject-badge">Chemistry</span>
                 <h3 class="test-title">Chemistry Mock</h3>
                 <div class="test-name-db" id="name-chemistry">No active tests</div>
                 <button class="launch-btn" id="btn-chemistry">Start Test</button>
             </div>
 
-            <div class="test-card" id="card-mathematics">
+            <div class="test-card" id="card-mathematics" data-subject="mathematics">
                 <span class="subject-badge">Mathematics</span>
                 <h3 class="test-title">Maths Mock</h3>
                 <div class="test-name-db" id="name-mathematics">No active tests</div>
@@ -78,22 +100,36 @@
         const supabaseKey = 'sb_publishable_V-KT1zvp-73dqHHvmx3fNA_iHw53TCl';
         const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-        // AUTH GUARD: Ensure user is logged in
         async function checkAuth() {
             const { data: { session } } = await supabaseClient.auth.getSession();
             if (!session) window.location.href = 'login.html';
             return session.user;
         }
 
+        // Tab Filtering Logic
+        function filterTests(subject, btn) {
+            // Update Active Tab Style
+            document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active-tab'));
+            btn.classList.add('active-tab');
+
+            // Show/Hide Cards
+            const cards = document.querySelectorAll('.test-card');
+            cards.forEach(card => {
+                if (subject === 'all' || card.getAttribute('data-subject') === subject) {
+                    card.classList.remove('hidden');
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+        }
+
         async function syncWithDB() {
             const user = await checkAuth();
 
-            // 1. Get tests available in questions table
-            const { data: questions, error: qError } = await supabaseClient
+            const { data: questions } = await supabaseClient
                 .from('questions_table')
                 .select('subject, test_name');
 
-            // 2. Get tests already completed by this student from student_progress
             const { data: progress } = await supabaseClient
                 .from('student_progress')
                 .select('test_name')
@@ -111,7 +147,6 @@
                     if (card) {
                         nameLabel.innerText = row.test_name;
                         
-                        // Check if test is already taken
                         if (completedTestNames.includes(row.test_name)) {
                             card.classList.add('completed');
                             card.classList.remove('active');
