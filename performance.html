@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>JEE Portal | Performance Report</title>
+    <title>JEE Portal | Analysis</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
@@ -15,15 +15,8 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: #f8fafc; color: #1e293b; display: flex; }
-        
-        nav { width: 280px; background: #0b4a8f; color: white; padding: 60px 0; position: fixed; height: 100vh; z-index: 1001; }
-        .logo-area { padding: 0 40px; margin-bottom: 60px; }
-        .nav-link { display: block; padding: 18px 40px; text-decoration: none; color: rgba(255,255,255,0.5); text-transform: uppercase; font-size: 0.85rem; font-weight: 600; transition: 0.3s; }
-        .nav-link:hover { color: white; background: rgba(255,255,255,0.05); }
-        .active-link { color: white; background: rgba(255,255,255,0.1); border-right: 4px solid #fff; }
-
-        main { margin-left: 280px; flex: 1; padding: 60px; max-width: 1200px; }
-        .header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
+        nav { width: 280px; background: #0b4a8f; color: white; padding: 60px 0; position: fixed; height: 100vh; }
+        main { margin-left: 280px; flex: 1; padding: 60px; }
 
         .stats-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; margin-bottom: 40px; }
         .stat-card { background: white; padding: 20px; border-radius: 16px; border: 1px solid #e2e8f0; text-align: center; }
@@ -32,84 +25,61 @@
 
         .review-section { background: white; border-radius: 24px; border: 1px solid #e2e8f0; padding: 40px; }
         .q-row { border-bottom: 1px solid #f1f5f9; padding: 35px 0; position: relative; }
-        
         .option-review { margin-top: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         
+        /* Base Option */
         .opt { 
             padding: 16px; border-radius: 12px; font-size: 0.95rem; 
             border: 2px solid #e2e8f0; position: relative; transition: 0.3s ease; 
-            background: white;
         }
 
-        /* DUAL HIGHLIGHT LOGIC */
-        /* 1. Correct Answer: Always Green Encircled */
+        /* FIXED: Global Correct Highlight (Green) */
         .opt-correct { 
-            border: 2.5px solid #10b981 !important; 
+            border: 3px solid #10b981 !important; 
             background: #f0fdf4 !important; 
             color: #166534 !important; 
             font-weight: 700;
-            cursor: help;
         }
 
-        /* 2. Incorrect Answer: Red Border (only if user chose it) */
+        /* FIXED: User Incorrect Highlight (Red) */
         .opt-user-wrong { 
-            border: 2.5px solid #ef4444 !important; 
+            border: 3px solid #ef4444 !important; 
             background: #fef2f2 !important; 
             color: #991b1b !important; 
         }
 
-        /* Hover Solution Box */
+        /* Modern Step-wise Solution Box */
         .solution-box {
             visibility: hidden; opacity: 0;
-            position: absolute; bottom: 115%; left: 0; width: 100%; min-width: 400px;
-            background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(8px);
-            padding: 22px; border-radius: 14px; border: 1px solid #10b981;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.15); z-index: 1000;
-            transition: 0.3s ease; pointer-events: none;
+            position: absolute; bottom: 110%; left: 0; width: 100%; min-width: 350px;
+            background: white; padding: 20px; border-radius: 14px;
+            border: 1px solid #10b981; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            z-index: 1000; transition: 0.3s ease; pointer-events: none;
         }
+        .opt-correct:hover .solution-box { visibility: visible; opacity: 1; bottom: 120%; }
 
-        .opt-correct:hover .solution-box {
-            visibility: visible; opacity: 1; bottom: 125%;
-        }
-
-        /* Step-wise List Styling */
-        .step-item {
-            display: block; margin-bottom: 12px; padding-left: 20px;
-            position: relative; color: #334155; font-size: 0.92rem; line-height: 1.6;
-        }
-        .step-item::before {
-            content: "•"; position: absolute; left: 0;
-            color: #10b981; font-weight: 900;
-        }
+        .step-line { display: block; margin-bottom: 8px; padding-left: 15px; position: relative; color: #475569; }
+        .step-line::before { content: "•"; position: absolute; left: 0; color: #10b981; font-weight: bold; }
 
         .badge { padding: 4px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
         .badge-correct { background: #dcfce7; color: #166534; }
         .badge-wrong { background: #fee2e2; color: #991b1b; }
-        .badge-skipped { background: #f1f5f9; color: #475569; }
     </style>
 </head>
 <body>
     <nav>
-        <div class="logo-area"><h2>JEE Portal</h2></div>
-        <a href="index.html" class="nav-link">Dashboard</a>
-        <a href="tests.html" class="nav-link">Available Tests</a>
-        <a href="performance.html" class="nav-link active-link">Performance</a>
+        <div style="padding: 0 40px; margin-bottom: 60px;"><h2>JEE Portal</h2></div>
+        <a href="index.html" style="display:block; padding:15px 40px; color:white; text-decoration:none;">Dashboard</a>
     </nav>
-
     <main>
-        <div class="header-flex">
-            <div><h1 id="reportTitle">Analysis Report</h1><p id="testSubtext">Generating review...</p></div>
-            <button onclick="window.print()" style="padding: 12px 24px; border-radius: 10px; border: 1px solid #cbd5e1; cursor: pointer; background: white; font-weight: 600;">Print Results</button>
-        </div>
-
+        <h1 id="reportTitle">Report</h1>
         <div class="stats-grid">
-            <div class="stat-card"><span class="stat-val" id="statScore">0/0</span><span class="stat-label">Total Score</span></div>
+            <div class="stat-card"><span class="stat-val" id="statScore">0/0</span><span class="stat-label">Score</span></div>
             <div class="stat-card"><span class="stat-val" id="statAccuracy">0%</span><span class="stat-label">Accuracy</span></div>
-            <div class="stat-card"><span class="stat-val" id="statTime">--</span><span class="stat-label">Time Taken</span></div>
+            <div class="stat-card"><span class="stat-val" id="statTime">--</span><span class="stat-label">Time</span></div>
             <div class="stat-card"><span class="stat-val" id="statCorrect" style="color:#10b981">0</span><span class="stat-label">Correct</span></div>
-            <div class="stat-card"><span class="stat-val" id="statWrong" style="color:#ef4444">0</span><span class="stat-label">Incorrect</span></div>
+            <div class="stat-card"><span class="stat-val" id="statWrong" style="color:#ef4444">0</span><span class="stat-label">Wrong</span></div>
         </div>
-
         <div class="review-section" id="reviewList"></div>
     </main>
 
@@ -121,9 +91,6 @@
         async function loadPerformance() {
             const tName = localStorage.getItem('currentTestName');
             const { data: { session } } = await supabaseClient.auth.getSession();
-            
-            if (!session || !tName) { window.location.href = 'tests.html'; return; }
-
             const { data: qData } = await supabaseClient.from('questions_table').select('*').eq('test_name', tName).single();
             const { data: pData } = await supabaseClient.from('student_progress').select('*').eq('student_id', session.user.id).eq('test_name', tName).single();
 
@@ -131,64 +98,57 @@
         }
 
         function formatSolution(sol) {
-            if (!sol) return 'No detailed solution available.';
-            // Splits by newline or "Step" markers and renders as bullet points
-            const steps = sol.split(/(?:\r?\n|Step \d+:)+/).filter(s => s.trim().length > 0);
-            return steps.map(step => `<span class="step-item">${step.trim()}</span>`).join('');
+            if (!sol) return 'No solution text.';
+            // Splits text by newline and wraps each in a bulleted line
+            return sol.split('\n').filter(t => t.trim() !== '').map(line => `<span class="step-line">${line.trim()}</span>`).join('');
         }
 
         function renderReport(questions, attempt, testName) {
             document.getElementById('reportTitle').innerText = testName;
-            document.getElementById('statTime').innerText = (attempt.time_spent || 0) + "s";
-
             let correct = 0, wrong = 0, html = '';
 
             questions.forEach((q, idx) => {
-                const userAns = attempt.user_answers ? attempt.user_answers[idx] : null; 
-                const correctAns = parseInt(q.correct);
+                const userAns = attempt.user_answers[idx]; // Student's choice index
+                const correctAns = Number(q.correct); // ACTUAL correct index from DB
                 
-                let badgeClass = (userAns === null) ? 'badge-skipped' : (parseInt(userAns) === correctAns) ? 'badge-correct' : 'badge-wrong';
-                let badgeText = (userAns === null) ? 'Skipped' : (parseInt(userAns) === correctAns) ? 'Correct' : 'Incorrect';
-                
-                if (parseInt(userAns) === correctAns) correct++; else if (userAns !== null) wrong++;
+                const isCorrect = userAns !== null && Number(userAns) === correctAns;
+                if(isCorrect) correct++; else if(userAns !== null) wrong++;
 
                 html += `
                 <div class="q-row">
-                    <div class="q-meta"><span style="font-weight:700;">Q${idx+1}</span> <span class="badge ${badgeClass}">${badgeText}</span></div>
-                    <div style="margin-bottom:20px; font-size: 1.1rem;">${q.q}</div>
+                    <div style="margin-bottom:10px">
+                        <span style="font-weight:bold">Q${idx+1}</span> 
+                        <span class="badge ${isCorrect ? 'badge-correct' : 'badge-wrong'}">${isCorrect ? 'Correct' : 'Incorrect'}</span>
+                    </div>
+                    <div style="margin-bottom:20px">${q.q}</div>
                     <div class="option-review">
                         ${q.options.map((opt, i) => {
                             let cls = 'opt';
-                            let solBox = '';
+                            let sol = '';
                             
-                            // RULE 1: If this is the correct answer, encircle in green
+                            // 1. ALWAYS highlight the correct answer in Green
                             if (i === correctAns) {
                                 cls += ' opt-correct';
-                                solBox = `<div class="solution-box">
-                                            <strong style="color:#10b981; font-size:0.75rem; display:block; margin-bottom:12px;">STEP-WISE SOLUTION</strong>
-                                            <div class="sol-text">${formatSolution(q.solution)}</div>
-                                          </div>`;
+                                sol = `<div class="solution-box">
+                                        <b style="color:#10b981; font-size:0.7rem">STEP-WISE SOLUTION</b>
+                                        <div style="margin-top:10px">${formatSolution(q.solution)}</div>
+                                       </div>`;
                             }
-                            
-                            // RULE 2: If the user chose this AND it was wrong, give it a red border
-                            if (userAns !== null && parseInt(userAns) === i && i !== correctAns) {
+                            // 2. ONLY highlight in Red if the user chose this AND it was not correct
+                            if (userAns !== null && Number(userAns) === i && i !== correctAns) {
                                 cls += ' opt-user-wrong';
                             }
                             
-                            return `<div class="${cls}">${opt} ${solBox}</div>`;
+                            return `<div class="${cls}">${opt} ${sol}</div>`;
                         }).join('')}
                     </div>
                 </div>`;
             });
 
             document.getElementById('reviewList').innerHTML = html;
-            document.getElementById('statCorrect').innerText = correct;
-            document.getElementById('statWrong').innerText = wrong;
             document.getElementById('statScore').innerText = `${correct}/${questions.length}`;
-            document.getElementById('statAccuracy').innerText = Math.round((correct/questions.length)*100) + "%";
             if(window.MathJax) MathJax.typesetPromise();
         }
-
         loadPerformance();
     </script>
 </body>
