@@ -2,17 +2,13 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JEE Portal | Available Tests</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: #f8fafc; display: flex; color: #1e293b; }
-        nav { width: 280px; background: #0b4a8f; color: white; padding: 60px 0; position: fixed; height: 100vh; display: flex; flex-direction: column; }
-        .logo-area { padding: 0 40px; margin-bottom: 60px; }
-        .nav-link { display: block; padding: 18px 40px; text-decoration: none; color: rgba(255,255,255,0.5); text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px; transition: 0.3s; }
-        .active-link { color: white; background: rgba(255,255,255,0.1); border-right: 4px solid #fff; font-weight: 700; }
+        nav { width: 280px; background: #0b4a8f; color: white; padding: 60px 0; position: fixed; height: 100vh; }
         main { margin-left: 280px; flex: 1; padding: 80px 60px; }
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 30px; }
         .test-card { background: white; padding: 32px; border-radius: 24px; border: 1px solid #e2e8f0; transition: 0.3s; cursor: pointer; }
@@ -23,54 +19,40 @@
     </style>
 </head>
 <body>
-    <nav>
-        <div class="logo-area"><h2>JEE Portal</h2></div>
-        <a href="index.html" class="nav-link">Dashboard</a>
-        <a href="tests.html" class="nav-link active-link">Available Tests</a>
-        <a href="performance.html" class="nav-link">Performance</a>
-        <a href="login.html" class="nav-link" style="margin-top:auto; border-top:1px solid rgba(255,255,255,0.1);">Logout</a>
-    </nav>
+    <nav><div style="padding: 40px;"><h2>JEE Portal</h2></div></nav>
     <main>
-        <h1 style="margin-bottom: 40px; font-weight: 700; font-size: 2.2rem;">Available Assessments</h1>
-        <div id="testGrid" class="grid">
-            <p id="statusMsg">Syncing with database...</p>
-        </div>
+        <h1 style="margin-bottom: 40px; font-weight: 700;">Available Assessments</h1>
+        <div id="testGrid" class="grid">Syncing with database...</div>
     </main>
 
     <script>
-        const _url = 'https://ijxsnunkfhudwnkrwmzk.supabase.co';
-        const _key = 'sb_publishable_V-KT1zvp-73dqHHvmx3fNA_iHw53TCl';
-        const supabase = supabase.createClient(_url, _key);
+        // Use a different variable name to avoid conflict with the global 'supabase' object
+        const supabaseUrl = 'https://ijxsnunkfhudwnkrwmzk.supabase.co';
+        const supabaseKey = 'sb_publishable_V-KT1zvp-73dqHHvmx3fNA_iHw53TCl';
+        const client = supabase.createClient(supabaseUrl, supabaseKey);
 
         async function loadTests() {
-            const statusMsg = document.getElementById('statusMsg');
-            try {
-                const { data, error } = await supabase
-                    .from('questions_table')
-                    .select('subject, test_name');
+            const { data, error } = await client.from('questions_table').select('subject, test_name');
+            const grid = document.getElementById('testGrid');
+            
+            if (error) {
+                grid.innerText = "Error: " + error.message;
+                return;
+            }
 
-                if (error) throw error;
-
-                const grid = document.getElementById('testGrid');
-                if (data && data.length > 0) {
-                    // Create unique cards based on test_name
-                    const uniqueNames = [...new Set(data.map(t => t.test_name))];
-                    grid.innerHTML = uniqueNames.map(name => {
-                        const test = data.find(t => t.test_name === name);
-                        return `
-                            <div class="test-card" onclick="launch('${test.test_name}')">
-                                <span class="subject-badge">${test.subject}</span>
-                                <h3 class="test-title">${test.test_name}</h3>
-                                <button class="launch-btn">Start Test</button>
-                            </div>
-                        `;
-                    }).join('');
-                } else {
-                    grid.innerHTML = '<p>No tests found in the questions_table.</p>';
-                }
-            } catch (err) {
-                console.error(err);
-                statusMsg.innerText = "Error: " + err.message;
+            if (data && data.length > 0) {
+                // Filter unique test names
+                const uniqueTests = Array.from(new Set(data.map(t => t.test_name))).map(name => data.find(t => t.test_name === name));
+                
+                grid.innerHTML = uniqueTests.map(test => `
+                    <div class="test-card" onclick="launch('${test.test_name}')">
+                        <span class="subject-badge">${test.subject}</span>
+                        <h3 class="test-title">${test.test_name}</h3>
+                        <button class="launch-btn">Start Test</button>
+                    </div>
+                `).join('');
+            } else {
+                grid.innerHTML = '<p>No tests found in database.</p>';
             }
         }
 
