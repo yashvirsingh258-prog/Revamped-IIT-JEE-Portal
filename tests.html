@@ -18,14 +18,9 @@
         
         main { margin-left: 280px; flex: 1; padding: 80px 60px; }
         
-        /* --- TAB SYSTEM --- */
+        /* Tabs */
         .tabs-container { display: flex; gap: 10px; margin-bottom: 40px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; }
-        .tab-btn { 
-            padding: 12px 24px; border: none; background: transparent; 
-            font-size: 0.9rem; font-weight: 600; color: #64748b; 
-            cursor: pointer; border-radius: 10px; transition: 0.3s; 
-            text-transform: uppercase; letter-spacing: 0.5px;
-        }
+        .tab-btn { padding: 12px 24px; border: none; background: transparent; font-size: 0.9rem; font-weight: 600; color: #64748b; cursor: pointer; border-radius: 10px; transition: 0.3s; text-transform: uppercase; letter-spacing: 0.5px; }
         .tab-btn:hover { color: #0b4a8f; background: #eff6ff; }
         .tab-btn.active-tab { color: #0b4a8f; background: #eff6ff; box-shadow: inset 0 -2px 0 #0b4a8f; border-radius: 10px 10px 0 0; }
 
@@ -35,12 +30,21 @@
         .test-card { background: white; padding: 32px; border-radius: 24px; border: 1px solid #e2e8f0; transition: 0.3s; opacity: 0.6; pointer-events: none; position: relative; }
         .test-card.active { opacity: 1; pointer-events: auto; cursor: pointer; border-left: 5px solid #0b4a8f; }
         .test-card.active:hover { transform: translateY(-8px); box-shadow: 0 12px 24px rgba(11, 74, 143, 0.1); }
-        
-        /* Hidden state for filtering */
         .test-card.hidden { display: none; }
 
-        .test-card.completed { border-left: 5px solid #10b981; pointer-events: none; opacity: 0.8; }
+        /* Completed State */
+        .test-card.completed { border-left: 5px solid #10b981; pointer-events: none; opacity: 1; background: #f0fdf4; }
         .test-card.completed .launch-btn { background: #10b981 !important; cursor: not-allowed; }
+
+        /* Score Badge */
+        .score-display { 
+            margin-top: 15px; padding: 10px; background: white; 
+            border-radius: 12px; border: 1px solid #bbf7d0;
+            display: none; flex-direction: column; gap: 4px;
+        }
+        .completed .score-display { display: flex; }
+        .score-val { font-weight: 700; color: #166534; font-size: 1.1rem; }
+        .score-pct { font-size: 0.8rem; color: #15803d; font-weight: 500; }
 
         .subject-badge { display: inline-block; padding: 6px 12px; background: #f1f5f9; color: #64748b; border-radius: 8px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; margin-bottom: 16px; }
         .active .subject-badge { background: #eff6ff; color: #0b4a8f; }
@@ -62,8 +66,6 @@
 
     <main>
         <h1 style="margin-bottom: 10px; font-weight: 700; font-size: 2.2rem;">Select Subject</h1>
-        <p style="color: #64748b; margin-bottom: 30px;">Filter and start your targeted practice sessions.</p>
-        
         <div class="tabs-container">
             <button class="tab-btn active-tab" onclick="filterTests('all', this)">All Tests</button>
             <button class="tab-btn" onclick="filterTests('physics', this)">Physics</button>
@@ -76,6 +78,10 @@
                 <span class="subject-badge">Physics</span>
                 <h3 class="test-title">Physics Mock</h3>
                 <div class="test-name-db" id="name-physics">No active tests</div>
+                <div class="score-display" id="score-physics">
+                    <span class="score-val" id="val-physics">Score: 0/0</span>
+                    <span class="score-pct" id="pct-physics">0% Accuracy</span>
+                </div>
                 <button class="launch-btn" id="btn-physics">Start Test</button>
             </div>
 
@@ -83,6 +89,10 @@
                 <span class="subject-badge">Chemistry</span>
                 <h3 class="test-title">Chemistry Mock</h3>
                 <div class="test-name-db" id="name-chemistry">No active tests</div>
+                <div class="score-display" id="score-chemistry">
+                    <span class="score-val" id="val-chemistry">Score: 0/0</span>
+                    <span class="score-pct" id="pct-chemistry">0% Accuracy</span>
+                </div>
                 <button class="launch-btn" id="btn-chemistry">Start Test</button>
             </div>
 
@@ -90,6 +100,10 @@
                 <span class="subject-badge">Mathematics</span>
                 <h3 class="test-title">Maths Mock</h3>
                 <div class="test-name-db" id="name-mathematics">No active tests</div>
+                <div class="score-display" id="score-mathematics">
+                    <span class="score-val" id="val-mathematics">Score: 0/0</span>
+                    <span class="score-pct" id="pct-mathematics">0% Accuracy</span>
+                </div>
                 <button class="launch-btn" id="btn-mathematics">Start Test</button>
             </div>
         </div>
@@ -106,13 +120,9 @@
             return session.user;
         }
 
-        // Tab Filtering Logic
         function filterTests(subject, btn) {
-            // Update Active Tab Style
             document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active-tab'));
             btn.classList.add('active-tab');
-
-            // Show/Hide Cards
             const cards = document.querySelectorAll('.test-card');
             cards.forEach(card => {
                 if (subject === 'all' || card.getAttribute('data-subject') === subject) {
@@ -126,16 +136,16 @@
         async function syncWithDB() {
             const user = await checkAuth();
 
+            // 1. Fetch available tests and their total questions
             const { data: questions } = await supabaseClient
                 .from('questions_table')
-                .select('subject, test_name');
+                .select('subject, test_name, question_data');
 
+            // 2. Fetch student progress
             const { data: progress } = await supabaseClient
                 .from('student_progress')
-                .select('test_name')
+                .select('test_name, confirmed_answered')
                 .eq('student_id', user.id);
-
-            const completedTestNames = progress ? progress.map(p => p.test_name) : [];
 
             if (questions) {
                 questions.forEach(row => {
@@ -147,10 +157,21 @@
                     if (card) {
                         nameLabel.innerText = row.test_name;
                         
-                        if (completedTestNames.includes(row.test_name)) {
+                        // Check if student completed this test
+                        const userAttempt = progress ? progress.find(p => p.test_name === row.test_name) : null;
+
+                        if (userAttempt) {
                             card.classList.add('completed');
                             card.classList.remove('active');
                             btn.innerText = "Submitted";
+
+                            // Calculate Score (Based on length of confirmed_answered vs total questions)
+                            const correctCount = userAttempt.confirmed_answered ? userAttempt.confirmed_answered.length : 0;
+                            const totalQuestions = row.question_data ? row.question_data.length : 0;
+                            const percentage = totalQuestions > 0 ? Math.round((correctCount / totalQuestions) * 100) : 0;
+
+                            document.getElementById(`val-${subject}`).innerText = `Score: ${correctCount}/${totalQuestions}`;
+                            document.getElementById(`pct-${subject}`).innerText = `${percentage}% Accuracy`;
                         } else {
                             card.classList.add('active');
                             btn.innerText = "Start Test";
