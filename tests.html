@@ -26,34 +26,55 @@
 
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 30px; }
         
-        /* Test Cards */
         .test-card { background: white; padding: 32px; border-radius: 24px; border: 1px solid #e2e8f0; transition: 0.3s; opacity: 0.6; pointer-events: none; position: relative; }
         .test-card.active { opacity: 1; pointer-events: auto; cursor: pointer; border-left: 5px solid #0b4a8f; }
         .test-card.active:hover { transform: translateY(-8px); box-shadow: 0 12px 24px rgba(11, 74, 143, 0.1); }
         .test-card.hidden { display: none; }
 
-        /* Completed State */
         .test-card.completed { border-left: 5px solid #10b981; opacity: 1; pointer-events: auto; cursor: default; }
         .test-card.completed .launch-btn { background: #10b981 !important; cursor: not-allowed; pointer-events: none; }
 
-        /* Plain Text Score Styles */
+        /* Modern Hover-to-Review Style */
         .score-info { 
             display: none; 
-            margin-bottom: 20px; 
+            margin-bottom: 24px; 
             font-size: 0.95rem; 
             color: #1e293b;
-            line-height: 1.6;
         }
         .completed .score-info { display: block; }
-        .score-val { font-weight: 700; color: #10b981; }
-        .score-pct { font-weight: 600; color: #0b4a8f; text-decoration: underline; cursor: pointer; }
-        .score-pct:hover { color: #2563eb; }
+        
+        .score-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        
+        .accuracy-pill {
+            background: #f1f5f9;
+            color: #0b4a8f;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 1px solid transparent;
+            display: inline-block;
+        }
+        
+        /* The Hover Effect */
+        .accuracy-pill:hover {
+            background: #0b4a8f;
+            color: white;
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(11, 74, 143, 0.2);
+        }
+
+        .accuracy-pill:hover::after {
+            content: ' → Review';
+        }
 
         .subject-badge { display: inline-block; padding: 6px 12px; background: #f1f5f9; color: #64748b; border-radius: 8px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; margin-bottom: 16px; }
         .active .subject-badge { background: #eff6ff; color: #0b4a8f; }
         
-        .test-title { font-size: 1.4rem; font-weight: 700; margin-bottom: 8px; color: #0f172a; }
-        .test-name-db { font-size: 0.9rem; color: #0b4a8f; font-weight: 600; margin-bottom: 20px; }
+        .test-title { font-size: 1.4rem; font-weight: 700; margin-bottom: 4px; color: #0f172a; }
+        .test-name-db { font-size: 0.9rem; color: #64748b; font-weight: 500; margin-bottom: 20px; }
         
         .launch-btn { background: #cbd5e1; color: white; border: none; padding: 14px; border-radius: 12px; font-weight: 600; width: 100%; cursor: not-allowed; transition: 0.3s; }
         .active .launch-btn { background: #0b4a8f; cursor: pointer; }
@@ -84,8 +105,10 @@
                 <h3 class="test-title">Physics Mock</h3>
                 <div class="test-name-db" id="name-physics">No active tests</div>
                 <div class="score-info">
-                    Correct: <span class="score-val" id="val-physics">0/0</span> <br>
-                    <span class="score-pct" id="pct-physics" onclick="viewReport('physics')">View Detailed Report →</span>
+                    <div class="score-row">
+                        <span>Correct: <strong id="val-physics" style="color:#10b981">0/0</strong></span>
+                        <div class="accuracy-pill" id="pct-physics" onclick="viewReport('physics')">0%</div>
+                    </div>
                 </div>
                 <button class="launch-btn" id="btn-physics">Start Test</button>
             </div>
@@ -95,8 +118,10 @@
                 <h3 class="test-title">Chemistry Mock</h3>
                 <div class="test-name-db" id="name-chemistry">No active tests</div>
                 <div class="score-info">
-                    Correct: <span class="score-val" id="val-chemistry">0/0</span> <br>
-                    <span class="score-pct" id="pct-chemistry" onclick="viewReport('chemistry')">View Detailed Report →</span>
+                    <div class="score-row">
+                        <span>Correct: <strong id="val-chemistry" style="color:#10b981">0/0</strong></span>
+                        <div class="accuracy-pill" id="pct-chemistry" onclick="viewReport('chemistry')">0%</div>
+                    </div>
                 </div>
                 <button class="launch-btn" id="btn-chemistry">Start Test</button>
             </div>
@@ -106,8 +131,10 @@
                 <h3 class="test-title">Maths Mock</h3>
                 <div class="test-name-db" id="name-mathematics">No active tests</div>
                 <div class="score-info">
-                    Correct: <span class="score-val" id="val-mathematics">0/0</span> <br>
-                    <span class="score-pct" id="pct-mathematics" onclick="viewReport('mathematics')">View Detailed Report →</span>
+                    <div class="score-row">
+                        <span>Correct: <strong id="val-mathematics" style="color:#10b981">0/0</strong></span>
+                        <div class="accuracy-pill" id="pct-mathematics" onclick="viewReport('mathematics')">0%</div>
+                    </div>
                 </div>
                 <button class="launch-btn" id="btn-mathematics">Start Test</button>
             </div>
@@ -119,7 +146,7 @@
         const supabaseKey = 'sb_publishable_V-KT1zvp-73dqHHvmx3fNA_iHw53TCl';
         const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-        let activeTestNames = {}; // Store test names by subject for the reporter
+        let activeTestNames = {}; 
 
         async function checkAuth() {
             const { data: { session } } = await supabaseClient.auth.getSession();
@@ -183,7 +210,7 @@
                             const percentage = totalQuestions > 0 ? Math.round((correctCount / totalQuestions) * 100) : 0;
 
                             document.getElementById(`val-${subject}`).innerText = `${correctCount}/${totalQuestions}`;
-                            document.getElementById(`pct-${subject}`).innerText = `Accuracy: ${percentage}% (Review Report →)`;
+                            document.getElementById(`pct-${subject}`).innerText = `${percentage}%`;
                         } else {
                             card.classList.add('active');
                             btn.innerText = "Start Test";
