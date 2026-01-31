@@ -2,161 +2,111 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JEE Portal | Active Test</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background: #f8fafc; color: #1e293b; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-        header { height: 70px; background: #fff; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; padding: 0 40px; z-index: 10; }
-        .test-info { font-weight: 700; color: #0b4a8f; text-transform: uppercase; letter-spacing: 1px; }
-        #timer { font-weight: 700; color: #e11d48; font-variant-numeric: tabular-nums; font-size: 1.1rem; }
-
-        .main-container { flex: 1; display: flex; overflow: hidden; }
-        .question-area { flex: 1; padding: 60px; overflow-y: auto; background: #fff; }
-        .q-box { max-width: 800px; margin: 0 auto; }
-        .q-num { font-weight: 700; color: #64748b; margin-bottom: 10px; display: block; text-transform: uppercase; font-size: 0.8rem; }
-        .q-text { font-size: 1.25rem; line-height: 1.6; margin-bottom: 30px; font-weight: 500; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background: #f8fafc; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
         
-        .option { display: block; padding: 18px 24px; border: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: 12px; cursor: pointer; transition: 0.2s; }
-        .option:hover { background: #f1f5f9; border-color: #0b4a8f; }
+        header { background: white; padding: 20px 40px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; z-index: 10; }
+        
+        .main { flex: 1; display: flex; overflow: hidden; }
+        
+        /* Persistent Sidebar inside Active Test */
+        .nav-sidebar { width: 280px; background: #0b4a8f; color: white; padding: 40px 0; display: flex; flex-direction: column; }
+        .nav-link { display: block; padding: 15px 40px; text-decoration: none; color: rgba(255,255,255,0.5); text-transform: uppercase; font-size: 0.75rem; letter-spacing: 1px; }
+        .active-link { color: white; background: rgba(255,255,255,0.1); border-right: 4px solid #fff; }
 
-        .action-bar { margin-top: 40px; display: flex; gap: 15px; }
-        .btn { width: 160px; height: 48px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.3s; border: none; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; }
-        .btn-save { background: #10b981; color: white; }
-        .btn-review { background: #8b5cf6; color: white; }
-        .btn-clear { background: #f1f5f9; color: #64748b; border: 1px solid #e2e8f0; }
-
-        .sidebar { width: 340px; background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(15px); border-left: 1px solid #e2e8f0; padding: 30px; display: flex; flex-direction: column; }
-        .palette-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 40px; }
-        .q-circle { width: 42px; height: 42px; border-radius: 50%; border: 1px solid #cbd5e1; background: white; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 600; color: #64748b; cursor: pointer; transition: 0.2s; }
-        .q-circle.answered { background: #10b981; color: white; border-color: #10b981; }
-        .q-circle.review { background: #8b5cf6; color: white; border-color: #8b5cf6; }
-        .q-circle.current { border: 2.5px solid #0b4a8f; color: #0b4a8f; background: #eff6ff; }
-
+        .content { flex: 1; padding: 60px; overflow-y: auto; background: white; }
+        
+        .exam-sidebar { width: 320px; background: #f1f5f9; padding: 30px; border-left: 1px solid #e2e8f0; display: flex; flex-direction: column; }
+        
+        .q-text { font-size: 1.25rem; margin-bottom: 30px; line-height: 1.6; }
+        .opt-label { display: block; padding: 18px; border: 1px solid #e2e8f0; margin-bottom: 12px; border-radius: 12px; cursor: pointer; transition: 0.2s; }
+        .opt-label:hover { background: #f8fafc; border-color: #0b4a8f; }
+        
+        .palette { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+        .circle { width: 40px; height: 40px; background: white; border: 1px solid #cbd5e1; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.8rem; }
+        .circle.active { border: 2px solid #0b4a8f; color: #0b4a8f; font-weight: bold; }
+        .circle.done { background: #10b981; color: white; border: none; }
+        
         .btn-finish { background: #0b4a8f; color: white; border: none; padding: 18px; width: 100%; border-radius: 12px; font-weight: 700; cursor: pointer; margin-top: auto; }
     </style>
 </head>
 <body>
-
-<header>
-    <div class="test-info" id="testSubject">INITIALIZING...</div>
-    <div id="timer">Remaining: 60:00</div>
-</header>
-
-<div class="main-container">
-    <main class="question-area">
-        <div class="q-box">
-            <span class="q-num">Question #<span id="currentNum">1</span></span>
-            <div id="questionContent">
-                <p class="q-text">Loading questions from database...</p>
-            </div>
-            <div class="action-bar">
-                <button class="btn btn-save" onclick="handleAction('answered')">Save & Next</button>
-                <button class="btn btn-review" onclick="handleAction('review')">Review</button>
-                <button class="btn btn-clear" onclick="handleAction('clear')">Clear</button>
-            </div>
+    <header>
+        <div id="h-title" style="font-weight:700; color:#0b4a8f;">JEE ASSESSMENT</div>
+        <div id="timer" style="color:#e11d48; font-weight:700;">60:00</div>
+    </header>
+    
+    <div class="main">
+        <div class="nav-sidebar">
+            <a href="index.html" class="nav-link">Dashboard</a>
+            <a href="tests.html" class="nav-link active-link">Available Tests</a>
+            <a href="performance.html" class="nav-link">Performance</a>
         </div>
-    </main>
-    <aside class="sidebar">
-        <div class="palette-grid" id="paletteGrid"></div>
-        <button class="btn-finish" onclick="finalizeExam(true)">Finish Test</button>
-    </aside>
-</div>
 
-<script>
-    const supabaseUrl = 'https://ijxsnunkfhudwnkrwmzk.supabase.co';
-    const supabaseKey = 'sb_publishable_V-KT1zvp-73dqHHvmx3fNA_iHw53TCl';
-    const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+        <div class="content">
+            <h4 id="q-num" style="color:#64748b; text-transform:uppercase; font-size:0.75rem;">Question #1</h4>
+            <div id="q-body" style="margin-top:20px;">Loading questions...</div>
+            <button onclick="saveNext()" style="margin-top:40px; background:#10b981; color:white; border:none; padding:15px 30px; border-radius:8px; font-weight:600; cursor:pointer;">Save & Next</button>
+        </div>
 
-    let questions = [];
-    let currentIdx = 0;
-    let timeLeft = 3600;
+        <div class="exam-sidebar">
+            <h3 style="font-size:0.75rem; color:#94a3b8; margin-bottom:20px; text-transform:uppercase;">Question Palette</h3>
+            <div class="palette" id="palette"></div>
+            <button class="btn-finish" onclick="location.href='performance.html'">Submit Test</button>
+        </div>
+    </div>
 
-    async function initTest() {
-        const { data, error } = await supabase.from('questions_table').select('*').limit(30);
-        if (data && data.length > 0) {
-            questions = data;
-            document.getElementById('testSubject').innerText = questions[0].subject || "JEE MOCK TEST";
-            renderPalette();
-            displayQuestion(0);
-            startTimer();
-        } else {
-            document.getElementById('questionContent').innerHTML = "<p>No questions found in database.</p>";
+    <script>
+        const supabaseUrl = 'https://ijxsnunkfhudwnkrwmzk.supabase.co';
+        const supabaseKey = 'sb_publishable_V-KT1zvp-73dqHHvmx3fNA_iHw53TCl';
+        const client = supabase.createClient(supabaseUrl, supabaseKey);
+
+        let questions = [], current = 0;
+
+        async function init() {
+            const name = localStorage.getItem('currentTestName');
+            const { data } = await client.from('questions_table').select('*').eq('test_name', name).single();
+
+            if (data && data.question_data) {
+                questions = data.question_data;
+                document.getElementById('h-title').innerText = data.test_name;
+                drawPalette();
+                showQuestion(0);
+            }
         }
-    }
 
-    function renderPalette() {
-        const grid = document.getElementById('paletteGrid');
-        grid.innerHTML = ''; 
-        questions.forEach((_, i) => {
-            const circle = document.createElement('div');
-            circle.id = `q-circle-${i}`;
-            circle.className = 'q-circle';
-            circle.innerText = i + 1;
-            circle.onclick = () => displayQuestion(i);
-            grid.appendChild(circle);
-        });
-    }
+        function drawPalette() {
+            const p = document.getElementById('palette');
+            p.innerHTML = questions.map((_, i) => `<div id="c-${i}" class="circle" onclick="showQuestion(${i})">${i+1}</div>`).join('');
+        }
 
-    function displayQuestion(index) {
-        document.querySelectorAll('.q-circle').forEach(c => c.classList.remove('current'));
-        currentIdx = index;
-        const q = questions[index];
-        document.getElementById('currentNum').innerText = index + 1;
-        
-        const currentCircle = document.getElementById(`q-circle-${index}`);
-        if(currentCircle) currentCircle.classList.add('current');
-        
-        let html = `<p class="q-text">${q.question_text}</p>`;
-        const options = [q.option_a, q.option_b, q.option_c, q.option_d]; 
-        
-        options.forEach((opt, i) => {
-            if(opt) {
-                html += `<label class="option"><input type="radio" name="jee-q" value="${i}"> ${opt}</label>`;
-            }
-        });
-        document.getElementById('questionContent').innerHTML = html;
-    }
+        function showQuestion(idx) {
+            current = idx;
+            const q = questions[idx];
+            document.getElementById('q-num').innerText = "Question #" + (idx + 1);
+            
+            let html = `<div class="q-text">${q.q}</div>`;
+            q.options.forEach((opt, i) => {
+                html += `<label class="opt-label"><input type="radio" name="ans"> ${opt}</label>`;
+            });
+            document.getElementById('q-body').innerHTML = html;
 
-    async function handleAction(type) {
-        const circle = document.getElementById(`q-circle-${currentIdx}`);
-        circle.classList.remove('answered', 'review');
-        
-        if(type === 'answered') circle.classList.add('answered');
-        if(type === 'review') circle.classList.add('review');
+            document.querySelectorAll('.circle').forEach(c => c.classList.remove('active'));
+            document.getElementById(`c-${idx}`).classList.add('active');
 
-        // Logic to push to student_progress
-        const studentId = localStorage.getItem('userId') || 'guest_user';
-        await supabase.from('student_progress').upsert({
-            student_id: studentId,
-            question_id: questions[currentIdx].id,
-            status: type
-        });
+            if(window.MathJax) MathJax.typeset();
+        }
 
-        if (currentIdx < questions.length - 1) displayQuestion(currentIdx + 1);
-    }
+        function saveNext() {
+            document.getElementById(`c-${current}`).classList.add('done');
+            if(current < questions.length - 1) showQuestion(current + 1);
+        }
 
-    function startTimer() {
-        const timerInterval = setInterval(() => {
-            timeLeft--;
-            let mins = Math.floor(timeLeft / 60);
-            let secs = timeLeft % 60;
-            document.getElementById('timer').innerText = `Remaining: ${mins}:${secs < 10 ? '0' : ''}${secs}`;
-            if (timeLeft <= 0) {
-                clearInterval(timerInterval);
-                finalizeExam(false);
-            }
-        }, 1000);
-    }
-
-    async function finalizeExam(manual) {
-        if (manual && !confirm("Are you sure you want to submit your test?")) return;
-        window.location.href = 'performance.html';
-    }
-
-    initTest();
-</script>
+        init();
+    </script>
 </body>
 </html>
