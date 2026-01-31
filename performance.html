@@ -16,13 +16,13 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: #f8fafc; color: #1e293b; display: flex; }
         
-        nav { width: 280px; background: #0b4a8f; color: white; padding: 60px 0; position: fixed; height: 100vh; }
+        nav { width: 280px; background: #0b4a8f; color: white; padding: 60px 0; position: fixed; height: 100vh; z-index: 1001; }
         .logo-area { padding: 0 40px; margin-bottom: 60px; }
         .nav-link { display: block; padding: 18px 40px; text-decoration: none; color: rgba(255,255,255,0.5); text-transform: uppercase; font-size: 0.85rem; font-weight: 600; transition: 0.3s; }
         .nav-link:hover { color: white; background: rgba(255,255,255,0.05); }
         .active-link { color: white; background: rgba(255,255,255,0.1); border-right: 4px solid #fff; }
 
-        main { margin-left: 280px; flex: 1; padding: 60px; }
+        main { margin-left: 280px; flex: 1; padding: 60px; max-width: 1200px; }
         .header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
 
         .stats-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; margin-bottom: 40px; }
@@ -35,49 +35,58 @@
         
         .option-review { margin-top: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         
+        /* Base Option Style */
         .opt { 
             padding: 16px; border-radius: 12px; font-size: 0.95rem; 
             border: 2px solid #e2e8f0; position: relative; transition: 0.3s ease; 
+            background: white;
         }
 
-        /* Encircled Correct Answer - Applied to every question */
+        /* 1. Correct Answer (Green Encircle) - Always shows */
         .opt-correct { 
-            border: 3px solid #10b981 !important; 
+            border: 2px solid #10b981 !important; 
             background: #f0fdf4 !important; 
             color: #166534 !important; 
             font-weight: 700;
             cursor: help;
         }
 
-        .opt-user-wrong { border: 3px solid #ef4444 !important; background: #fef2f2; color: #991b1b; }
+        /* 2. User's Incorrect Choice (Red Border) - Shows only if they were wrong */
+        .opt-user-wrong { 
+            border: 2px solid #ef4444 !important; 
+            background: #fef2f2 !important; 
+            color: #991b1b !important; 
+        }
 
-        /* Modern Solution Hover Box */
+        /* Solution Hover Box */
         .solution-box {
             visibility: hidden; opacity: 0;
-            position: absolute; bottom: 115%; left: 0; width: 110%; min-width: 350px;
+            position: absolute; bottom: 110%; left: 0; width: 100%; min-width: 350px;
             background: white; padding: 20px; border-radius: 14px;
-            border: 1px solid #10b981; box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+            border: 1px solid #10b981; box-shadow: 0 15px 35px rgba(0,0,0,0.1);
             z-index: 1000; transition: 0.3s ease; pointer-events: none;
         }
 
         .opt-correct:hover .solution-box {
-            visibility: visible; opacity: 1; bottom: 125%;
+            visibility: visible; opacity: 1; bottom: 120%;
         }
 
+        /* Step Styling */
         .step-item {
             display: block;
-            margin-bottom: 8px;
-            padding-left: 15px;
+            margin-bottom: 10px;
+            padding-left: 20px;
             position: relative;
             color: #334155;
-            font-size: 0.9rem;
+            font-size: 0.92rem;
+            line-height: 1.5;
         }
         .step-item::before {
-            content: "•";
+            content: "→";
             position: absolute;
             left: 0;
             color: #10b981;
-            font-weight: bold;
+            font-weight: 900;
         }
 
         .badge { padding: 4px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
@@ -96,8 +105,8 @@
 
     <main>
         <div class="header-flex">
-            <div><h1 id="reportTitle">Analysis Report</h1><p id="testSubtext">Loading Results...</p></div>
-            <button onclick="window.print()" style="padding: 12px 24px; border-radius: 10px; border: 1px solid #cbd5e1; cursor: pointer; background: white;">Print Analysis</button>
+            <div><h1 id="reportTitle">Analysis Report</h1><p id="testSubtext">Calculating stats...</p></div>
+            <button onclick="window.print()" style="padding: 12px 24px; border-radius: 10px; border: 1px solid #cbd5e1; cursor: pointer; background: white; font-weight: 600;">Print Report</button>
         </div>
 
         <div class="stats-grid">
@@ -105,7 +114,7 @@
             <div class="stat-card"><span class="stat-val" id="statAccuracy">0%</span><span class="stat-label">Accuracy</span></div>
             <div class="stat-card"><span class="stat-val" id="statTime">--</span><span class="stat-label">Time Taken</span></div>
             <div class="stat-card"><span class="stat-val" id="statCorrect" style="color:#10b981">0</span><span class="stat-label">Correct</span></div>
-            <div class="stat-card"><span class="stat-val" id="statWrong" style="color:#ef4444">0</span><span class="stat-label">Wrong</span></div>
+            <div class="stat-card"><span class="stat-val" id="statWrong" style="color:#ef4444">0</span><span class="stat-label">Incorrect</span></div>
         </div>
 
         <div class="review-section" id="reviewList"></div>
@@ -129,15 +138,15 @@
         }
 
         function formatSolution(sol) {
-            if (!sol) return 'No solution provided.';
-            // Splits by newline, or "Step X:", or periods followed by a space
-            const steps = sol.split(/(?:\r?\n|Step \d+:|\. )+/).filter(s => s.trim().length > 0);
+            if (!sol) return 'No detailed solution available.';
+            // Cleans and splits by newlines or "Step X" markers
+            const steps = sol.split(/\r?\n|Step \d+:/).filter(s => s.trim().length > 0);
             return steps.map(step => `<span class="step-item">${step.trim()}</span>`).join('');
         }
 
         function renderReport(questions, attempt, testName) {
             document.getElementById('reportTitle').innerText = testName;
-            document.getElementById('testSubtext').innerText = `Attempted on ${new Date(attempt.created_at).toLocaleDateString()}`;
+            document.getElementById('testSubtext').innerText = `Reviewing performance for ${testName}`;
             document.getElementById('statTime').innerText = (attempt.time_spent || 0) + "s";
 
             let correct = 0, wrong = 0, html = '';
@@ -154,22 +163,23 @@
 
                 html += `
                 <div class="q-row">
-                    <div class="q-meta"><span style="font-weight:700">Q${idx+1}</span> ${badge}</div>
-                    <div style="margin-bottom:20px; font-weight: 500;">${q.q}</div>
+                    <div class="q-meta"><span style="font-weight:700; color:#64748b;">Q${idx+1}</span> ${badge}</div>
+                    <div style="margin-bottom:20px; font-size: 1.1rem;">${q.q}</div>
                     <div class="option-review">
                         ${q.options.map((opt, i) => {
                             let cls = 'opt';
                             let solBox = '';
                             
-                            // Every question highlights its correct answer
+                            // 1. Correct Answer Branding (Applied to Correct Index Always)
                             if (i === correctAns) {
                                 cls += ' opt-correct';
                                 solBox = `<div class="solution-box">
-                                            <strong style="color:#10b981; font-size:0.75rem; display:block; margin-bottom:10px;">STEP-WISE SOLUTION</strong>
+                                            <strong style="color:#10b981; font-size:0.75rem; display:block; margin-bottom:12px;">STEP-BY-STEP EXPLANATION</strong>
                                             <div class="sol-text">${formatSolution(q.solution)}</div>
                                           </div>`;
                             }
-                            // Highlight user's mistake
+                            
+                            // 2. Incorrect Branding (Applied only if User Choice was different from Correct)
                             if (userAns !== null && parseInt(userAns) === i && i !== correctAns) {
                                 cls += ' opt-user-wrong';
                             }
