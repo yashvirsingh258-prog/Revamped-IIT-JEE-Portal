@@ -174,28 +174,47 @@
     }
 
     async function finalSubmit(manual) {
-        if (manual && !confirm("Finalize and submit your test?")) return;
-        
-        const submitBtn = document.getElementById('submitBtn');
-        submitBtn.disabled = true;
-        submitBtn.innerText = "Saving...";
+    if (manual && !confirm("Finalize and submit your test?")) return;
+    
+    const submitBtn = document.getElementById('submitBtn');
+    submitBtn.disabled = true;
+    submitBtn.innerText = "Saving...";
 
-        const testName = localStorage.getItem('currentTestName');
-        const ansCount = document.querySelectorAll('.p-circle.answered').length;
-        const revCount = document.querySelectorAll('.p-circle.review').length;
+    const testName = localStorage.getItem('currentTestName');
+    const ansCount = document.querySelectorAll('.p-circle.answered').length;
+    const revCount = document.querySelectorAll('.p-circle.review').length;
 
-        try {
-            await client.from('student_progress').insert([{ 
-                test_name: testName, 
-                status: 'Completed',
-                score_summary: `Answered: ${ansCount}, Review: ${revCount}`,
-                completed_at: new Date().toISOString()
-            }]);
-            window.location.href = 'performance.html';
-        } catch (err) {
+    // Use a simpler object to ensure no schema conflicts
+    const insertData = { 
+        test_name: testName, 
+        status: 'Completed',
+        score_summary: `Answered: ${ansCount}, Review: ${revCount}`,
+        completed_at: new Date().toISOString()
+    };
+
+    console.log("Attempting to save:", insertData);
+
+    try {
+        const { data, error } = await client
+            .from('student_progress')
+            .insert([insertData])
+            .select(); // select() helps confirm the data was written
+
+        if (error) {
+            console.error("Supabase Error Details:", error);
+            alert(`Database Error: ${error.message}\nCheck if columns 'test_name', 'status', 'score_summary', and 'completed_at' exist.`);
+            submitBtn.disabled = false;
+            submitBtn.innerText = "Retry Submit";
+        } else {
+            console.log("Success! Data saved:", data);
             window.location.href = 'performance.html';
         }
+    } catch (err) {
+        console.error("System Error:", err);
+        alert("A system error occurred. Check the console (F12).");
+        submitBtn.disabled = false;
     }
+}
 
     init();
 </script>
