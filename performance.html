@@ -2,103 +2,65 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script>
-        const supabaseUrl = 'https://ijxsnunkfhudwnkrwmzk.supabase.co';
-        const supabaseKey = 'sb_publishable_V-KT1zvp-73dqHHvmx3fNA_iHw53TCl';
-        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
-    </script>
     <title>JEE Portal | Performance</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* --- EXACT DASHBOARD STYLE RESTORATION --- */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; display: flex; color: #1e293b; }
-
-        nav { width: 280px; background: #0b4a8f; color: white; padding: 60px 0; position: fixed; height: 100vh; z-index: 100; }
-        .logo-area { padding: 0 40px; margin-bottom: 60px; }
-        .logo-area h2 { font-size: 1.2rem; letter-spacing: 4px; font-weight: 700; text-transform: uppercase; }
-        
-        .nav-link {
-            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
-            display: block; padding: 18px 40px; text-decoration: none;
-            color: rgba(255, 255, 255, 0.5); font-size: 0.85rem; font-weight: 500;
-            letter-spacing: 1px; text-transform: uppercase;
-        }
-        .nav-link:hover { color: white; padding-left: 50px; }
-        .active-link { color: white; background: rgba(255, 255, 255, 0.1); font-weight: 700; border-right: 4px solid #fff; }
-
-        main { margin-left: 280px; flex: 1; padding: 80px 0; }
-        .content-container { max-width: 1100px; margin: 0 auto; padding: 0 60px; }
-
-        h1 { font-size: 2.6rem; font-weight: 300; letter-spacing: -1.5px; margin-bottom: 40px; }
-
-        /* Performance Table Card */
-        .results-card { 
-            background: white; border: 1px solid #e2e8f0; border-radius: 24px; 
-            overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.02);
-        }
-        
+        nav { width: 280px; background: #0b4a8f; color: white; padding: 60px 0; position: fixed; height: 100vh; display: flex; flex-direction: column; }
+        .nav-link { padding: 18px 40px; text-decoration: none; color: rgba(255,255,255,0.5); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; }
+        .active-link { color: white; background: rgba(255,255,255,0.1); font-weight: 700; border-right: 4px solid #fff; }
+        main { margin-left: 280px; flex: 1; padding: 80px 60px; }
+        .card { background: white; border-radius: 24px; border: 1px solid #e2e8f0; overflow: hidden; }
         table { width: 100%; border-collapse: collapse; }
-        th { background: #f8fafc; text-align: left; padding: 20px 30px; font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; border-bottom: 1px solid #e2e8f0; }
-        td { padding: 22px 30px; border-bottom: 1px solid #f1f5f9; font-size: 1rem; }
-        
-        .subject-pill { font-weight: 600; color: #0b4a8f; text-transform: capitalize; }
-        .score-badge { 
-            background: #f0fdf4; color: #16a34a; padding: 8px 16px; border-radius: 10px; 
-            font-weight: 700; font-size: 0.9rem; border: 1px solid #dcfce7;
-        }
-
-        .empty-state { padding: 80px; text-align: center; color: #94a3b8; }
+        th { background: #f8fafc; text-align: left; padding: 20px 30px; font-size: 0.75rem; color: #94a3b8; border-bottom: 1px solid #e2e8f0; }
+        td { padding: 22px 30px; border-bottom: 1px solid #f1f5f9; }
+        .badge { background: #f0fdf4; color: #16a34a; padding: 6px 12px; border-radius: 8px; font-weight: 700; }
     </style>
 </head>
 <body>
 
-    <nav>
-        <div class="logo-area"><h2>JEE Portal</h2></div>
-        <a href="index.html" class="nav-link">Dashboard</a>
-        <a href="tests.html" class="nav-link">Available Tests</a>
-        <a href="performance.html" class="nav-link">Performance</a>
-        <a href="login.html" class="nav-link" style="margin-top: auto; border-top: 1px solid rgba(255,255,255,0.1);">Logout</a>
-    </nav>
+<nav>
+    <div style="padding: 0 40px; margin-bottom: 60px;"><h2>JEE Portal</h2></div>
+    <a href="index.html" class="nav-link">Dashboard</a>
+    <a href="tests.html" class="nav-link">Available Tests</a>
+    <a href="performance.html" class="nav-link active-link">Performance</a>
+    <a href="login.html" class="nav-link" style="margin-top:auto; border-top:1px solid rgba(255,255,255,0.1);">Logout</a>
+</nav>
 
-    <main>
-        <div class="content-container">
-            <h1>Performance Analytics</h1>
+<main>
+    <h1 style="font-size: 2.5rem; font-weight: 300; margin-bottom: 40px;">Performance History</h1>
+    <div class="card">
+        <table>
+            <thead><tr><th>Subject</th><th>Status</th><th>Updated At</th></tr></thead>
+            <tbody id="perfBody"></tbody>
+        </table>
+    </div>
+</main>
 
-            <div class="results-card">
-                <table id="pTable">
-                    <thead>
-                        <tr>
-                            <th>Module</th>
-                            <th>Date</th>
-                            <th>Accuracy</th>
-                        </tr>
-                    </thead>
-                    <tbody id="pBody"></tbody>
-                </table>
-                <div id="pEmpty" class="empty-state" style="display: none;">No data found.</div>
-            </div>
-        </div>
-    </main>
+<script>
+    const supabaseUrl = 'https://ijxsnunkfhudwnkrwmzk.supabase.co';
+    const supabaseKey = 'sb_publishable_V-KT1zvp-73dqHHvmx3fNA_iHw53TCl';
+    const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-    <script>
-        window.onload = function() {
-            const history = JSON.parse(localStorage.getItem('testHistory') || '[]');
-            if (history.length === 0) {
-                document.getElementById('pTable').style.display = 'none';
-                document.getElementById('pEmpty').style.display = 'block';
-                return;
-            }
-            document.getElementById('pBody').innerHTML = history.reverse().map(item => `
+    async function loadPerformance() {
+        const { data, error } = await supabase
+            .from('student_progress')
+            .select('status, created_at, questions_table(subject)')
+            .eq('student_id', localStorage.getItem('userId'));
+
+        if (data) {
+            document.getElementById('perfBody').innerHTML = data.map(item => `
                 <tr>
-                    <td class="subject-pill">${item.subject}</td>
-                    <td style="color: #64748b;">${item.date}</td>
-                    <td><span class="score-badge">${item.score}%</span></td>
+                    <td style="font-weight:600;">${item.questions_table.subject}</td>
+                    <td><span class="badge">${item.status}</span></td>
+                    <td style="color:#64748b;">${new Date(item.created_at).toLocaleDateString()}</td>
                 </tr>
             `).join('');
-        };
-    </script>
+        }
+    }
+    loadPerformance();
+</script>
 </body>
 </html>
