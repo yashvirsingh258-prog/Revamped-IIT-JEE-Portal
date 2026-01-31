@@ -7,75 +7,60 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* RETAINING YOUR EXACT LOOK */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: #f8fafc; display: flex; color: #1e293b; }
-        nav { width: 280px; background: #0b4a8f; color: white; padding: 60px 0; position: fixed; height: 100vh; }
-        .nav-link { display: block; padding: 18px 40px; text-decoration: none; color: rgba(255,255,255,0.5); text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px; }
-        .active-link { color: white; background: rgba(255,255,255,0.1); border-right: 4px solid #fff; }
+        nav { width: 280px; background: #0b4a8f; color: white; padding: 60px 0; position: fixed; height: 100vh; display: flex; flex-direction: column; }
+        .logo-area { padding: 0 40px; margin-bottom: 60px; }
+        .nav-link { display: block; padding: 18px 40px; text-decoration: none; color: rgba(255,255,255,0.5); text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px; transition: 0.3s; }
+        .active-link { color: white; background: rgba(255,255,255,0.1); border-right: 4px solid #fff; font-weight: 700; }
         main { margin-left: 280px; flex: 1; padding: 80px 60px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 30px; }
-        .test-card { background: white; padding: 30px; border-radius: 20px; border: 1px solid #e2e8f0; transition: 0.3s; cursor: pointer; }
-        .test-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
-        .subject-tag { color: #0b4a8f; font-weight: 700; text-transform: uppercase; font-size: 0.75rem; margin-bottom: 10px; display: block; }
-        .test-title { font-size: 1.25rem; font-weight: 600; margin-bottom: 20px; }
-        .launch-btn { background: #0b4a8f; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: 600; width: 100%; cursor: pointer; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 30px; }
+        .test-card { background: white; padding: 32px; border-radius: 24px; border: 1px solid #e2e8f0; transition: 0.3s; cursor: pointer; }
+        .test-card:hover { transform: translateY(-8px); border-color: #0b4a8f; box-shadow: 0 12px 24px rgba(11, 74, 143, 0.08); }
+        .subject-badge { display: inline-block; padding: 6px 12px; background: #eff6ff; color: #0b4a8f; border-radius: 8px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; margin-bottom: 16px; }
+        .test-title { font-size: 1.4rem; font-weight: 700; margin-bottom: 12px; color: #0f172a; }
+        .launch-btn { background: #0b4a8f; color: white; border: none; padding: 14px; border-radius: 12px; font-weight: 600; width: 100%; cursor: pointer; margin-top: 20px; }
     </style>
 </head>
 <body>
+    <nav>
+        <div class="logo-area"><h2>JEE Portal</h2></div>
+        <a href="index.html" class="nav-link">Dashboard</a>
+        <a href="tests.html" class="nav-link active-link">Available Tests</a>
+        <a href="performance.html" class="nav-link">Performance</a>
+        <a href="login.html" class="nav-link" style="margin-top:auto; border-top:1px solid rgba(255,255,255,0.1);">Logout</a>
+    </nav>
+    <main>
+        <h1 style="margin-bottom: 40px; font-weight: 700; font-size: 2.2rem;">Available Assessments</h1>
+        <div id="testGrid" class="grid">
+            <p style="color: #94a3b8;">Syncing with database...</p>
+        </div>
+    </main>
 
-<nav>
-    <div style="padding: 0 40px; margin-bottom: 60px;"><h2>JEE Portal</h2></div>
-    <a href="index.html" class="nav-link">Dashboard</a>
-    <a href="tests.html" class="nav-link active-link">Available Tests</a>
-    <a href="performance.html" class="nav-link">Performance</a>
-    <a href="login.html" class="nav-link" style="margin-top:auto; border-top:1px solid rgba(255,255,255,0.1);">Logout</a>
-</nav>
+    <script>
+        const supabase = supabase.createClient('https://ijxsnunkfhudwnkrwmzk.supabase.co', 'sb_publishable_V-KT1zvp-73dqHHvmx3fNA_iHw53TCl');
 
-<main>
-    <h1 style="margin-bottom: 40px; font-weight: 300; font-size: 2.5rem;">Available Tests</h1>
-    <div id="testGrid" class="grid">
-        <p style="color: #94a3b8;">Scanning database for active tests...</p>
-    </div>
-</main>
-
-<script>
-    const supabaseUrl = 'https://ijxsnunkfhudwnkrwmzk.supabase.co';
-    const supabaseKey = 'sb_publishable_V-KT1zvp-73dqHHvmx3fNA_iHw53TCl';
-    const supabase = supabase.createClient(supabaseUrl, supabaseKey);
-
-    async function loadAvailableTests() {
-        // Fetch unique subjects from questions_table
-        const { data, error } = await supabase
-            .from('questions_table')
-            .select('subject');
-
-        const grid = document.getElementById('testGrid');
-
-        if (data && data.length > 0) {
-            // Get unique subjects
-            const uniqueSubjects = [...new Set(data.map(item => item.subject))];
-            
-            grid.innerHTML = uniqueSubjects.map(subject => `
-                <div class="test-card" onclick="startTest('${subject}')">
-                    <span class="subject-tag">JEE MAIN</span>
-                    <h3 class="test-title">${subject} Full Mock</h3>
-                    <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 20px;">Comprehensive test based on latest syllabus.</p>
-                    <button class="launch-btn">Start Test</button>
-                </div>
-            `).join('');
-        } else {
-            grid.innerHTML = '<p>No tests available in the database currently.</p>';
+        async function loadTests() {
+            const { data, error } = await supabase.from('questions_table').select('subject, test_name');
+            const grid = document.getElementById('testGrid');
+            if (data && data.length > 0) {
+                const uniqueTests = Array.from(new Set(data.map(t => t.test_name))).map(name => data.find(t => t.test_name === name));
+                grid.innerHTML = uniqueTests.map(test => `
+                    <div class="test-card" onclick="launch('${test.test_name}')">
+                        <span class="subject-badge">${test.subject}</span>
+                        <h3 class="test-title">${test.test_name}</h3>
+                        <button class="launch-btn">Start Test</button>
+                    </div>
+                `).join('');
+            } else {
+                grid.innerHTML = '<p>No tests available.</p>';
+            }
         }
-    }
-
-    function startTest(subject) {
-        // Save the chosen subject to localStorage so the next page knows what to load
-        localStorage.setItem('selectedSubject', subject);
-        window.location.href = 'active-test.html';
-    }
-
-    loadAvailableTests();
-</script>
+        function launch(name) {
+            localStorage.setItem('currentTestName', name);
+            window.location.href = 'active-test.html';
+        }
+        loadTests();
+    </script>
 </body>
 </html>
