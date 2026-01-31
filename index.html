@@ -6,7 +6,7 @@
     <title>JEE Portal | Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* --- CORE STYLING --- */
+        /* --- CORE DESIGN SYSTEM --- */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; display: flex; color: #1e293b; }
 
@@ -16,49 +16,69 @@
         .logo-area h2 { font-size: 1.2rem; letter-spacing: 4px; font-weight: 700; text-transform: uppercase; }
         
         .nav-link {
-            transition: 0.3s; display: block; padding: 18px 40px; text-decoration: none;
+            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+            display: block; padding: 18px 40px; text-decoration: none;
             color: rgba(255, 255, 255, 0.5); font-size: 0.85rem; font-weight: 500;
             letter-spacing: 1px; text-transform: uppercase;
         }
         .nav-link:hover { color: white; padding-left: 50px; }
-        .active-link { color: white; background: rgba(255, 255, 255, 0.1); font-weight: 700; }
+        .active-link { color: white; background: rgba(255, 255, 255, 0.1); font-weight: 700; border-right: 4px solid #fff; }
 
-        /* Main Content Alignment */
+        /* Main Content */
         main { margin-left: 280px; flex: 1; padding: 80px 0; }
-        .content-container { max-width: 1000px; margin: 0 auto; padding: 0 60px; }
+        .content-container { max-width: 1100px; margin: 0 auto; padding: 0 60px; }
 
-        h1 { font-size: 2.4rem; font-weight: 300; letter-spacing: -1px; margin-bottom: 10px; }
-        p.subtitle { color: #64748b; margin-bottom: 40px; }
+        h1 { font-size: 2.6rem; font-weight: 300; letter-spacing: -1.5px; margin-bottom: 10px; }
+        p.subtitle { color: #64748b; font-size: 1.1rem; margin-bottom: 45px; }
 
-        /* Welcome Cards */
-        .welcome-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 25px; margin-bottom: 40px; }
+        /* --- THE HERO WELCOME SECTION --- */
+        .welcome-grid { display: grid; grid-template-columns: 1.8fr 1.2fr; gap: 30px; margin-bottom: 45px; }
         
         .hero-card { 
             background: linear-gradient(135deg, #0b4a8f 0%, #1e293b 100%); 
-            color: white; padding: 40px; border-radius: 20px; 
+            color: white; padding: 45px; border-radius: 24px; 
+            box-shadow: 0 20px 40px rgba(11, 74, 143, 0.2);
             display: flex; flex-direction: column; justify-content: center;
+            position: relative; overflow: hidden;
         }
-        .hero-card h2 { font-size: 1.8rem; margin-bottom: 15px; }
+        
+        /* Glassmorphism accent for the hero card */
+        .hero-card::after {
+            content: ""; position: absolute; top: -50px; right: -50px; 
+            width: 200px; height: 200px; background: rgba(255,255,255,0.05); 
+            border-radius: 50%;
+        }
+
+        .hero-card h2 { font-size: 2rem; margin-bottom: 15px; font-weight: 600; }
+        .hero-card p { font-size: 1rem; color: rgba(255,255,255,0.8); line-height: 1.6; margin-bottom: 25px; }
         
         .btn-white {
-            display: inline-block; width: fit-content; padding: 12px 28px; 
+            display: inline-block; width: fit-content; padding: 14px 32px; 
             background: white; color: #0b4a8f; text-decoration: none; 
-            border-radius: 8px; font-weight: 700; margin-top: 20px;
+            border-radius: 12px; font-weight: 700; font-size: 0.95rem;
+            transition: 0.3s;
         }
+        .btn-white:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
 
-        .stat-sidebar-card { 
-            background: white; border: 1px solid #e2e8f0; border-radius: 20px; padding: 30px;
+        /* Rank/Stat Sidebar Card */
+        .rank-card { 
+            background: white; border: 1px solid #e2e8f0; border-radius: 24px; padding: 40px;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
-            text-align: center;
+            text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.02);
         }
-        .stat-sidebar-card .val { font-size: 2.5rem; font-weight: 700; color: #0b4a8f; }
-        .stat-sidebar-card .lab { font-size: 0.75rem; color: #64748b; text-transform: uppercase; letter-spacing: 1px; }
+        .rank-card .val { font-size: 3.5rem; font-weight: 800; color: #0b4a8f; line-height: 1; }
+        .rank-card .lab { font-size: 0.8rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 15px; }
+        .rank-trend { font-size: 0.9rem; color: #10b981; margin-top: 15px; font-weight: 600; }
 
-        /* Summary Boxes */
-        .info-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-        .info-box { background: white; border: 1px solid #e2e8f0; padding: 25px; border-radius: 16px; }
-        .info-box h4 { font-size: 0.75rem; color: #64748b; text-transform: uppercase; margin-bottom: 10px; }
-        .info-box p { font-size: 1.1rem; font-weight: 600; }
+        /* --- STAT BOXES --- */
+        .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; }
+        .stat-box { 
+            background: white; border: 1px solid #e2e8f0; padding: 30px; border-radius: 20px; 
+            transition: 0.3s;
+        }
+        .stat-box:hover { border-color: #0b4a8f; }
+        .stat-box h4 { font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+        .stat-box p { font-size: 1.4rem; font-weight: 700; color: #1e293b; }
     </style>
 </head>
 <body>
@@ -68,14 +88,62 @@
         <a href="index.html" class="nav-link active-link">Dashboard</a>
         <a href="tests.html" class="nav-link">Available Tests</a>
         <a href="performance.html" class="nav-link">Performance</a>
-        <a href="login.html" class="nav-link">Logout</a>
+        <a href="#" class="nav-link">Account</a>
     </nav>
 
     <main>
         <div class="content-container">
             <h1>Welcome back, Scholar</h1>
-            <p class="subtitle">Here is what's happening with your prep today.</p>
+            <p class="subtitle">Here’s a snapshot of your progress and upcoming goals.</p>
 
             <div class="welcome-grid">
                 <div class="hero-card">
-                    <h2>Ready for your
+                    <h2>Master Physics Today</h2>
+                    <p>You're currently in the top 5% of students studying Electrostatics. A quick mock test could push you to the top 1%.</p>
+                    <a href="tests.html" class="btn-white">Continue Prep</a>
+                </div>
+
+                <div class="rank-card">
+                    <span class="lab">Global Rank</span>
+                    <span class="val">#412</span>
+                    <p class="rank-trend">↑ 12 positions this week</p>
+                </div>
+            </div>
+
+            <div class="stats-row">
+                <div class="stat-box">
+                    <h4>Tests Completed</h4>
+                    <p id="dash-count">0</p>
+                </div>
+                <div class="stat-box">
+                    <h4>Average Accuracy</h4>
+                    <p id="dash-avg">0%</p>
+                </div>
+                <div class="stat-box">
+                    <h4>Top Category</h4>
+                    <p id="dash-top">Physics</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Sync the Dashboard with real Performance data from localStorage
+        window.onload = function() {
+            const history = JSON.parse(localStorage.getItem('testHistory') || '[]');
+            
+            if (history.length > 0) {
+                const total = history.length;
+                const avg = Math.round(history.reduce((a, b) => a + b.score, 0) / total);
+                
+                // Get most recent test subject
+                const latest = history[history.length - 1].subject;
+
+                document.getElementById('dash-count').innerText = total;
+                document.getElementById('dash-avg').innerText = avg + "%";
+                document.getElementById('dash-top').innerText = latest.charAt(0).toUpperCase() + latest.slice(1);
+            }
+        };
+    </script>
+</body>
+</html>
