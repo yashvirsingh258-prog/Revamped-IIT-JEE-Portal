@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JEE Portal | Dashboard</title>
+    <title>JEE Portal | Performance History</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        /* --- RETAINED DASHBOARD LOOK & FEEL --- */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; display: flex; color: #1e293b; }
 
-        /* Sidebar Navigation */
+        /* Navigation (Fixed to prevent disappearing) */
         nav { width: 280px; background: #0b4a8f; color: white; padding: 60px 0; position: fixed; height: 100vh; z-index: 100; }
         .logo-area { padding: 0 40px; margin-bottom: 60px; }
         .logo-area h2 { font-size: 1.2rem; letter-spacing: 4px; font-weight: 700; text-transform: uppercase; }
@@ -22,104 +23,84 @@
         .nav-link:hover { color: white; padding-left: 50px; }
         .active-link { color: white; background: rgba(255, 255, 255, 0.1); font-weight: 700; }
 
-        /* Main Content */
+        /* Main Content Alignment */
         main { margin-left: 280px; flex: 1; padding: 80px 0; }
         .content-container { max-width: 1000px; margin: 0 auto; padding: 0 60px; }
 
-        h1 { font-size: 2.4rem; font-weight: 300; letter-spacing: -1px; margin-bottom: 10px; }
-        p.subtitle { color: #64748b; margin-bottom: 40px; }
+        h1 { font-size: 2.4rem; font-weight: 300; letter-spacing: -1px; margin-bottom: 40px; }
 
-        /* Welcome Cards */
-        .welcome-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 25px; margin-bottom: 40px; }
+        /* Table Card (Matches Dashboard Info Boxes) */
+        .results-container { 
+            background: white; border: 1px solid #e2e8f0; border-radius: 20px; 
+            overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.02); 
+        }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #f8fafc; text-align: left; padding: 20px 30px; font-size: 0.75rem; color: #64748b; text-transform: uppercase; border-bottom: 1px solid #e2e8f0; }
+        td { padding: 20px 30px; border-bottom: 1px solid #f1f5f9; font-size: 0.95rem; }
         
-        .hero-card { 
-            background: linear-gradient(135deg, #0b4a8f 0%, #1e293b 100%); 
-            color: white; padding: 40px; border-radius: 20px; 
-            display: flex; flex-direction: column; justify-content: center;
-        }
-        .hero-card h2 { font-size: 1.8rem; margin-bottom: 15px; }
-        
-        .btn-white {
-            display: inline-block; width: fit-content; padding: 12px 28px; 
-            background: white; color: #0b4a8f; text-decoration: none; 
-            border-radius: 8px; font-weight: 700; margin-top: 20px;
+        .subject-name { font-weight: 600; color: #0b4a8f; text-transform: capitalize; }
+        .score-badge { 
+            background: #f0fdf4; color: #16a34a; padding: 6px 12px; border-radius: 8px; 
+            font-weight: 700; font-size: 0.85rem; border: 1px solid #dcfce7;
         }
 
-        .stat-sidebar-card { 
-            background: white; border: 1px solid #e2e8f0; border-radius: 20px; padding: 30px;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            text-align: center;
-        }
-        .stat-sidebar-card .val { font-size: 2.5rem; font-weight: 700; color: #0b4a8f; }
-        .stat-sidebar-card .lab { font-size: 0.75rem; color: #64748b; text-transform: uppercase; letter-spacing: 1px; }
-
-        /* Summary Boxes */
-        .info-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-        .info-box { background: white; border: 1px solid #e2e8f0; padding: 25px; border-radius: 16px; }
-        .info-box h4 { font-size: 0.75rem; color: #64748b; text-transform: uppercase; margin-bottom: 10px; }
-        .info-box p { font-size: 1.1rem; font-weight: 600; }
+        .empty-view { padding: 100px 40px; text-align: center; color: #94a3b8; }
     </style>
 </head>
 <body>
 
     <nav>
         <div class="logo-area"><h2>JEE Portal</h2></div>
-        <a href="index.html" class="nav-link active-link">Dashboard</a>
+        <a href="index.html" class="nav-link">Dashboard</a>
         <a href="tests.html" class="nav-link">Available Tests</a>
-        <a href="performance.html" class="nav-link">Performance</a>
-        <a href="#" class="nav-link">Account</a>
+        <a href="performance.html" class="nav-link active-link">Performance</a>
+        <a href="login.html" class="nav-link">Logout</a>
     </nav>
 
     <main>
         <div class="content-container">
-            <h1>Welcome back, Scholar</h1>
-            <p class="subtitle">Here is what's happening with your prep today.</p>
+            <h1>Performance History</h1>
 
-            <div class="welcome-grid">
-                <div class="hero-card">
-                    <h2>Ready for your next challenge?</h2>
-                    <p>Your "Electrostatics Mastery" test is available. High scores in this module often correlate with top JEE ranks.</p>
-                    <a href="tests.html" class="btn-white">Jump to Tests</a>
-                </div>
-
-                <div class="stat-sidebar-card">
-                    <span class="lab">Global Rank</span>
-                    <span class="val">#412</span>
-                    <p style="font-size: 0.8rem; color: #10b981; margin-top: 10px;">↑ 12 positions this week</p>
-                </div>
-            </div>
-
-            <div class="info-grid">
-                <div class="info-box">
-                    <h4>Tests Completed</h4>
-                    <p id="dash-count">0</p>
-                </div>
-                <div class="info-box">
-                    <h4>Avg. Accuracy</h4>
-                    <p id="dash-avg">0%</p>
-                </div>
-                <div class="info-box">
-                    <h4>Latest Subject</h4>
-                    <p id="dash-latest">None</p>
+            <div class="results-container">
+                <table id="historyTable">
+                    <thead>
+                        <tr>
+                            <th>Subject</th>
+                            <th>Completion Date</th>
+                            <th>Accuracy</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyBody">
+                        </tbody>
+                </table>
+                <div id="emptyMsg" class="empty-view" style="display: none;">
+                    <p>No test data available. Start a test to see your progress.</p>
                 </div>
             </div>
         </div>
     </main>
 
     <script>
-        // Sync Dashboard with Performance Data
         window.onload = function() {
             const history = JSON.parse(localStorage.getItem('testHistory') || '[]');
-            
-            if (history.length > 0) {
-                const total = history.length;
-                const avg = Math.round(history.reduce((a, b) => a + b.score, 0) / total);
-                const latest = history[history.length - 1].subject;
+            const tableBody = document.getElementById('historyBody');
+            const emptyMsg = document.getElementById('emptyMsg');
+            const table = document.getElementById('historyTable');
 
-                document.getElementById('dash-count').innerText = total;
-                document.getElementById('dash-avg').innerText = avg + "%";
-                document.getElementById('dash-latest').innerText = latest.charAt(0).toUpperCase() + latest.slice(1);
+            if (history.length === 0) {
+                table.style.display = 'none';
+                emptyMsg.style.display = 'block';
+                return;
             }
+
+            // Fill table with saved scores
+            tableBody.innerHTML = history.reverse().map(item => `
+                <tr>
+                    <td class="subject-name">${item.subject}</td>
+                    <td style="color: #64748b;">${item.date}</td>
+                    <td><span class="score-badge">${item.score}%</span></td>
+                </tr>
+            `).join('');
         };
     </script>
 </body>
