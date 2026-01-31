@@ -5,9 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
+        // Use 'supabaseClient' to avoid naming conflict with the global library
         const supabaseUrl = 'https://ijxsnunkfhudwnkrwmzk.supabase.co';
         const supabaseKey = 'sb_publishable_V-KT1zvp-73dqHHvmx3fNA_iHw53TCl';
-        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+        const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+        // THE GUARD: Check if user is logged in immediately
+        async function checkUser() {
+            const { data: { session }, error } = await supabaseClient.auth.getSession();
+            if (error || !session) {
+                // No active session found, kick back to login
+                window.location.href = 'login.html';
+            }
+        }
+        checkUser();
     </script>
     <title>JEE Portal | Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -17,7 +28,7 @@
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; display: flex; color: #1e293b; }
 
         /* Sidebar Navigation */
-        nav { width: 280px; background: #0b4a8f; color: white; padding: 60px 0; position: fixed; height: 100vh; z-index: 100; }
+        nav { width: 280px; background: #0b4a8f; color: white; padding: 60px 0; position: fixed; height: 100vh; z-index: 100; display: flex; flex-direction: column; }
         .logo-area { padding: 0 40px; margin-bottom: 60px; }
         .logo-area h2 { font-size: 1.2rem; letter-spacing: 4px; font-weight: 700; text-transform: uppercase; }
         
@@ -26,6 +37,7 @@
             display: block; padding: 18px 40px; text-decoration: none;
             color: rgba(255, 255, 255, 0.5); font-size: 0.85rem; font-weight: 500;
             letter-spacing: 1px; text-transform: uppercase;
+            cursor: pointer;
         }
         .nav-link:hover { color: white; padding-left: 50px; }
         .active-link { color: white; background: rgba(255, 255, 255, 0.1); font-weight: 700; border-right: 4px solid #fff; }
@@ -48,7 +60,6 @@
             position: relative; overflow: hidden;
         }
         
-        /* Glassmorphism accent for the hero card */
         .hero-card::after {
             content: ""; position: absolute; top: -50px; right: -50px; 
             width: 200px; height: 200px; background: rgba(255,255,255,0.05); 
@@ -91,15 +102,16 @@
 
     <nav>
         <div class="logo-area"><h2>JEE Portal</h2></div>
-        <a href="index.html" class="nav-link">Dashboard</a>
+        <a href="index.html" class="nav-link active-link">Dashboard</a>
         <a href="tests.html" class="nav-link">Available Tests</a>
         <a href="performance.html" class="nav-link">Performance</a>
-        <a href="login.html" class="nav-link" style="margin-top: auto; border-top: 1px solid rgba(255,255,255,0.1);">Logout</a>
+        
+        <a onclick="handleLogout()" class="nav-link" style="margin-top: auto; border-top: 1px solid rgba(255,255,255,0.1);">Logout</a>
     </nav>
 
     <main>
         <div class="content-container">
-            <h1>Welcome back, Scholar</h1>
+            <h1 id="welcome-text">Welcome back, Scholar</h1>
             <p class="subtitle">Here’s a snapshot of your progress and upcoming goals.</p>
 
             <div class="welcome-grid">
@@ -134,15 +146,40 @@
     </main>
 
     <script>
-        // Sync the Dashboard with real Performance data from localStorage
-        window.onload = function() {
+        // LOGOUT FUNCTION
+        async function handleLogout() {
+            const { error } = await supabaseClient.auth.signOut();
+            if (error) {
+                alert("Error logging out: " + error.message);
+            } else {
+                window.location.href = 'login.html';
+            }
+        }
+
+        // FETCH USER DATA ON LOAD
+        window.onload = async function() {
+            // 1. Get Session Info
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            
+            if (user) {
+                // Fetch the student's name from the 'students' table
+                const { data: studentData } = await supabaseClient
+                    .from('students')
+                    .select('full_name')
+                    .eq('id', user.id)
+                    .single();
+
+                if (studentData && studentData.full_name) {
+                    document.getElementById('welcome-text').innerText = `Welcome back, ${studentData.full_name}`;
+                }
+            }
+
+            // 2. Sync local test history
             const history = JSON.parse(localStorage.getItem('testHistory') || '[]');
             
             if (history.length > 0) {
                 const total = history.length;
                 const avg = Math.round(history.reduce((a, b) => a + b.score, 0) / total);
-                
-                // Get most recent test subject
                 const latest = history[history.length - 1].subject;
 
                 document.getElementById('dash-count').innerText = total;
