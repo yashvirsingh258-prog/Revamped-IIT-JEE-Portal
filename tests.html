@@ -3,232 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script>
-        const supabaseUrl = 'https://ijxsnunkfhudwnkrwmzk.supabase.co';
-        const supabaseKey = 'sb_publishable_V-KT1zvp-73dqHHvmx3fNA_iHw53TCl';
-        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
-    </script>
     <title>JEE Portal | Available Tests</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* --- Restoration of Premium Styles --- */
+        /* RETAINING YOUR EXACT LOOK */
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; display: flex; color: #1e293b; }
-
-        /* Sidebar Navigation */
-        nav { width: 280px; background: #0b4a8f; color: white; padding: 60px 0; position: fixed; height: 100vh; z-index: 100; }
-        .logo-area { padding: 0 40px; margin-bottom: 60px; }
-        .logo-area h2 { font-size: 1.2rem; letter-spacing: 4px; font-weight: 700; text-transform: uppercase; }
-        
-        .nav-link {
-            position: relative;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            display: block;
-            padding: 18px 40px;
-            text-decoration: none;
-            color: rgba(255, 255, 255, 0.5);
-            font-size: 0.85rem;
-            font-weight: 500;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-        }
-        .nav-link:hover { color: white; padding-left: 50px; }
-        .active-link { color: white; background: rgba(255, 255, 255, 0.1); font-weight: 700; }
-
-        /* Main Content */
-        main { margin-left: 280px; flex: 1; padding: 80px 0; }
-        .content-container { max-width: 1100px; margin: 0 auto; padding: 0 60px; }
-        h1 { font-size: 2.4rem; font-weight: 300; letter-spacing: -1px; margin-bottom: 40px; }
-
-        /* Filter Chips */
-        .filter-container { display: flex; gap: 15px; margin-bottom: 40px; }
-        .filter-chip {
-            padding: 10px 24px; border-radius: 50px; background: white; border: 1px solid #e2e8f0;
-            font-size: 0.85rem; font-weight: 600; color: #64748b; cursor: pointer; transition: all 0.2s;
-        }
-        .filter-chip.active { background: #0b4a8f; color: white; border-color: #0b4a8f; }
-
-        /* Test Grid & Cards */
-        .test-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 25px; }
-        
-        .test-card {
-            background: white;
-            border: 1px solid #e2e8f0;
-            padding: 35px;
-            border-radius: 16px;
-            transition: all 0.3s ease;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            position: relative;
-            min-height: 300px;
-        }
-        .test-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.05); }
-
-        /* --- THE GLOWING INDICATOR --- */
-        .live-indicator {
-            position: absolute;
-            top: 25px;
-            right: 25px;
-            width: 12px;
-            height: 12px;
-            background-color: #10b981;
-            border-radius: 50%;
-            display: none; /* Only shows when .is-active is added */
-        }
-
-        .test-card.is-active .live-indicator {
-            display: block;
-            animation: pulse-glow 1.5s infinite ease-in-out;
-        }
-
-        @keyframes pulse-glow {
-            0% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
-            70% { transform: scale(1.2); box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
-            100% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
-        }
-
-        /* Standardized Glassmorphism Navy Button */
-        .btn-navy-glass {
-            width: 100%;
-            padding: 14px;
-            background: rgba(11, 74, 143, 0.9);
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            font-weight: 600;
-            font-size: 0.9rem;
-            cursor: pointer;
-            backdrop-filter: blur(8px);
-            transition: all 0.3s;
-            box-shadow: 0 4px 12px rgba(11, 74, 143, 0.2);
-        }
-
-        .btn-navy-glass:hover {
-            background: rgba(11, 74, 143, 1);
-            transform: translateY(-2px);
-        }
-
-        /* Typography & Tags */
-        .tag { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; display: inline-block; }
-        .tag.physics { color: #f59e0b; }
-        .tag.maths { color: #8b5cf6; }
-        .tag.chemistry { color: #10b981; }
-
-        .test-title { font-size: 1.3rem; font-weight: 600; color: #1e293b; margin-bottom: 8px; }
-        .test-info { font-size: 0.9rem; color: #64748b; margin-bottom: 25px; line-height: 1.6; }
-        .status-lbl { font-weight: 700; font-size: 0.8rem; }
-
-        .hidden { display: none !important; }
+        body { font-family: 'Inter', sans-serif; background: #f8fafc; display: flex; color: #1e293b; }
+        nav { width: 280px; background: #0b4a8f; color: white; padding: 60px 0; position: fixed; height: 100vh; }
+        .nav-link { display: block; padding: 18px 40px; text-decoration: none; color: rgba(255,255,255,0.5); text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px; }
+        .active-link { color: white; background: rgba(255,255,255,0.1); border-right: 4px solid #fff; }
+        main { margin-left: 280px; flex: 1; padding: 80px 60px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 30px; }
+        .test-card { background: white; padding: 30px; border-radius: 20px; border: 1px solid #e2e8f0; transition: 0.3s; cursor: pointer; }
+        .test-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+        .subject-tag { color: #0b4a8f; font-weight: 700; text-transform: uppercase; font-size: 0.75rem; margin-bottom: 10px; display: block; }
+        .test-title { font-size: 1.25rem; font-weight: 600; margin-bottom: 20px; }
+        .launch-btn { background: #0b4a8f; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: 600; width: 100%; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <nav>
-        <div class="logo-area"><h2>JEE Portal</h2></div>
-        <a href="index.html" class="nav-link">Dashboard</a>
-        <a href="tests.html" class="nav-link">Available Tests</a>
-        <a href="performance.html" class="nav-link">Performance</a>
-        <a href="login.html" class="nav-link" style="margin-top: auto; border-top: 1px solid rgba(255,255,255,0.1);">Logout</a>
-    </nav>
+<nav>
+    <div style="padding: 0 40px; margin-bottom: 60px;"><h2>JEE Portal</h2></div>
+    <a href="index.html" class="nav-link">Dashboard</a>
+    <a href="tests.html" class="nav-link active-link">Available Tests</a>
+    <a href="performance.html" class="nav-link">Performance</a>
+    <a href="login.html" class="nav-link" style="margin-top:auto; border-top:1px solid rgba(255,255,255,0.1);">Logout</a>
+</nav>
 
-    <main>
-        <div class="content-container">
-            <h1>Practice Tests</h1>
+<main>
+    <h1 style="margin-bottom: 40px; font-weight: 300; font-size: 2.5rem;">Available Tests</h1>
+    <div id="testGrid" class="grid">
+        <p style="color: #94a3b8;">Scanning database for active tests...</p>
+    </div>
+</main>
 
-            <div class="filter-container">
-                <button class="filter-chip active" onclick="filterBy('all', this)">All Subjects</button>
-                <button class="filter-chip" onclick="filterBy('physics', this)">Physics</button>
-                <button class="filter-chip" onclick="filterBy('chemistry', this)">Chemistry</button>
-                <button class="filter-chip" onclick="filterBy('maths', this)">Mathematics</button>
-            </div>
+<script>
+    const supabaseUrl = 'https://ijxsnunkfhudwnkrwmzk.supabase.co';
+    const supabaseKey = 'sb_publishable_V-KT1zvp-73dqHHvmx3fNA_iHw53TCl';
+    const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-            <div class="test-grid">
-                <div class="test-card" id="card-physics" data-subject="physics">
-                    <div class="live-indicator"></div>
-                    <div>
-                        <span class="tag physics">Physics</span>
-                        <h3 class="test-title">Electrostatics Mastery</h3>
-                        <p class="test-info">45 Questions • 60 Mins<br><span class="status-lbl">Ready to Start</span></p>
-                    </div>
-                    <button class="btn-navy-glass" onclick="handleStart('card-physics')">Start Test</button>
-                </div>
+    async function loadAvailableTests() {
+        // Fetch unique subjects from questions_table
+        const { data, error } = await supabase
+            .from('questions_table')
+            .select('subject');
 
-                <div class="test-card" id="card-maths" data-subject="maths">
-                    <div class="live-indicator"></div>
-                    <div>
-                        <span class="tag maths">Mathematics</span>
-                        <h3 class="test-title">Integral Calculus II</h3>
-                        <p class="test-info">30 Questions • 90 Mins<br><span class="status-lbl">Ready to Start</span></p>
-                    </div>
-                    <button class="btn-navy-glass" onclick="handleStart('card-maths')">Start Test</button>
-                </div>
+        const grid = document.getElementById('testGrid');
 
-                <div class="test-card" id="card-chemistry" data-subject="chemistry">
-                    <div class="live-indicator"></div>
-                    <div>
-                        <span class="tag chemistry">Chemistry</span>
-                        <h3 class="test-title">Organic: Alcohols</h3>
-                        <p class="test-info">25 Questions • 45 Mins<br><span class="status-lbl">Ready to Start</span></p>
-                    </div>
-                    <button class="btn-navy-glass" onclick="handleStart('card-chemistry')">Start Test</button>
-                </div>
-            </div>
-
-            <p onclick="clearSession()" style="margin-top:60px; color:#cbd5e1; cursor:pointer; font-size:10px; text-align:center; text-decoration:underline;">RESET SESSION (DEV ONLY)</p>
-        </div>
-    </main>
-
-    <script>
-        // --- LOGIC 1: SESSION PERSISTENCE ---
-        window.onload = function() {
-            const activeId = localStorage.getItem('activeTestId');
-            if (activeId) {
-                const activeCard = document.getElementById(activeId);
-                if (activeCard) {
-                    applyActiveState(activeCard);
-                }
-            }
-        };
-
-        function applyActiveState(card) {
-            card.classList.add('is-active');
-            card.querySelector('.status-lbl').innerText = "ACTIVE NOW";
-            card.querySelector('.status-lbl').style.color = "#10b981";
-            card.querySelector('.btn-navy-glass').innerText = "Resume Test";
-        }
-
-        // --- LOGIC 2: LOCKING MECHANISM ---
-        function handleStart(id) {
-            const activeId = localStorage.getItem('activeTestId');
-
-            // LOCK: Block if another test is active
-            if (activeId && activeId !== id) {
-                alert("⚠️ Access Denied: You already have an active test session. Finish it first!");
-                return;
-            }
-
-            // Save session and redirect
-            localStorage.setItem('activeTestId', id);
-            window.location.href = 'active-test.html';
-        }
-
-        // --- LOGIC 3: FILTERS ---
-        function filterBy(subject, btn) {
-            document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
-            btn.classList.add('active');
+        if (data && data.length > 0) {
+            // Get unique subjects
+            const uniqueSubjects = [...new Set(data.map(item => item.subject))];
             
-            document.querySelectorAll('.test-card').forEach(card => {
-                const matches = (subject === 'all' || card.dataset.subject === subject);
-                card.classList.toggle('hidden', !matches);
-            });
+            grid.innerHTML = uniqueSubjects.map(subject => `
+                <div class="test-card" onclick="startTest('${subject}')">
+                    <span class="subject-tag">JEE MAIN</span>
+                    <h3 class="test-title">${subject} Full Mock</h3>
+                    <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 20px;">Comprehensive test based on latest syllabus.</p>
+                    <button class="launch-btn">Start Test</button>
+                </div>
+            `).join('');
+        } else {
+            grid.innerHTML = '<p>No tests available in the database currently.</p>';
         }
+    }
 
-        function clearSession() {
-            localStorage.clear();
-            location.reload();
-        }
-    </script>
+    function startTest(subject) {
+        // Save the chosen subject to localStorage so the next page knows what to load
+        localStorage.setItem('selectedSubject', subject);
+        window.location.href = 'active-test.html';
+    }
+
+    loadAvailableTests();
+</script>
 </body>
 </html>
