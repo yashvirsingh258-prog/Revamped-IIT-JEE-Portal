@@ -3,89 +3,166 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JEE Portal | Live Exam</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <title>JEE Portal | Question Palette</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: #f8fafc; color: #1e293b; height: 100vh; display: flex; flex-direction: column; }
         
-        header { height: 70px; background: #fff; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; padding: 0 40px; }
+        /* Header & Navigation Style Restoration */
+        header { height: 70px; background: #fff; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; padding: 0 40px; z-index: 10; }
         .test-info { font-weight: 700; color: #0b4a8f; text-transform: uppercase; letter-spacing: 1px; }
-        
+
         .main-container { flex: 1; display: flex; overflow: hidden; }
-        .question-area { flex: 1; padding: 60px; overflow-y: auto; }
-        .sidebar { width: 300px; background: #fff; border-left: 1px solid #e2e8f0; padding: 30px; display: flex; flex-direction: column; }
+
+        /* Left side: Question Area */
+        .question-area { flex: 1; padding: 60px; overflow-y: auto; background: #fff; }
+        .q-box { max-width: 800px; margin: 0 auto; }
+        .q-num { font-weight: 700; color: #64748b; margin-bottom: 10px; display: block; }
+        .q-text { font-size: 1.25rem; line-height: 1.6; margin-bottom: 30px; font-weight: 500; }
         
-        .q-box { background: white; border: 1px solid #e2e8f0; padding: 30px; border-radius: 12px; }
-        .q-text { font-size: 1.2rem; line-height: 1.6; margin-bottom: 25px; }
-        
-        .option { display: block; padding: 15px 20px; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 10px; cursor: pointer; transition: 0.2s; }
+        .option { display: block; padding: 18px 24px; border: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: 12px; cursor: pointer; transition: 0.2s; }
         .option:hover { background: #f1f5f9; border-color: #0b4a8f; }
-        
-        .submit-btn { 
-            background: #e11d48; color: white; border: none; padding: 15px; width: 100%; 
-            border-radius: 8px; font-weight: 700; cursor: pointer; margin-top: auto; 
+        .option input { margin-right: 15px; }
+
+        .action-bar { margin-top: 40px; display: flex; gap: 15px; }
+        .btn { padding: 12px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.3s; border: none; font-size: 0.9rem; }
+        .btn-save { background: #10b981; color: white; }
+        .btn-review { background: #8b5cf6; color: white; }
+        .btn-clear { background: #f1f5f9; color: #64748b; border: 1px solid #e2e8f0; }
+
+        /* Right side: Question Palette Sidebar */
+        .sidebar { 
+            width: 340px; 
+            background: rgba(255, 255, 255, 0.7); 
+            backdrop-filter: blur(12px); 
+            border-left: 1px solid #e2e8f0; 
+            padding: 30px; 
+            display: flex; 
+            flex-direction: column; 
         }
-        .submit-btn:hover { background: #be123c; }
+
+        .palette-title { font-size: 0.75rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px; }
+        
+        .palette-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 40px; }
+        
+        /* Circle Styling */
+        .q-circle {
+            width: 42px; height: 42px; border-radius: 50%;
+            border: 1px solid #e2e8f0; background: white;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.85rem; font-weight: 600; color: #64748b;
+            cursor: pointer; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .q-circle:hover { border-color: #0b4a8f; box-shadow: 0 0 10px rgba(11, 74, 143, 0.2); transform: scale(1.1); }
+        
+        /* State Colors */
+        .q-circle.answered { background: #10b981; color: white; border-color: #10b981; }
+        .q-circle.review { background: #8b5cf6; color: white; border-color: #8b5cf6; }
+        .q-circle.current { border: 2px solid #0b4a8f; color: #0b4a8f; }
+
+        /* Finish Button - Restored Navy Blue */
+        .btn-finish { 
+            background: #0b4a8f; color: white; border: none; padding: 16px; 
+            width: 100%; border-radius: 10px; font-weight: 700; cursor: pointer; 
+            margin-top: auto; box-shadow: 0 4px 12px rgba(11, 74, 143, 0.2); 
+            transition: 0.3s;
+        }
+        .btn-finish:hover { transform: translateY(-2px); background: #083a70; }
     </style>
 </head>
 <body>
 
 <header>
-    <div class="test-info" id="testNameDisplay">Loading Session...</div>
-    <div id="timer" style="font-weight: 700; color: #e11d48;">Time Remaining: 59:59</div>
+    <div class="test-info" id="testHeader">JEE Main Mock Test</div>
+    <div id="timer" style="font-weight: 700; color: #e11d48;">Remaining: 02:59:59</div>
 </header>
 
 <div class="main-container">
-    <div class="question-area">
+    <main class="question-area">
         <div class="q-box">
-            <p class="q-text">Which of the following describes the behavior of a session lock in a local storage environment?</p>
-            <label class="option"><input type="radio" name="q1"> A. It persists until manually cleared</label>
-            <label class="option"><input type="radio" name="q1"> B. It clears on page refresh</label>
-            <label class="option"><input type="radio" name="q1"> C. It allows multiple sessions</label>
+            <span class="q-num">Question #<span id="currentNum">1</span></span>
+            <p class="q-text">A point charge $q$ is placed at the center of a cube of side $L$. The electric flux emerging from the cube is:</p>
+            
+            <label class="option"><input type="radio" name="jee-q" value="A"> $q / \epsilon_0$</label>
+            <label class="option"><input type="radio" name="jee-q" value="B"> $q / 6\epsilon_0$</label>
+            <label class="option"><input type="radio" name="jee-q" value="C"> $6qL^2 / \epsilon_0$</label>
+            <label class="option"><input type="radio" name="jee-q" value="D"> Zero</label>
+
+            <div class="action-bar">
+                <button class="btn btn-save" onclick="updateStatus('answered')">Save & Next</button>
+                <button class="btn btn-review" onclick="updateStatus('review')">Review</button>
+                <button class="btn btn-clear" onclick="updateStatus('clear')">Clear</button>
+            </div>
         </div>
-    </div>
+    </main>
 
     <aside class="sidebar">
-        <h3>Exam Summary</h3>
-        <p style="margin: 20px 0; font-size: 0.9rem; color: #64748b;">Once you submit, you will be able to start other tests.</p>
-        <button class="submit-btn" onclick="finalizeTest()">FINISH & SUBMIT</button>
+        <h3 class="palette-title">Question Palette</h3>
+        <div class="palette-grid" id="paletteGrid">
+            </div>
+
+        <button class="btn-finish" onclick="finalizeExam()">FINISH TEST</button>
     </aside>
 </div>
 
 <script>
-    // 1. Identify what test we are in
-    const activeId = localStorage.getItem('activeTestId');
-    if (!activeId) {
-        window.location.href = 'tests.html'; // Kick out if no lock exists
-    } else {
-        document.getElementById('testNameDisplay').innerText = "Exam: " + activeId.replace('card-', '').toUpperCase();
+    let currentIdx = 1;
+    const totalQuestions = 30;
+    const states = {}; // To track answered/review/clear
+
+    // 1. Generate Question Palette
+    const grid = document.getElementById('paletteGrid');
+    for(let i=1; i<=totalQuestions; i++) {
+        const circle = document.createElement('div');
+        circle.id = `palette-q-${i}`;
+        circle.className = 'q-circle';
+        circle.innerText = i;
+        if(i === 1) circle.classList.add('current');
+        grid.appendChild(circle);
     }
 
-    // 2. The Submission (The Unlocker)
-    function finalizeTest() {
-        if (confirm("Are you sure you want to submit? This will unlock other tests.")) {
-            
-            // Generate a random score for demonstration
-            const testResult = {
-                id: activeId,
-                subject: activeId.replace('card-', ''),
-                score: Math.floor(Math.random() * 25) + 75, // 75-100
-                date: new Date().toLocaleDateString()
-            };
+    // 2. Logic to update palette colors
+    function updateStatus(type) {
+        const circle = document.getElementById(`palette-q-${currentIdx}`);
+        circle.classList.remove('answered', 'review', 'current');
+        
+        if (type === 'answered') {
+            circle.classList.add('answered');
+        } else if (type === 'review') {
+            circle.classList.add('review');
+        } else if (type === 'clear') {
+            // Reverts to default light grey
+        }
 
-            // Save to Results History
+        // Auto-advance to next question (for demo purposes)
+        if(currentIdx < totalQuestions) {
+            currentIdx++;
+            document.getElementById('currentNum').innerText = currentIdx;
+            document.getElementById(`palette-q-${currentIdx}`).classList.add('current');
+            // Reset radio buttons for next question
+            document.querySelectorAll('input[type="radio"]').forEach(r => r.checked = false);
+        }
+    }
+
+    // 3. Finalize & Unlock Session
+    function finalizeExam() {
+        if(confirm("Submit test? This will unlock other subjects.")) {
+            localStorage.removeItem('activeTestId');
+            
+            // Record a dummy result for the performance page
             let history = JSON.parse(localStorage.getItem('testHistory') || '[]');
-            history.push(testResult);
+            history.push({
+                subject: 'Physics Mock',
+                score: 88,
+                date: new Date().toLocaleDateString()
+            });
             localStorage.setItem('testHistory', JSON.stringify(history));
 
-            // CRITICAL: CLEAR THE SESSION LOCK
-            localStorage.removeItem('activeTestId');
-
-            alert("Test Submitted! Your results are saved.");
-            window.location.href = 'tests.html'; 
+            window.location.href = 'performance.html';
         }
     }
 </script>
+
 </body>
 </html>
