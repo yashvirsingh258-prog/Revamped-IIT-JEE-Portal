@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JEE Portal | Exam Mode</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
@@ -13,62 +12,45 @@
     </script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', -apple-system, sans-serif; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
         body { background: #f1f5f9; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-        
-        header { background: #0b4a8f; color: white; padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; z-index: 10; }
+        header { background: #0b4a8f; color: white; padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; }
         #timer { background: #e11d48; padding: 8px 18px; border-radius: 6px; font-weight: 700; font-family: monospace; font-size: 1.2rem; }
-
         .container { flex: 1; display: flex; overflow: hidden; }
-
-        /* Main Exam Area */
         .question-section { flex: 1; background: white; padding: 50px; overflow-y: auto; display: flex; flex-direction: column; }
         .q-card { max-width: 900px; margin: 0 auto; width: 100%; display: flex; flex-direction: column; height: 100%; }
         .q-text { font-size: 1.35rem; line-height: 1.7; color: #1e293b; margin-bottom: 40px; }
-        
-        /* Options */
         .option-box { display: block; padding: 18px; border: 2px solid #e2e8f0; border-radius: 12px; margin-bottom: 15px; cursor: pointer; transition: 0.2s; }
         .option-box:hover { border-color: #cbd5e1; background: #f8fafc; }
-        .option-box input { margin-right: 12px; }
-
-        /* Navigation Bar */
         .footer-actions { margin-top: auto; padding: 30px 0; border-top: 1px solid #e2e8f0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
-        .btn { height: 50px; border-radius: 10px; font-weight: 600; border: 1px solid #e2e8f0; cursor: pointer; transition: all 0.2s ease; font-size: 0.95rem; display: flex; align-items: center; justify-content: center; background: #f1f5f9; color: #475569; }
-        .btn:hover { background: #e2e8f0; transform: translateY(-1px); }
-        .btn-review:hover { background: #8b5cf6; color: white; border-color: #8b5cf6; }
-        .btn-clear:hover { background: #fee2e2; color: #991b1b; border-color: #fecaca; }
-
-        /* Sidebar */
+        .btn { height: 50px; border-radius: 10px; font-weight: 600; border: 1px solid #e2e8f0; cursor: pointer; transition: 0.2s; font-size: 0.95rem; display: flex; align-items: center; justify-content: center; background: #f1f5f9; color: #475569; }
+        .btn-review:hover { background: #8b5cf6; color: white; }
+        .btn-clear:hover { background: #fee2e2; color: #991b1b; }
         .sidebar { width: 350px; background: #f8fafc; border-left: 1px solid #e2e8f0; padding: 30px; display: flex; flex-direction: column; }
         .palette-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 30px; }
-        .p-circle { width: 45px; height: 45px; border-radius: 50%; background: white; border: 1px solid #cbd5e1; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer; transition: all 0.2s ease; }
-        .p-circle:hover { border-color: #0b4a8f; background: #eff6ff; transform: scale(1.1); }
-        .p-circle.current { border: 3px solid #0b4a8f; color: #0b4a8f; background: #eff6ff; }
+        .p-circle { width: 45px; height: 45px; border-radius: 50%; background: white; border: 1px solid #cbd5e1; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        .p-circle:hover { transform: scale(1.1); border-color: #0b4a8f; }
+        .p-circle.current { border: 3px solid #0b4a8f; background: #eff6ff; }
         .p-circle.answered { background: #10b981 !important; color: white !important; border: none; }
         .p-circle.review { background: #8b5cf6 !important; color: white !important; border: none; }
-
-        /* Legends */
         .legend-area { margin-top: 20px; padding-top: 20px; border-top: 1px solid #e2e8f0; }
-        .legend-item { display: flex; align-items: center; margin-bottom: 10px; font-size: 0.85rem; color: #64748b; font-weight: 500; }
+        .legend-item { display: flex; align-items: center; margin-bottom: 10px; font-size: 0.85rem; color: #64748b; }
         .legend-dot { width: 14px; height: 14px; border-radius: 50%; margin-right: 12px; border: 1px solid #cbd5e1; }
-
-        .btn-submit { background: #0b4a8f; color: white; width: 100%; padding: 18px; border-radius: 12px; border: none; font-weight: 700; margin-top: auto; cursor: pointer; transition: 0.3s; }
-        .btn-submit:hover { background: #083a71; }
+        .btn-submit { background: #0b4a8f; color: white; width: 100%; padding: 18px; border-radius: 12px; border: none; font-weight: 700; margin-top: auto; cursor: pointer; }
     </style>
 </head>
 <body>
 
 <header>
-    <div style="font-weight:700;" id="testLabel">EXAM IN PROGRESS</div>
+    <div id="testLabel" style="font-weight:700;">JEE EXAM</div>
     <div id="timer">40:00</div>
 </header>
 
 <div class="container">
     <main class="question-section">
         <div class="q-card">
-            <div style="color:#64748b; font-weight:700; margin-bottom:15px; font-size:0.8rem; letter-spacing:1px;">QUESTION #<span id="qIdx">1</span></div>
-            <div id="qContent" class="q-text">Loading question...</div>
-            
+            <div style="color:#64748b; font-weight:700; margin-bottom:15px; font-size:0.8rem;">QUESTION #<span id="qIdx">1</span></div>
+            <div id="qContent" class="q-text">Loading...</div>
             <div class="footer-actions">
                 <button class="btn" onclick="nav(-1)">« Previous</button>
                 <button class="btn btn-review" onclick="setStatus('review')">Mark for Review</button>
@@ -77,19 +59,14 @@
             </div>
         </div>
     </main>
-
     <aside class="sidebar">
-        <div style="font-size:0.75rem; font-weight:700; color:#94a3b8; margin-bottom:15px; text-transform:uppercase;">Question Palette</div>
         <div class="palette-grid" id="pGrid"></div>
-
         <div class="legend-area">
-            <div class="legend-item"><div class="legend-dot" style="background:#10b981; border:none;"></div> Answered</div>
-            <div class="legend-item"><div class="legend-dot" style="background:#8b5cf6; border:none;"></div> Marked for Review</div>
-            <div class="legend-item"><div class="legend-dot" style="background:white;"></div> Not Visited</div>
-            <div class="legend-item"><div class="legend-dot" style="border: 2px solid #0b4a8f; background:#eff6ff;"></div> Current</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#10b981;"></div> Answered</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#8b5cf6;"></div> Review</div>
+            <div class="legend-item"><div class="legend-dot" style="background:white;"></div> Unvisited</div>
         </div>
-
-        <button class="btn-submit" id="submitBtn" onclick="finalSubmit(true)">Final Submit</button>
+        <button class="btn-submit" id="subBtn" onclick="finalSubmit()">Final Submit</button>
     </aside>
 </div>
 
@@ -98,13 +75,13 @@
     const supabaseKey = 'sb_publishable_V-KT1zvp-73dqHHvmx3fNA_iHw53TCl';
     const client = supabase.createClient(supabaseUrl, supabaseKey);
 
-    let questions = [], current = 0, timeLimit = 2400;
-    let userAnswers = {}; // Memory to store selections
+    let questions = [], current = 0, timeLeft = 2400;
+    let answers = {}, markedReview = [], confirmedAnswered = [];
 
     async function init() {
-        const testName = localStorage.getItem('currentTestName');
-        const { data } = await client.from('questions_table').select('*').eq('test_name', testName).single();
-        if (data && data.question_data) {
+        const tName = localStorage.getItem('currentTestName');
+        const { data } = await client.from('questions_table').select('*').eq('test_name', tName).single();
+        if (data) {
             questions = data.question_data;
             document.getElementById('testLabel').innerText = data.test_name;
             renderPalette();
@@ -122,99 +99,73 @@
         current = idx;
         const q = questions[idx];
         document.getElementById('qIdx').innerText = idx + 1;
-        
-        const savedAnswer = userAnswers[current]; // Retrieve answer if exists
-        
-        let html = `<div>${q.q}</div><div style="margin-top:30px;">`;
+        const saved = answers[current];
+        let h = `<div>${q.q}</div><div style="margin-top:30px;">`;
         q.options.forEach((opt, i) => {
-            const isChecked = (savedAnswer !== undefined && savedAnswer == i) ? 'checked' : '';
-            html += `<label class="option-box">
-                        <input type="radio" name="opt" value="${i}" onchange="saveSelection(${i})" ${isChecked}> ${opt}
-                     </label>`;
+            h += `<label class="option-box"><input type="radio" name="opt" value="${i}" onchange="selectOpt(${i})" ${saved == i ? 'checked' : ''}> ${opt}</label>`;
         });
-        html += `</div>`;
-        document.getElementById('qContent').innerHTML = html;
-
+        document.getElementById('qContent').innerHTML = h;
         document.querySelectorAll('.p-circle').forEach(c => c.classList.remove('current'));
         document.getElementById(`p-${idx}`).classList.add('current');
         if(window.MathJax) MathJax.typesetPromise();
     }
 
-    function saveSelection(val) {
-        userAnswers[current] = val; // Store in memory
-        const circle = document.getElementById(`p-${current}`);
-        if (!circle.classList.contains('review')) circle.classList.add('answered');
+    function selectOpt(val) {
+        answers[current] = val;
+        if (!confirmedAnswered.includes(current)) confirmedAnswered.push(current);
+        updatePalette();
     }
 
     function setStatus(type) {
-        const circle = document.getElementById(`p-${current}`);
         if (type === 'clear') {
-            circle.classList.remove('answered', 'review');
-            delete userAnswers[current];
+            delete answers[current];
+            confirmedAnswered = confirmedAnswered.filter(i => i !== current);
+            markedReview = markedReview.filter(i => i !== current);
             document.getElementsByName('opt').forEach(r => r.checked = false);
-        } else if (type === 'review') {
-            circle.classList.remove('answered');
-            circle.classList.add('review');
+        } else {
+            if (!markedReview.includes(current)) markedReview.push(current);
         }
+        updatePalette();
     }
 
-    function nav(dir) {
-        let nextIdx = current + dir;
-        if (nextIdx >= 0 && nextIdx < questions.length) loadQuestion(nextIdx);
+    function updatePalette() {
+        const c = document.getElementById(`p-${current}`);
+        c.classList.remove('answered', 'review');
+        if (markedReview.includes(current)) c.classList.add('review');
+        else if (confirmedAnswered.includes(current)) c.classList.add('answered');
     }
+
+    function nav(d) { let n = current + d; if (n >= 0 && n < questions.length) loadQuestion(n); }
 
     function startTimer() {
-        const timerEl = document.getElementById('timer');
-        const clock = setInterval(() => {
-            timeLimit--;
-            let m = Math.floor(timeLimit / 60), s = timeLimit % 60;
-            timerEl.innerText = `${m}:${s < 10 ? '0' : ''}${s}`;
-            if (timeLimit <= 0) { clearInterval(clock); finalSubmit(false); }
+        setInterval(() => {
+            timeLeft--;
+            let m = Math.floor(timeLeft/60), s = timeLeft%60;
+            document.getElementById('timer').innerText = `${m}:${s<10?'0':''}${s}`;
+            if(timeLeft <= 0) finalSubmit();
         }, 1000);
     }
 
-    async function finalSubmit(manual) {
-    if (manual && !confirm("Finalize and submit your test?")) return;
-    
-    const submitBtn = document.getElementById('submitBtn');
-    submitBtn.disabled = true;
-    submitBtn.innerText = "Saving...";
+    async function finalSubmit() {
+        const user = localStorage.getItem('username') || 'anonymous_student';
+        const tName = localStorage.getItem('currentTestName');
+        const sub = document.getElementById('testLabel').innerText;
 
-    const testName = localStorage.getItem('currentTestName');
-    const ansCount = document.querySelectorAll('.p-circle.answered').length;
-    const revCount = document.querySelectorAll('.p-circle.review').length;
+        const { error } = await client.from('student_progress').upsert({
+            username: user,
+            test_name: tName,
+            subject: sub,
+            user_answers: answers,
+            confirmed_answered: confirmedAnswered,
+            marked_for_review: markedReview,
+            time_left: timeLeft,
+            is_finished: true,
+            current_index: current
+        });
 
-    // Use a simpler object to ensure no schema conflicts
-    const insertData = { 
-        test_name: testName, 
-        status: 'Completed',
-        score_summary: `Answered: ${ansCount}, Review: ${revCount}`,
-        completed_at: new Date().toISOString()
-    };
-
-    console.log("Attempting to save:", insertData);
-
-    try {
-        const { data, error } = await client
-            .from('student_progress')
-            .insert([insertData])
-            .select(); // select() helps confirm the data was written
-
-        if (error) {
-            console.error("Supabase Error Details:", error);
-            alert(`Database Error: ${error.message}\nCheck if columns 'test_name', 'status', 'score_summary', and 'completed_at' exist.`);
-            submitBtn.disabled = false;
-            submitBtn.innerText = "Retry Submit";
-        } else {
-            console.log("Success! Data saved:", data);
-            window.location.href = 'performance.html';
-        }
-    } catch (err) {
-        console.error("System Error:", err);
-        alert("A system error occurred. Check the console (F12).");
-        submitBtn.disabled = false;
+        if (error) alert(error.message);
+        else window.location.href = 'performance.html';
     }
-}
 
     init();
 </script>
