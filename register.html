@@ -107,7 +107,8 @@
         const { error } = await supabaseClient.auth.signInWithOAuth({
             provider: provider,
             options: {
-                redirectTo: 'https://revamped-iit-jee-portal.vercel.app/index.html'
+                // Change this from index.html to login.html
+                redirectTo: 'https://revamped-iit-jee-portal.vercel.app/login.html'
             }
         });
         if (error) alert("Error: " + error.message);
