@@ -23,7 +23,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: #f8fafc; display: flex; }
         
-        /* Sidebar with Logout at Bottom */
+        /* Fixed Sidebar Navigation */
         nav { 
             width: var(--sidebar-width); 
             background: var(--primary-blue); 
@@ -32,11 +32,10 @@
             height: 100vh; 
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
             padding: 40px 0;
             z-index: 1000;
         }
-        .logo-area { padding: 0 30px; margin-bottom: 30px; }
+        .logo-area { padding: 0 30px; margin-bottom: 40px; }
         .nav-links-group { flex-grow: 1; }
         .nav-link { 
             display: block; 
@@ -44,68 +43,83 @@
             text-decoration: none; 
             color: rgba(255,255,255,0.7); 
             font-size: 0.95rem; 
+            font-weight: 500;
             transition: 0.2s; 
         }
         .nav-link:hover, .active-link { color: white; background: rgba(255,255,255,0.1); }
-        .logout-link { border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; color: #fda4af; }
 
-        /* Content Spacing */
+        /* FIXED: Logout Link Color */
+        .logout-container { border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px; }
+        .logout-link { color: rgba(255,255,255,0.7); }
+        .logout-link:hover { color: #fff; background: rgba(255,255,255,0.05); }
+
+        /* Main Content Spacing */
         main { 
             margin-left: var(--sidebar-width); 
             flex: 1; 
             padding: 60px 80px; 
             max-width: 1400px;
+            width: calc(100% - var(--sidebar-width));
         }
 
         .stats-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 20px; margin-bottom: 50px; }
         .stat-card { background: white; padding: 25px; border-radius: 12px; border: 1px solid #e2e8f0; text-align: center; }
         .stat-val { font-size: 1.6rem; font-weight: 700; color: var(--primary-blue); display: block; }
 
-        /* Solution Formatting */
+        /* Review Section Spacing */
         .q-row { background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 35px; margin-bottom: 30px; }
         .option-review { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 25px; }
         
         .opt { 
             padding: 20px; border-radius: 10px; border: 2px solid #e2e8f0; 
             position: relative; background: white; min-height: 65px;
+            display: flex; align-items: center;
         }
 
-        /* The "Fixed" Border Logic */
-        .opt-correct { border: 2.5px solid var(--correct-green) !important; background: #f0fdf4 !important; }
-        .opt-user-wrong { border: 2.5px solid var(--wrong-red) !important; background: #fef2f2 !important; }
+        /* Border Logic */
+        .opt-correct { border: 2.5px solid var(--correct-green) !important; background: #f0fdf4 !important; color: #065f46 !important; font-weight: 600; }
+        .opt-user-wrong { border: 2.5px solid var(--wrong-red) !important; background: #fef2f2 !important; color: #991b1b !important; }
 
-        /* Solution Hover */
+        /* Step-wise Solution Styling */
         .solution-box {
             visibility: hidden; opacity: 0; position: absolute; bottom: 110%; left: 0; 
-            width: 100%; min-width: 350px; background: white; padding: 20px; 
+            width: 100%; min-width: 350px; background: white; padding: 25px; 
             border-radius: 12px; border: 1px solid var(--correct-green); 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1); z-index: 100; transition: 0.3s ease;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.12); z-index: 100; transition: 0.3s ease;
         }
         .opt-correct:hover .solution-box { visibility: visible; opacity: 1; bottom: 120%; }
         
-        .step-item { display: block; margin-bottom: 10px; padding-left: 20px; position: relative; color: #475569; }
-        .step-item::before { content: "→"; position: absolute; left: 0; color: var(--correct-green); font-weight: bold; }
+        .step-item { display: block; margin-bottom: 12px; padding-left: 25px; position: relative; color: #334155; line-height: 1.6; }
+        .step-item::before { 
+            content: "Step " counter(step-counter) ":"; 
+            counter-increment: step-counter; 
+            position: absolute; left: 0; color: var(--correct-green); 
+            font-weight: 800; font-size: 0.75rem;
+        }
+        .sol-text { counter-reset: step-counter; }
 
-        .badge { padding: 4px 10px; border-radius: 5px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; margin-left: 10px; }
+        .badge { padding: 5px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
         .bg-red { background: #fee2e2; color: #991b1b; }
         .bg-green { background: #dcfce7; color: #166534; }
     </style>
 </head>
 <body>
     <nav>
+        <div class="logo-area"><h2>JEE Portal</h2></div>
         <div class="nav-links-group">
-            <div class="logo-area"><h2>JEE Portal</h2></div>
             <a href="dashboard.html" class="nav-link">Dashboard</a>
             <a href="tests.html" class="nav-link">Available Tests</a>
             <a href="performance.html" class="nav-link active-link">Performance</a>
         </div>
-        <a href="#" onclick="handleLogout()" class="nav-link logout-link">Logout</a>
+        <div class="logout-container">
+            <a href="#" onclick="handleLogout()" class="nav-link logout-link">Logout</a>
+        </div>
     </nav>
 
     <main>
         <div style="margin-bottom: 40px;">
-            <h1 id="reportTitle">Performance Analysis</h1>
-            <p id="testSubtext" style="color: #64748b;">Review your answers and solutions below.</p>
+            <h1 id="reportTitle" style="font-size: 2rem;">Analysis Report</h1>
+            <p id="testSubtext" style="color: #64748b; margin-top: 5px;">Review your results and step-wise solutions below.</p>
         </div>
 
         <div class="stats-grid">
@@ -141,9 +155,11 @@
         }
 
         function formatSolution(sol) {
-            if (!sol) return 'No explanation provided.';
-            // Splits by newline for step-wise formatting
-            return sol.split('\n').filter(s => s.trim()).map(s => `<span class="step-item">${s.trim()}</span>`).join('');
+            if (!sol) return 'No detailed solution available.';
+            // Formats each line as a numbered step
+            return `<div class="sol-text">` + 
+                   sol.split('\n').filter(s => s.trim()).map(s => `<span class="step-item">${s.trim()}</span>`).join('') + 
+                   `</div>`;
         }
 
         function renderReport(questions, attempt, testName) {
@@ -152,32 +168,33 @@
 
             questions.forEach((q, idx) => {
                 const userAns = attempt.user_answers[idx]; 
-                const correctIdx = Number(q.correct); // Ensure number type
-                const isCorrect = userAns !== null && Number(userAns) === correctIdx;
+                const correctIdx = parseInt(q.correct); 
+                const isCorrect = userAns !== null && parseInt(userAns) === correctIdx;
                 
                 if (isCorrect) correct++; else if (userAns !== null) wrong++;
 
                 html += `
                 <div class="q-row">
-                    <div style="margin-bottom:15px; font-weight:600;">
-                        Q${idx+1} <span class="badge ${isCorrect ? 'bg-green' : 'bg-red'}">${isCorrect ? 'Correct' : 'Incorrect'}</span>
+                    <div style="margin-bottom:15px; display:flex; align-items:center; justify-content:space-between;">
+                        <span style="font-weight:700; color:#64748b;">QUESTION ${idx+1}</span>
+                        <span class="badge ${isCorrect ? 'bg-green' : 'bg-red'}">${isCorrect ? 'Correct' : 'Incorrect'}</span>
                     </div>
-                    <div style="margin-bottom:25px; font-size:1.1rem;">${q.q}</div>
+                    <div style="margin-bottom:25px; font-size:1.15rem; line-height:1.6;">${q.q}</div>
                     <div class="option-review">
                         ${q.options.map((opt, i) => {
                             let cls = 'opt';
                             let sol = '';
                             
-                            // HIGHLIGHT 1: Always highlight the Correct answer
+                            // HIGHLIGHT 1: Correct Answer (Green)
                             if (i === correctIdx) {
                                 cls += ' opt-correct';
                                 sol = `<div class="solution-box">
-                                        <b style="color:var(--correct-green); font-size:0.8rem; display:block; margin-bottom:10px;">SOLUTION</b>
+                                        <b style="color:var(--correct-green); font-size:0.75rem; display:block; margin-bottom:15px; letter-spacing:0.5px;">STEP-WISE EXPLANATION</b>
                                         ${formatSolution(q.solution)}
                                        </div>`;
                             }
-                            // HIGHLIGHT 2: Highlight user's mistake only if they chose wrong
-                            if (userAns !== null && Number(userAns) === i && i !== correctIdx) {
+                            // HIGHLIGHT 2: User Mistake (Red)
+                            if (userAns !== null && parseInt(userAns) === i && i !== correctIdx) {
                                 cls += ' opt-user-wrong';
                             }
                             
