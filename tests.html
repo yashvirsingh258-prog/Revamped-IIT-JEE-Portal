@@ -9,26 +9,30 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: #f8fafc; display: flex; color: #1e293b; }
         
-        /* Sidebar - Persistent Links */
+        /* Sidebar */
         nav { width: 280px; background: #0b4a8f; color: white; padding: 60px 0; position: fixed; height: 100vh; display: flex; flex-direction: column; }
         .logo-area { padding: 0 40px; margin-bottom: 60px; }
-        .nav-link { display: block; padding: 18px 40px; text-decoration: none; color: rgba(255,255,255,0.5); text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px; transition: 0.3s; }
+        .nav-link { display: block; padding: 18px 40px; text-decoration: none; color: rgba(255,255,255,0.5); text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px; transition: 0.3s; cursor: pointer; }
         .nav-link:hover { color: white; background: rgba(255,255,255,0.05); }
         .active-link { color: white; background: rgba(255,255,255,0.1); border-right: 4px solid #fff; font-weight: 700; }
         
         main { margin-left: 280px; flex: 1; padding: 80px 60px; }
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 30px; }
         
-        .test-card { background: white; padding: 32px; border-radius: 24px; border: 1px solid #e2e8f0; transition: 0.3s; opacity: 0.6; pointer-events: none; }
+        .test-card { background: white; padding: 32px; border-radius: 24px; border: 1px solid #e2e8f0; transition: 0.3s; opacity: 0.6; pointer-events: none; position: relative; }
         .test-card.active { opacity: 1; pointer-events: auto; cursor: pointer; border-left: 5px solid #0b4a8f; }
         .test-card.active:hover { transform: translateY(-8px); box-shadow: 0 12px 24px rgba(11, 74, 143, 0.1); }
         
+        /* State for completed tests */
+        .test-card.completed { border-left: 5px solid #10b981; pointer-events: none; opacity: 0.8; }
+        .test-card.completed .launch-btn { background: #10b981 !important; cursor: not-allowed; }
+
         .subject-badge { display: inline-block; padding: 6px 12px; background: #f1f5f9; color: #64748b; border-radius: 8px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; margin-bottom: 16px; }
         .active .subject-badge { background: #eff6ff; color: #0b4a8f; }
         
         .test-title { font-size: 1.4rem; font-weight: 700; margin-bottom: 8px; color: #0f172a; }
         .test-name-db { font-size: 0.9rem; color: #0b4a8f; font-weight: 600; margin-bottom: 20px; }
-        .launch-btn { background: #cbd5e1; color: white; border: none; padding: 14px; border-radius: 12px; font-weight: 600; width: 100%; cursor: not-allowed; }
+        .launch-btn { background: #cbd5e1; color: white; border: none; padding: 14px; border-radius: 12px; font-weight: 600; width: 100%; cursor: not-allowed; transition: 0.3s; }
         .active .launch-btn { background: #0b4a8f; cursor: pointer; }
     </style>
 </head>
@@ -38,7 +42,7 @@
         <a href="index.html" class="nav-link">Dashboard</a>
         <a href="tests.html" class="nav-link active-link">Available Tests</a>
         <a href="performance.html" class="nav-link">Performance</a>
-        <a href="login.html" class="nav-link" style="margin-top:auto; border-top:1px solid rgba(255,255,255,0.1);">Logout</a>
+        <a onclick="handleLogout()" class="nav-link" style="margin-top:auto; border-top:1px solid rgba(255,255,255,0.1);">Logout</a>
     </nav>
 
     <main>
@@ -50,21 +54,21 @@
                 <span class="subject-badge">Physics</span>
                 <h3 class="test-title">Physics Mock</h3>
                 <div class="test-name-db" id="name-physics">No active tests</div>
-                <button class="launch-btn">Start Test</button>
+                <button class="launch-btn" id="btn-physics">Start Test</button>
             </div>
 
             <div class="test-card" id="card-chemistry">
                 <span class="subject-badge">Chemistry</span>
                 <h3 class="test-title">Chemistry Mock</h3>
                 <div class="test-name-db" id="name-chemistry">No active tests</div>
-                <button class="launch-btn">Start Test</button>
+                <button class="launch-btn" id="btn-chemistry">Start Test</button>
             </div>
 
             <div class="test-card" id="card-mathematics">
                 <span class="subject-badge">Mathematics</span>
                 <h3 class="test-title">Maths Mock</h3>
                 <div class="test-name-db" id="name-mathematics">No active tests</div>
-                <button class="launch-btn">Start Test</button>
+                <button class="launch-btn" id="btn-mathematics">Start Test</button>
             </div>
         </div>
     </main>
@@ -72,28 +76,64 @@
     <script>
         const supabaseUrl = 'https://ijxsnunkfhudwnkrwmzk.supabase.co';
         const supabaseKey = 'sb_publishable_V-KT1zvp-73dqHHvmx3fNA_iHw53TCl';
-        const client = supabase.createClient(supabaseUrl, supabaseKey);
+        const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+        // AUTH GUARD: Ensure user is logged in
+        async function checkAuth() {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (!session) window.location.href = 'login.html';
+            return session.user;
+        }
 
         async function syncWithDB() {
-            const { data, error } = await client.from('questions_table').select('subject, test_name');
-            
-            if (data) {
-                data.forEach(row => {
+            const user = await checkAuth();
+
+            // 1. Get tests available in questions table
+            const { data: questions, error: qError } = await supabaseClient
+                .from('questions_table')
+                .select('subject, test_name');
+
+            // 2. Get tests already completed by this student from student_progress
+            const { data: progress } = await supabaseClient
+                .from('student_progress')
+                .select('test_name')
+                .eq('student_id', user.id);
+
+            const completedTestNames = progress ? progress.map(p => p.test_name) : [];
+
+            if (questions) {
+                questions.forEach(row => {
                     const subject = row.subject.toLowerCase();
                     const card = document.getElementById(`card-${subject}`);
                     const nameLabel = document.getElementById(`name-${subject}`);
+                    const btn = document.getElementById(`btn-${subject}`);
                     
                     if (card) {
-                        card.classList.add('active');
                         nameLabel.innerText = row.test_name;
-                        card.onclick = () => {
-                            localStorage.setItem('currentTestName', row.test_name);
-                            window.location.href = 'active-test.html';
-                        };
+                        
+                        // Check if test is already taken
+                        if (completedTestNames.includes(row.test_name)) {
+                            card.classList.add('completed');
+                            card.classList.remove('active');
+                            btn.innerText = "Submitted";
+                        } else {
+                            card.classList.add('active');
+                            btn.innerText = "Start Test";
+                            card.onclick = () => {
+                                localStorage.setItem('currentTestName', row.test_name);
+                                window.location.href = 'active-test.html';
+                            };
+                        }
                     }
                 });
             }
         }
+
+        async function handleLogout() {
+            await supabaseClient.auth.signOut();
+            window.location.href = 'login.html';
+        }
+
         syncWithDB();
     </script>
 </body>
