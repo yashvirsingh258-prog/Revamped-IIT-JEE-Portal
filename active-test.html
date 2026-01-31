@@ -26,68 +26,28 @@
         .option-box { display: block; padding: 18px; border: 2px solid #e2e8f0; border-radius: 12px; margin-bottom: 15px; cursor: pointer; transition: 0.2s; }
         .option-box:hover { border-color: #cbd5e1; background: #f8fafc; }
 
-        /* Unified Button Bar */
-        .footer-actions { 
-            margin-top: auto; 
-            padding: 30px 0; 
-            border-top: 1px solid #e2e8f0; 
-            display: grid; 
-            grid-template-columns: repeat(4, 1fr); 
-            gap: 20px; 
-        }
-
-        .btn { 
-            height: 50px; 
-            border-radius: 10px; 
-            font-weight: 600; 
-            border: 1px solid #e2e8f0; 
-            cursor: pointer; 
-            transition: all 0.2s ease; 
-            font-size: 0.95rem; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center;
-            background: #f1f5f9; 
-            color: #475569;
-        }
-
-        /* Hover Effects */
+        .footer-actions { margin-top: auto; padding: 30px 0; border-top: 1px solid #e2e8f0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+        .btn { height: 50px; border-radius: 10px; font-weight: 600; border: 1px solid #e2e8f0; cursor: pointer; transition: all 0.2s ease; font-size: 0.95rem; display: flex; align-items: center; justify-content: center; background: #f1f5f9; color: #475569; }
         .btn:hover { background: #e2e8f0; transform: translateY(-1px); }
         .btn-review:hover { background: #8b5cf6; color: white; border-color: #8b5cf6; }
         .btn-clear:hover { background: #fee2e2; color: #991b1b; border-color: #fecaca; }
 
-        /* Sidebar Palette */
         .sidebar { width: 350px; background: #f8fafc; border-left: 1px solid #e2e8f0; padding: 30px; display: flex; flex-direction: column; }
         .palette-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 30px; }
         
-        .p-circle { 
-            width: 45px; 
-            height: 45px; 
-            border-radius: 50%; 
-            background: white; 
-            border: 1px solid #cbd5e1; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            font-weight: 600; 
-            cursor: pointer; 
-            transition: all 0.2s ease;
-        }
-
-        /* Palette Hover Effect */
-        .p-circle:hover { 
-            border-color: #0b4a8f; 
-            background: #eff6ff; 
-            transform: scale(1.1); 
-            z-index: 1;
-        }
-
+        .p-circle { width: 45px; height: 45px; border-radius: 50%; background: white; border: 1px solid #cbd5e1; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer; transition: all 0.2s ease; }
+        .p-circle:hover { border-color: #0b4a8f; background: #eff6ff; transform: scale(1.1); }
         .p-circle.current { border: 3px solid #0b4a8f; color: #0b4a8f; background: #eff6ff; }
         .p-circle.answered { background: #10b981 !important; color: white !important; border: none; }
         .p-circle.review { background: #8b5cf6 !important; color: white !important; border: none; }
 
+        /* Legend Styling */
+        .legend-area { margin-top: 20px; padding-top: 20px; border-top: 1px solid #e2e8f0; }
+        .legend-item { display: flex; align-items: center; margin-bottom: 10px; font-size: 0.85rem; color: #64748b; font-weight: 500; }
+        .legend-dot { width: 14px; height: 14px; border-radius: 50%; margin-right: 12px; border: 1px solid #cbd5e1; }
+
         .btn-submit { background: #0b4a8f; color: white; width: 100%; padding: 18px; border-radius: 12px; border: none; font-weight: 700; margin-top: auto; cursor: pointer; transition: 0.3s; }
-        .btn-submit:hover { background: #083a71; box-shadow: 0 4px 12px rgba(11, 74, 143, 0.2); }
+        .btn-submit:disabled { background: #94a3b8; cursor: not-allowed; }
     </style>
 </head>
 <body>
@@ -100,7 +60,7 @@
 <div class="container">
     <main class="question-section">
         <div class="q-card">
-            <div style="color:#64748b; font-weight:700; margin-bottom:15px; font-size:0.8rem; letter-spacing:1px;">QUESTION #<span id="qIdx">1</span></div>
+            <div style="color:#64748b; font-weight:700; margin-bottom:15px; font-size:0.8rem;">QUESTION #<span id="qIdx">1</span></div>
             <div id="qContent" class="q-text">Loading question...</div>
             
             <div class="footer-actions">
@@ -113,9 +73,17 @@
     </main>
 
     <aside class="sidebar">
-        <div style="font-size:0.75rem; font-weight:700; color:#94a3b8; margin-bottom:20px; text-transform:uppercase;">Question Palette</div>
+        <div style="font-size:0.75rem; font-weight:700; color:#94a3b8; margin-bottom:15px; text-transform:uppercase;">Question Palette</div>
         <div class="palette-grid" id="pGrid"></div>
-        <button class="btn-submit" onclick="finalSubmit(true)">Final Submit</button>
+
+        <div class="legend-area">
+            <div class="legend-item"><div class="legend-dot" style="background:#10b981; border:none;"></div> Answered</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#8b5cf6; border:none;"></div> Marked for Review</div>
+            <div class="legend-item"><div class="legend-dot" style="background:white;"></div> Not Visited</div>
+            <div class="legend-item"><div class="legend-dot" style="border: 2px solid #0b4a8f; background:#eff6ff;"></div> Current Question</div>
+        </div>
+
+        <button class="btn-submit" id="submitBtn" onclick="finalSubmit(true)">Final Submit</button>
     </aside>
 </div>
 
@@ -164,9 +132,7 @@
 
     function autoAnswer() {
         const circle = document.getElementById(`p-${current}`);
-        if (!circle.classList.contains('review')) {
-            circle.classList.add('answered');
-        }
+        if (!circle.classList.contains('review')) circle.classList.add('answered');
     }
 
     function setStatus(type) {
@@ -195,9 +161,37 @@
         }, 1000);
     }
 
-    function finalSubmit(manual) {
+    async function finalSubmit(manual) {
         if (manual && !confirm("Are you sure you want to submit the exam?")) return;
-        window.location.href = 'performance.html';
+
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.disabled = true;
+        submitBtn.innerText = "Processing...";
+
+        // Logic to update student_progress table
+        const testName = localStorage.getItem('currentTestName');
+        const answeredCount = document.querySelectorAll('.p-circle.answered').length;
+        const reviewCount = document.querySelectorAll('.p-circle.review').length;
+
+        try {
+            const { error } = await client
+                .from('student_progress')
+                .insert([
+                    { 
+                        test_name: testName, 
+                        status: 'Completed',
+                        score_summary: `Answered: ${answeredCount}, Review: ${reviewCount}`,
+                        completed_at: new Date().toISOString()
+                    }
+                ]);
+
+            if (error) throw error;
+            window.location.href = 'performance.html';
+        } catch (err) {
+            console.error("Progress Sync Error:", err);
+            alert("Failed to sync progress, but your test is finished.");
+            window.location.href = 'performance.html';
+        }
     }
 
     init();
