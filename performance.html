@@ -16,7 +16,6 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: #f8fafc; color: #1e293b; display: flex; }
         
-        /* Sidebar */
         nav { width: 280px; background: #0b4a8f; color: white; padding: 60px 0; position: fixed; height: 100vh; z-index: 1001; }
         .logo-area { padding: 0 40px; margin-bottom: 60px; }
         .nav-link { display: block; padding: 18px 40px; text-decoration: none; color: rgba(255,255,255,0.5); text-transform: uppercase; font-size: 0.85rem; font-weight: 600; transition: 0.3s; }
@@ -26,13 +25,11 @@
         main { margin-left: 280px; flex: 1; padding: 60px; max-width: 1200px; }
         .header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
 
-        /* Stats Grid */
         .stats-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; margin-bottom: 40px; }
         .stat-card { background: white; padding: 20px; border-radius: 16px; border: 1px solid #e2e8f0; text-align: center; }
         .stat-val { font-size: 1.5rem; font-weight: 700; color: #0b4a8f; display: block; }
         .stat-label { font-size: 0.7rem; color: #64748b; font-weight: 600; text-transform: uppercase; margin-top: 5px; }
 
-        /* Question Review */
         .review-section { background: white; border-radius: 24px; border: 1px solid #e2e8f0; padding: 40px; }
         .q-row { border-bottom: 1px solid #f1f5f9; padding: 35px 0; position: relative; }
         
@@ -44,8 +41,8 @@
             background: white;
         }
 
-        /* HIGHLIGHT LOGIC */
-        /* 1. Correct Answer (Green Encircle) - High priority, forced on every question */
+        /* DUAL HIGHLIGHT LOGIC */
+        /* 1. Correct Answer: Always Green Encircled */
         .opt-correct { 
             border: 2.5px solid #10b981 !important; 
             background: #f0fdf4 !important; 
@@ -54,20 +51,20 @@
             cursor: help;
         }
 
-        /* 2. User's Mistake (Red Border) - Shows only if it wasn't the correct choice */
+        /* 2. Incorrect Answer: Red Border (only if user chose it) */
         .opt-user-wrong { 
             border: 2.5px solid #ef4444 !important; 
             background: #fef2f2 !important; 
             color: #991b1b !important; 
         }
 
-        /* Solution Hover Box (Glassmorphism) */
+        /* Hover Solution Box */
         .solution-box {
             visibility: hidden; opacity: 0;
-            position: absolute; bottom: 115%; left: 0; width: 100%; min-width: 380px;
-            background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(10px);
-            padding: 22px; border-radius: 16px; border: 1px solid #10b981;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.12); z-index: 1000;
+            position: absolute; bottom: 115%; left: 0; width: 100%; min-width: 400px;
+            background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(8px);
+            padding: 22px; border-radius: 14px; border: 1px solid #10b981;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15); z-index: 1000;
             transition: 0.3s ease; pointer-events: none;
         }
 
@@ -77,25 +74,13 @@
 
         /* Step-wise List Styling */
         .step-item {
-            display: block;
-            margin-bottom: 12px;
-            padding-left: 24px;
-            position: relative;
-            color: #334155;
-            font-size: 0.92rem;
-            line-height: 1.6;
+            display: block; margin-bottom: 12px; padding-left: 20px;
+            position: relative; color: #334155; font-size: 0.92rem; line-height: 1.6;
         }
         .step-item::before {
-            content: "Step " counter(step-counter) ":";
-            counter-increment: step-counter;
-            position: absolute;
-            left: 0;
-            color: #10b981;
-            font-weight: 800;
-            font-size: 0.75rem;
-            text-transform: uppercase;
+            content: "•"; position: absolute; left: 0;
+            color: #10b981; font-weight: 900;
         }
-        .sol-text { counter-reset: step-counter; }
 
         .badge { padding: 4px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
         .badge-correct { background: #dcfce7; color: #166534; }
@@ -121,8 +106,8 @@
             <div class="stat-card"><span class="stat-val" id="statScore">0/0</span><span class="stat-label">Total Score</span></div>
             <div class="stat-card"><span class="stat-val" id="statAccuracy">0%</span><span class="stat-label">Accuracy</span></div>
             <div class="stat-card"><span class="stat-val" id="statTime">--</span><span class="stat-label">Time Taken</span></div>
-            <div class="stat-card"><span class="stat-val" id="statCorrect" style="color:#10b981">Correct</span><span class="stat-label" id="valCorrect">0</span></div>
-            <div class="stat-card"><span class="stat-val" id="statWrong" style="color:#ef4444">Incorrect</span><span class="stat-label" id="valWrong">0</span></div>
+            <div class="stat-card"><span class="stat-val" id="statCorrect" style="color:#10b981">0</span><span class="stat-label">Correct</span></div>
+            <div class="stat-card"><span class="stat-val" id="statWrong" style="color:#ef4444">0</span><span class="stat-label">Incorrect</span></div>
         </div>
 
         <div class="review-section" id="reviewList"></div>
@@ -145,16 +130,15 @@
             if (qData && pData) renderReport(qData.question_data, pData, qData.test_name);
         }
 
-        // Formats solution into distinct Step rows
         function formatSolution(sol) {
-            if (!sol) return 'No detailed steps available.';
-            const steps = sol.split(/(?:\r?\n|Step \d+:|\. )+/).filter(s => s.trim().length > 3);
+            if (!sol) return 'No detailed solution available.';
+            // Splits by newline or "Step" markers and renders as bullet points
+            const steps = sol.split(/(?:\r?\n|Step \d+:)+/).filter(s => s.trim().length > 0);
             return steps.map(step => `<span class="step-item">${step.trim()}</span>`).join('');
         }
 
         function renderReport(questions, attempt, testName) {
             document.getElementById('reportTitle').innerText = testName;
-            document.getElementById('testSubtext').innerText = `Reviewing performance for ${testName}`;
             document.getElementById('statTime').innerText = (attempt.time_spent || 0) + "s";
 
             let correct = 0, wrong = 0, html = '';
@@ -163,48 +147,45 @@
                 const userAns = attempt.user_answers ? attempt.user_answers[idx] : null; 
                 const correctAns = parseInt(q.correct);
                 
-                let badgeClass = (userAns === null || userAns === undefined) ? 'badge-skipped' : 
-                                 (parseInt(userAns) === correctAns) ? 'badge-correct' : 'badge-wrong';
-                let badgeText = (userAns === null || userAns === undefined) ? 'Skipped' : 
-                                (parseInt(userAns) === correctAns) ? 'Correct' : 'Incorrect';
+                let badgeClass = (userAns === null) ? 'badge-skipped' : (parseInt(userAns) === correctAns) ? 'badge-correct' : 'badge-wrong';
+                let badgeText = (userAns === null) ? 'Skipped' : (parseInt(userAns) === correctAns) ? 'Correct' : 'Incorrect';
                 
                 if (parseInt(userAns) === correctAns) correct++; else if (userAns !== null) wrong++;
 
                 html += `
                 <div class="q-row">
-                    <div class="q-meta"><span style="font-weight:700; color:#64748b;">Q${idx+1}</span> <span class="badge ${badgeClass}">${badgeText}</span></div>
-                    <div style="margin-bottom:25px; font-size: 1.1rem; line-height: 1.6;">${q.q}</div>
+                    <div class="q-meta"><span style="font-weight:700;">Q${idx+1}</span> <span class="badge ${badgeClass}">${badgeText}</span></div>
+                    <div style="margin-bottom:20px; font-size: 1.1rem;">${q.q}</div>
                     <div class="option-review">
                         ${q.options.map((opt, i) => {
                             let cls = 'opt';
-                            let solMarkup = '';
+                            let solBox = '';
                             
-                            // 1. GLOBAL CORRECT HIGHLIGHT
+                            // RULE 1: If this is the correct answer, encircle in green
                             if (i === correctAns) {
                                 cls += ' opt-correct';
-                                solMarkup = `<div class="solution-box">
-                                                <strong style="color:#10b981; font-size:0.7rem; display:block; margin-bottom:12px; letter-spacing:1px;">DETAILED SOLUTION</strong>
-                                                <div class="sol-text">${formatSolution(q.solution)}</div>
-                                              </div>`;
+                                solBox = `<div class="solution-box">
+                                            <strong style="color:#10b981; font-size:0.75rem; display:block; margin-bottom:12px;">STEP-WISE SOLUTION</strong>
+                                            <div class="sol-text">${formatSolution(q.solution)}</div>
+                                          </div>`;
                             }
                             
-                            // 2. USER ERROR HIGHLIGHT
+                            // RULE 2: If the user chose this AND it was wrong, give it a red border
                             if (userAns !== null && parseInt(userAns) === i && i !== correctAns) {
                                 cls += ' opt-user-wrong';
                             }
                             
-                            return `<div class="${cls}">${opt} ${solMarkup}</div>`;
+                            return `<div class="${cls}">${opt} ${solBox}</div>`;
                         }).join('')}
                     </div>
                 </div>`;
             });
 
             document.getElementById('reviewList').innerHTML = html;
-            document.getElementById('valCorrect').innerText = correct;
-            document.getElementById('valWrong').innerText = wrong;
+            document.getElementById('statCorrect').innerText = correct;
+            document.getElementById('statWrong').innerText = wrong;
             document.getElementById('statScore').innerText = `${correct}/${questions.length}`;
             document.getElementById('statAccuracy').innerText = Math.round((correct/questions.length)*100) + "%";
-            
             if(window.MathJax) MathJax.typesetPromise();
         }
 
