@@ -9,13 +9,11 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: #f8fafc; color: #1e293b; height: 100vh; display: flex; flex-direction: column; }
         
-        /* Header & Navigation Style Restoration */
         header { height: 70px; background: #fff; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; padding: 0 40px; z-index: 10; }
         .test-info { font-weight: 700; color: #0b4a8f; text-transform: uppercase; letter-spacing: 1px; }
 
         .main-container { flex: 1; display: flex; overflow: hidden; }
 
-        /* Left side: Question Area */
         .question-area { flex: 1; padding: 60px; overflow-y: auto; background: #fff; }
         .q-box { max-width: 800px; margin: 0 auto; }
         .q-num { font-weight: 700; color: #64748b; margin-bottom: 10px; display: block; }
@@ -23,15 +21,27 @@
         
         .option { display: block; padding: 18px 24px; border: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: 12px; cursor: pointer; transition: 0.2s; }
         .option:hover { background: #f1f5f9; border-color: #0b4a8f; }
-        .option input { margin-right: 15px; }
 
+        /* STANDARDIZED ACTION BUTTONS */
         .action-bar { margin-top: 40px; display: flex; gap: 15px; }
-        .btn { padding: 12px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.3s; border: none; font-size: 0.9rem; }
+        .btn { 
+            width: 160px; /* Fixed width for uniform size */
+            height: 48px; /* Fixed height for uniform shape */
+            border-radius: 8px; 
+            font-weight: 600; 
+            cursor: pointer; 
+            transition: 0.3s; 
+            border: none; 
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
         .btn-save { background: #10b981; color: white; }
         .btn-review { background: #8b5cf6; color: white; }
         .btn-clear { background: #f1f5f9; color: #64748b; border: 1px solid #e2e8f0; }
 
-        /* Right side: Question Palette Sidebar */
+        /* PALETTE SIDEBAR */
         .sidebar { 
             width: 340px; 
             background: rgba(255, 255, 255, 0.7); 
@@ -43,51 +53,48 @@
         }
 
         .palette-title { font-size: 0.75rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px; }
-        
         .palette-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 40px; }
         
-        /* Circle Styling */
         .q-circle {
             width: 42px; height: 42px; border-radius: 50%;
             border: 1px solid #e2e8f0; background: white;
             display: flex; align-items: center; justify-content: center;
             font-size: 0.85rem; font-weight: 600; color: #64748b;
-            cursor: pointer; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer; transition: all 0.2s;
         }
-        .q-circle:hover { border-color: #0b4a8f; box-shadow: 0 0 10px rgba(11, 74, 143, 0.2); transform: scale(1.1); }
+        .q-circle:hover { border-color: #0b4a8f; transform: scale(1.1); }
         
         /* State Colors */
         .q-circle.answered { background: #10b981; color: white; border-color: #10b981; }
         .q-circle.review { background: #8b5cf6; color: white; border-color: #8b5cf6; }
         .q-circle.current { border: 2px solid #0b4a8f; color: #0b4a8f; }
 
-        /* Finish Button - Restored Navy Blue */
+        /* FINISH BUTTON */
         .btn-finish { 
             background: #0b4a8f; color: white; border: none; padding: 16px; 
             width: 100%; border-radius: 10px; font-weight: 700; cursor: pointer; 
-            margin-top: auto; box-shadow: 0 4px 12px rgba(11, 74, 143, 0.2); 
-            transition: 0.3s;
+            margin-top: auto; transition: 0.3s;
         }
-        .btn-finish:hover { transform: translateY(-2px); background: #083a70; }
+        .btn-finish:hover { background: #083a70; }
     </style>
 </head>
 <body>
 
 <header>
     <div class="test-info" id="testHeader">JEE Main Mock Test</div>
-    <div id="timer" style="font-weight: 700; color: #e11d48;">Remaining: 02:59:59</div>
+    <div id="timer" style="font-weight: 700; color: #e11d48; font-variant-numeric: tabular-nums;">Remaining: 01:00:00</div>
 </header>
 
 <div class="main-container">
     <main class="question-area">
         <div class="q-box">
             <span class="q-num">Question #<span id="currentNum">1</span></span>
-            <p class="q-text">A point charge $q$ is placed at the center of a cube of side $L$. The electric flux emerging from the cube is:</p>
+            <p class="q-text">Which of the following describes the relationship between current ($I$), voltage ($V$), and resistance ($R$) in a circuit?</p>
             
-            <label class="option"><input type="radio" name="jee-q" value="A"> $q / \epsilon_0$</label>
-            <label class="option"><input type="radio" name="jee-q" value="B"> $q / 6\epsilon_0$</label>
-            <label class="option"><input type="radio" name="jee-q" value="C"> $6qL^2 / \epsilon_0$</label>
-            <label class="option"><input type="radio" name="jee-q" value="D"> Zero</label>
+            <label class="option"><input type="radio" name="jee-q" value="A"> $V = I^2 R$</label>
+            <label class="option"><input type="radio" name="jee-q" value="B"> $V = I / R$</label>
+            <label class="option"><input type="radio" name="jee-q" value="C"> $V = IR$</label>
+            <label class="option"><input type="radio" name="jee-q" value="D"> $R = VI$</label>
 
             <div class="action-bar">
                 <button class="btn btn-save" onclick="updateStatus('answered')">Save & Next</button>
@@ -99,19 +106,17 @@
 
     <aside class="sidebar">
         <h3 class="palette-title">Question Palette</h3>
-        <div class="palette-grid" id="paletteGrid">
-            </div>
-
-        <button class="btn-finish" onclick="finalizeExam()">FINISH TEST</button>
+        <div class="palette-grid" id="paletteGrid"></div>
+        <button class="btn-finish" onclick="finalizeExam(true)">FINISH TEST</button>
     </aside>
 </div>
 
 <script>
     let currentIdx = 1;
     const totalQuestions = 30;
-    const states = {}; // To track answered/review/clear
+    let timeLeft = 3600; // 60 minutes in seconds
 
-    // 1. Generate Question Palette
+    // Initialize Palette
     const grid = document.getElementById('paletteGrid');
     for(let i=1; i<=totalQuestions; i++) {
         const circle = document.createElement('div');
@@ -122,47 +127,52 @@
         grid.appendChild(circle);
     }
 
-    // 2. Logic to update palette colors
+    // Timer Logic
+    const timerDisplay = document.getElementById('timer');
+    const countdown = setInterval(() => {
+        timeLeft--;
+        let mins = Math.floor(timeLeft / 60);
+        let secs = timeLeft % 60;
+        timerDisplay.innerText = `Remaining: ${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        
+        if (timeLeft <= 0) {
+            clearInterval(countdown);
+            alert("Time is up! Your test will be submitted automatically.");
+            finalizeExam(false);
+        }
+    }, 1000);
+
     function updateStatus(type) {
         const circle = document.getElementById(`palette-q-${currentIdx}`);
         circle.classList.remove('answered', 'review', 'current');
         
-        if (type === 'answered') {
-            circle.classList.add('answered');
-        } else if (type === 'review') {
-            circle.classList.add('review');
-        } else if (type === 'clear') {
-            // Reverts to default light grey
-        }
+        if (type === 'answered') circle.classList.add('answered');
+        else if (type === 'review') circle.classList.add('review');
 
-        // Auto-advance to next question (for demo purposes)
         if(currentIdx < totalQuestions) {
             currentIdx++;
             document.getElementById('currentNum').innerText = currentIdx;
             document.getElementById(`palette-q-${currentIdx}`).classList.add('current');
-            // Reset radio buttons for next question
             document.querySelectorAll('input[type="radio"]').forEach(r => r.checked = false);
         }
     }
 
-    // 3. Finalize & Unlock Session
-    function finalizeExam() {
-        if(confirm("Submit test? This will unlock other subjects.")) {
-            localStorage.removeItem('activeTestId');
-            
-            // Record a dummy result for the performance page
-            let history = JSON.parse(localStorage.getItem('testHistory') || '[]');
-            history.push({
-                subject: 'Physics Mock',
-                score: 88,
-                date: new Date().toLocaleDateString()
-            });
-            localStorage.setItem('testHistory', JSON.stringify(history));
+    function finalizeExam(isManual) {
+        if(isManual && !confirm("Are you sure you want to submit?")) return;
 
-            window.location.href = 'performance.html';
-        }
+        clearInterval(countdown);
+        localStorage.removeItem('activeTestId');
+        
+        let history = JSON.parse(localStorage.getItem('testHistory') || '[]');
+        history.push({
+            subject: 'Physics Mock',
+            score: Math.floor(Math.random() * 20) + 80,
+            date: new Date().toLocaleDateString()
+        });
+        localStorage.setItem('testHistory', JSON.stringify(history));
+
+        window.location.href = 'performance.html';
     }
 </script>
-
 </body>
 </html>
