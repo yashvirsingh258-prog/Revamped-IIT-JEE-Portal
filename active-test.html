@@ -41,16 +41,16 @@
 <body>
 
 <header>
-    <div class="test-info" id="testSubject">Loading Test...</div>
+    <div class="test-info" id="testSubject">INITIALIZING...</div>
     <div id="timer">Remaining: 60:00</div>
 </header>
 
 <div class="main-container">
     <main class="question-area">
-        <div class="q-box" id="qBox">
+        <div class="q-box">
             <span class="q-num">Question #<span id="currentNum">1</span></span>
             <div id="questionContent">
-                <p class="q-text">Loading question...</p>
+                <p class="q-text">Loading questions from database...</p>
             </div>
             <div class="action-bar">
                 <button class="btn btn-save" onclick="handleAction('answered')">Save & Next</button>
@@ -76,19 +76,23 @@
 
     async function initTest() {
         const { data, error } = await supabase.from('questions_table').select('*').limit(30);
-        if (data) {
+        if (data && data.length > 0) {
             questions = data;
+            document.getElementById('testSubject').innerText = questions[0].subject || "JEE MOCK TEST";
             renderPalette();
             displayQuestion(0);
             startTimer();
+        } else {
+            document.getElementById('questionContent').innerHTML = "<p>No questions found in database.</p>";
         }
     }
 
     function renderPalette() {
         const grid = document.getElementById('paletteGrid');
+        grid.innerHTML = ''; 
         questions.forEach((_, i) => {
             const circle = document.createElement('div');
-            circle.id = `q-${i}`;
+            circle.id = `q-circle-${i}`;
             circle.className = 'q-circle';
             circle.innerText = i + 1;
             circle.onclick = () => displayQuestion(i);
@@ -101,26 +105,32 @@
         currentIdx = index;
         const q = questions[index];
         document.getElementById('currentNum').innerText = index + 1;
-        document.getElementById('q-${index}').classList.add('current');
+        
+        const currentCircle = document.getElementById(`q-circle-${index}`);
+        if(currentCircle) currentCircle.classList.add('current');
         
         let html = `<p class="q-text">${q.question_text}</p>`;
-        // Assuming options are stored as an array or JSON in Supabase
-        const options = q.options || ['Option A', 'Option B', 'Option C', 'Option D'];
+        const options = [q.option_a, q.option_b, q.option_c, q.option_d]; 
+        
         options.forEach((opt, i) => {
-            html += `<label class="option"><input type="radio" name="jee-q" value="${i}"> ${opt}</label>`;
+            if(opt) {
+                html += `<label class="option"><input type="radio" name="jee-q" value="${i}"> ${opt}</label>`;
+            }
         });
         document.getElementById('questionContent').innerHTML = html;
     }
 
     async function handleAction(type) {
-        const circle = document.getElementById(`q-${currentIdx}`);
+        const circle = document.getElementById(`q-circle-${currentIdx}`);
         circle.classList.remove('answered', 'review');
+        
         if(type === 'answered') circle.classList.add('answered');
         if(type === 'review') circle.classList.add('review');
 
-        // Upsert progress to Supabase
+        // Logic to push to student_progress
+        const studentId = localStorage.getItem('userId') || 'guest_user';
         await supabase.from('student_progress').upsert({
-            student_id: localStorage.getItem('userId'),
+            student_id: studentId,
             question_id: questions[currentIdx].id,
             status: type
         });
@@ -142,7 +152,7 @@
     }
 
     async function finalizeExam(manual) {
-        if (manual && !confirm("Submit Test?")) return;
+        if (manual && !confirm("Are you sure you want to submit your test?")) return;
         window.location.href = 'performance.html';
     }
 
