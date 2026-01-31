@@ -74,7 +74,6 @@
             box-shadow: 0 0 0 4px rgba(11, 74, 143, 0.05);
         }
 
-        /* Show/Hide Toggle Styling */
         .toggle-password {
             position: absolute;
             right: 15px;
@@ -111,6 +110,49 @@
             transform: translateY(-2px);
             box-shadow: 0 12px 24px -5px rgba(11, 74, 143, 0.4);
         }
+
+        /* Social Login Buttons */
+        .social-container {
+            margin-top: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .social-btn {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background 0.2s;
+            color: #1e293b;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 20px 0;
+            color: #94a3b8;
+            font-size: 0.8rem;
+        }
+
+        .divider::before, .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .divider:not(:empty)::before { margin-right: 15px; }
+        .divider:not(:empty)::after { margin-left: 15px; }
 
         /* 5. Modal Styling */
         .modal-overlay {
@@ -161,8 +203,19 @@
                 <a href="javascript:void(0)" onclick="toggleModal()" style="font-size: 0.8rem; color: #64748b; text-decoration: none;">Forgot Password?</a>
             </div>
 
-            <button type="submit" class="login-btn">SIGN IN</button>
+            <button type="submit" class="login-btn" id="submitBtn">SIGN IN</button>
         </form>
+
+        <div class="divider">OR CONTINUE WITH</div>
+
+        <div class="social-container">
+            <button class="social-btn" onclick="signInWithSocial('google')">
+                <img src="https://www.google.com/favicon.ico" width="18" alt="Google"> Google
+            </button>
+            <button class="social-btn" onclick="signInWithSocial('apple')">
+                <img src="https://www.apple.com/favicon.ico" width="18" alt="Apple"> Apple
+            </button>
+        </div>
 
         <div style="margin-top: 30px; font-size: 0.85rem; color: #64748b;">
             Don't have an account? <a href="register.html" style="color: #0b4a8f; text-decoration: none; font-weight: 600;">Create Account</a>
@@ -198,23 +251,79 @@
             document.getElementById('forgotModal').classList.toggle('active');
         }
 
-        // 3. Login Simulation
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
+        // 3. ACTUAL Login Logic
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            localStorage.setItem("isLoggedIn", "true");
-            window.location.href = "index.html"; 
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.innerText = "AUTHENTICATING...";
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                // Sign in with Supabase Auth
+                const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+                    email,
+                    password
+                });
+
+                if (authError) throw authError;
+
+                // After Auth, fetch the Student ID from your custom table
+                const { data: profile, error: profileError } = await supabase
+                    .from('students')
+                    .select('student_id_number, full_name')
+                    .eq('id', authData.user.id)
+                    .single();
+
+                if (profileError) throw profileError;
+
+                // Set up local session for the app
+                localStorage.setItem("isLoggedIn", "true");
+                localStorage.setItem("username", profile.student_id_number);
+                localStorage.setItem("student_name", profile.full_name);
+
+                window.location.href = "index.html"; 
+
+            } catch (error) {
+                alert("Login Error: " + error.message);
+                btn.disabled = false;
+                btn.innerText = "SIGN IN";
+            }
         });
 
-        // 4. Reset Simulation
-        function sendReset() {
-            const email = document.getElementById('resetEmail').value;
-            if(email.includes('@')) {
-                alert("Reset link sent to: " + email);
-                toggleModal();
-            } else { alert("Please enter a valid email."); }
+        // 4. Social Login Integration
+        async function signInWithSocial(provider) {
+            const { error } = await supabase.auth.signInWithOAuth({
+                provider: provider,
+                options: {
+                    redirectTo: window.location.origin + '/index.html'
+                }
+            });
+            if (error) alert("Social Login Error: " + error.message);
         }
 
-        // Close modal on outside click
+        // 5. Real Password Reset
+        async function sendReset() {
+            const email = document.getElementById('resetEmail').value;
+            if(!email.includes('@')) {
+                alert("Please enter a valid email.");
+                return;
+            }
+            
+            const { error } = await supabase.auth.resetPasswordForEmail(email, {
+                redirectTo: window.location.origin + '/reset-password.html',
+            });
+
+            if (error) {
+                alert("Error: " + error.message);
+            } else {
+                alert("Reset link sent to: " + email);
+                toggleModal();
+            }
+        }
+
         window.onclick = function(event) {
             const modal = document.getElementById('forgotModal');
             if (event.target == modal) toggleModal();
