@@ -20,34 +20,74 @@
 
         .container { flex: 1; display: flex; overflow: hidden; }
         .question-section { flex: 1; background: white; padding: 50px; overflow-y: auto; display: flex; flex-direction: column; }
-        .q-card { max-width: 850px; margin: 0 auto; width: 100%; }
+        .q-card { max-width: 900px; margin: 0 auto; width: 100%; display: flex; flex-direction: column; height: 100%; }
         .q-text { font-size: 1.35rem; line-height: 1.7; color: #1e293b; margin-bottom: 40px; }
         
-        /* Modern Option Styling */
-        .option-box { display: block; padding: 18px; border: 2px solid #e2e8f0; border-radius: 12px; margin-bottom: 15px; cursor: pointer; transition: 0.2s; position: relative; }
+        .option-box { display: block; padding: 18px; border: 2px solid #e2e8f0; border-radius: 12px; margin-bottom: 15px; cursor: pointer; transition: 0.2s; }
         .option-box:hover { border-color: #cbd5e1; background: #f8fafc; }
-        .option-box input { margin-right: 12px; }
 
-        /* Navigation & Footer Actions */
-        .footer-actions { margin-top: auto; padding-top: 30px; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
-        .nav-btns { display: flex; gap: 12px; }
-        .status-btns { display: flex; gap: 12px; }
+        /* Unified Button Bar */
+        .footer-actions { 
+            margin-top: auto; 
+            padding: 30px 0; 
+            border-top: 1px solid #e2e8f0; 
+            display: grid; 
+            grid-template-columns: repeat(4, 1fr); 
+            gap: 20px; 
+        }
 
-        .btn { padding: 12px 24px; border-radius: 10px; font-weight: 600; border: none; cursor: pointer; transition: 0.2s; font-size: 0.9rem; display: flex; align-items: center; }
-        .btn-grey { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
-        .btn-grey:hover { background: #e2e8f0; }
-        .btn-review { background: #8b5cf6; color: white; }
-        .btn-clear { background: #fee2e2; color: #991b1b; }
+        .btn { 
+            height: 50px; 
+            border-radius: 10px; 
+            font-weight: 600; 
+            border: 1px solid #e2e8f0; 
+            cursor: pointer; 
+            transition: all 0.2s ease; 
+            font-size: 0.95rem; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            background: #f1f5f9; 
+            color: #475569;
+        }
+
+        /* Hover Effects */
+        .btn:hover { background: #e2e8f0; transform: translateY(-1px); }
+        .btn-review:hover { background: #8b5cf6; color: white; border-color: #8b5cf6; }
+        .btn-clear:hover { background: #fee2e2; color: #991b1b; border-color: #fecaca; }
 
         /* Sidebar Palette */
         .sidebar { width: 350px; background: #f8fafc; border-left: 1px solid #e2e8f0; padding: 30px; display: flex; flex-direction: column; }
         .palette-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 30px; }
-        .p-circle { width: 45px; height: 45px; border-radius: 50%; background: white; border: 1px solid #cbd5e1; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer; }
-        .p-circle.current { border: 3px solid #0b4a8f; color: #0b4a8f; }
+        
+        .p-circle { 
+            width: 45px; 
+            height: 45px; 
+            border-radius: 50%; 
+            background: white; 
+            border: 1px solid #cbd5e1; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-weight: 600; 
+            cursor: pointer; 
+            transition: all 0.2s ease;
+        }
+
+        /* Palette Hover Effect */
+        .p-circle:hover { 
+            border-color: #0b4a8f; 
+            background: #eff6ff; 
+            transform: scale(1.1); 
+            z-index: 1;
+        }
+
+        .p-circle.current { border: 3px solid #0b4a8f; color: #0b4a8f; background: #eff6ff; }
         .p-circle.answered { background: #10b981 !important; color: white !important; border: none; }
         .p-circle.review { background: #8b5cf6 !important; color: white !important; border: none; }
 
-        .btn-submit { background: #0b4a8f; color: white; width: 100%; padding: 18px; border-radius: 12px; border: none; font-weight: 700; margin-top: auto; cursor: pointer; }
+        .btn-submit { background: #0b4a8f; color: white; width: 100%; padding: 18px; border-radius: 12px; border: none; font-weight: 700; margin-top: auto; cursor: pointer; transition: 0.3s; }
+        .btn-submit:hover { background: #083a71; box-shadow: 0 4px 12px rgba(11, 74, 143, 0.2); }
     </style>
 </head>
 <body>
@@ -60,18 +100,14 @@
 <div class="container">
     <main class="question-section">
         <div class="q-card">
-            <div style="color:#64748b; font-weight:700; margin-bottom:15px; font-size:0.8rem;">QUESTION #<span id="qIdx">1</span></div>
-            <div id="qContent" class="q-text">Loading...</div>
+            <div style="color:#64748b; font-weight:700; margin-bottom:15px; font-size:0.8rem; letter-spacing:1px;">QUESTION #<span id="qIdx">1</span></div>
+            <div id="qContent" class="q-text">Loading question...</div>
             
             <div class="footer-actions">
-                <div class="nav-btns">
-                    <button class="btn btn-grey" onclick="nav(-1)">« Previous</button>
-                    <button class="btn btn-grey" onclick="nav(1)">Next »</button>
-                </div>
-                <div class="status-btns">
-                    <button class="btn btn-review" onclick="setStatus('review')">Mark for Review</button>
-                    <button class="btn btn-clear" onclick="setStatus('clear')">Clear</button>
-                </div>
+                <button class="btn" onclick="nav(-1)">« Previous</button>
+                <button class="btn btn-review" onclick="setStatus('review')">Mark for Review</button>
+                <button class="btn btn-clear" onclick="setStatus('clear')">Clear</button>
+                <button class="btn" onclick="nav(1)">Next »</button>
             </div>
         </div>
     </main>
@@ -126,9 +162,11 @@
         if(window.MathJax) MathJax.typesetPromise();
     }
 
-    // NEW: Instant color change upon selection
     function autoAnswer() {
-        document.getElementById(`p-${current}`).classList.add('answered');
+        const circle = document.getElementById(`p-${current}`);
+        if (!circle.classList.contains('review')) {
+            circle.classList.add('answered');
+        }
     }
 
     function setStatus(type) {
@@ -137,6 +175,7 @@
             circle.classList.remove('answered', 'review');
             document.getElementsByName('opt').forEach(r => r.checked = false);
         } else if (type === 'review') {
+            circle.classList.remove('answered');
             circle.classList.add('review');
         }
     }
@@ -157,7 +196,7 @@
     }
 
     function finalSubmit(manual) {
-        if (manual && !confirm("Finish the exam?")) return;
+        if (manual && !confirm("Are you sure you want to submit the exam?")) return;
         window.location.href = 'performance.html';
     }
 
