@@ -43,7 +43,7 @@
 
 <header>
     <div id="testLabel" style="font-weight:700;">JEE EXAM</div>
-    <div id="timer">40:00</div>
+    <div id="timer">Loading...</div>
 </header>
 
 <div class="container">
@@ -73,20 +73,48 @@
 <script>
     const supabaseUrl = 'https://ijxsnunkfhudwnkrwmzk.supabase.co';
     const supabaseKey = 'sb_publishable_V-KT1zvp-73dqHHvmx3fNA_iHw53TCl';
-    const client = supabase.createClient(supabaseUrl, supabaseKey);
+    const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
     let questions = [], current = 0, timeLeft = 2400;
     let answers = {}, markedReview = [], confirmedAnswered = [];
+    let currentUser = null;
 
     async function init() {
         const tName = localStorage.getItem('currentTestName');
-        const { data } = await client.from('questions_table').select('*').eq('test_name', tName).single();
+        
+        // 1. Auth Guard & Re-take Guard
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (!session) {
+            window.location.href = 'login.html';
+            return;
+        }
+        currentUser = session.user;
+
+        // Check if this user already submitted this test
+        const { data: existingProgress } = await supabaseClient
+            .from('student_progress')
+            .select('id')
+            .eq('student_id', currentUser.id)
+            .eq('test_name', tName)
+            .single();
+
+        if (existingProgress) {
+            alert("You have already submitted this test.");
+            window.location.href = 'index.html';
+            return;
+        }
+
+        // 2. Load Questions
+        const { data } = await supabaseClient.from('questions_table').select('*').eq('test_name', tName).single();
         if (data) {
             questions = data.question_data;
             document.getElementById('testLabel').innerText = data.test_name;
             renderPalette();
             loadQuestion(0);
             startTimer();
+        } else {
+            alert("Test data not found.");
+            window.location.href = 'tests.html';
         }
     }
 
@@ -130,6 +158,7 @@
 
     function updatePalette() {
         const c = document.getElementById(`p-${current}`);
+        if (!c) return;
         c.classList.remove('answered', 'review');
         if (markedReview.includes(current)) c.classList.add('review');
         else if (confirmedAnswered.includes(current)) c.classList.add('answered');
@@ -138,33 +167,39 @@
     function nav(d) { let n = current + d; if (n >= 0 && n < questions.length) loadQuestion(n); }
 
     function startTimer() {
-        setInterval(() => {
+        const timerInterval = setInterval(() => {
             timeLeft--;
             let m = Math.floor(timeLeft/60), s = timeLeft%60;
             document.getElementById('timer').innerText = `${m}:${s<10?'0':''}${s}`;
-            if(timeLeft <= 0) finalSubmit();
+            if(timeLeft <= 0) {
+                clearInterval(timerInterval);
+                finalSubmit();
+            }
         }, 1000);
     }
 
     async function finalSubmit() {
-        const user = localStorage.getItem('username') || 'anonymous_student';
         const tName = localStorage.getItem('currentTestName');
         const sub = document.getElementById('testLabel').innerText;
 
-        const { error } = await client.from('student_progress').upsert({
-            username: user,
+        // Use 'student_id' (user.id) to link properly with your Auth system
+        const { error } = await supabaseClient.from('student_progress').insert({
+            student_id: currentUser.id,
             test_name: tName,
             subject: sub,
             user_answers: answers,
             confirmed_answered: confirmedAnswered,
             marked_for_review: markedReview,
             time_left: timeLeft,
-            is_finished: true,
-            current_index: current
+            is_finished: true
         });
 
-        if (error) alert(error.message);
-        else window.location.href = 'performance.html';
+        if (error) {
+            alert("Submission Error: " + error.message);
+        } else {
+            alert("Test submitted successfully!");
+            window.location.href = 'performance.html';
+        }
     }
 
     init();
