@@ -3,331 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script>
-        const supabaseUrl = 'https://ijxsnunkfhudwnkrwmzk.supabase.co';
-        const supabaseKey = 'sb_publishable_V-KT1zvp-73dqHHvmx3fNA_iHw53TCl';
-        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
-    </script>
     <title>JEE Portal | Login</title>
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        /* 1. Global Reset */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f8fafc;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
-        }
-
-        /* 2. Login Card */
-        .login-card {
-            background: #ffffff;
-            width: 100%;
-            max-width: 420px;
-            padding: 50px;
-            border-radius: 12px;
-            border: 1px solid #e2e8f0;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.02);
-            text-align: center;
-            position: relative;
-        }
-
-        h2 { font-size: 2rem; font-weight: 300; color: #1e293b; letter-spacing: -1px; margin-bottom: 10px; }
-        .subtitle { color: #64748b; font-size: 0.95rem; margin-bottom: 40px; }
-
-        /* 3. Form Styling */
-        .input-group { text-align: left; margin-bottom: 24px; position: relative; }
-        
-        label {
-            display: block;
-            font-size: 0.7rem;
-            font-weight: 700;
-            color: #0b4a8f;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            margin-bottom: 8px;
-        }
-
-        input {
-            width: 100%;
-            padding: 14px 16px;
-            font-family: 'Inter', sans-serif;
-            font-size: 1rem;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            transition: all 0.2s ease;
-        }
-
-        input:focus {
-            outline: none;
-            border-color: #0b4a8f;
-            box-shadow: 0 0 0 4px rgba(11, 74, 143, 0.05);
-        }
-
-        .toggle-password {
-            position: absolute;
-            right: 15px;
-            top: 38px;
-            font-size: 0.65rem;
-            font-weight: 700;
-            color: #0b4a8f;
-            cursor: pointer;
-            letter-spacing: 1px;
-            user-select: none;
-            padding: 5px;
-        }
-
-        /* 4. Glassmorphism Navy Button */
-        .login-btn {
-            width: 100%;
-            padding: 16px;
-            background: rgba(11, 74, 143, 0.85);
-            color: #ffffff;
-            font-weight: 600;
-            letter-spacing: 1px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 8px;
-            cursor: pointer;
-            margin-top: 8px;
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            box-shadow: 0 8px 20px -5px rgba(11, 74, 143, 0.3);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .login-btn:hover {
-            background: rgba(11, 74, 143, 1);
-            transform: translateY(-2px);
-            box-shadow: 0 12px 24px -5px rgba(11, 74, 143, 0.4);
-        }
-
-        /* Social Login Buttons */
-        .social-container {
-            margin-top: 25px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .social-btn {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            background: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            font-weight: 500;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: background 0.2s;
-            color: #1e293b;
-        }
-
-        .divider {
-            display: flex;
-            align-items: center;
-            text-align: center;
-            margin: 20px 0;
-            color: #94a3b8;
-            font-size: 0.8rem;
-        }
-
-        .divider::before, .divider::after {
-            content: '';
-            flex: 1;
-            border-bottom: 1px solid #e2e8f0;
-        }
-
-        .divider:not(:empty)::before { margin-right: 15px; }
-        .divider:not(:empty)::after { margin-left: 15px; }
-
-        /* 5. Modal Styling */
-        .modal-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(15, 23, 42, 0.4);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-
-        .modal-content {
-            background: white; padding: 40px; border-radius: 16px;
-            width: 90%; max-width: 400px;
-            text-align: center;
-            transform: scale(0.9);
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        .modal-overlay.active { display: flex; }
-        .modal-overlay.active .modal-content { transform: scale(1); }
-
-        .close-link { margin-top: 20px; display: inline-block; font-size: 0.8rem; color: #64748b; cursor: pointer; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background: #f8fafc; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
+        .auth-card { background: white; width: 100%; max-width: 400px; padding: 40px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
+        .header { text-align: center; margin-bottom: 30px; }
+        .header h1 { font-size: 2rem; color: #1e293b; font-weight: 300; letter-spacing: -1px; }
+        .input-group { margin-bottom: 20px; }
+        .input-group label { display: block; font-size: 0.7rem; font-weight: 700; color: #0b4a8f; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 1.5px; }
+        .input-group input { width: 100%; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 1rem; }
+        .btn-submit { width: 100%; background: #0b4a8f; color: white; padding: 16px; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: 0.3s; }
+        .btn-submit:hover { background: #083a71; }
+        .footer-link { text-align: center; margin-top: 25px; font-size: 0.85rem; color: #64748b; }
+        .footer-link a { color: #0b4a8f; text-decoration: none; font-weight: 600; }
     </style>
 </head>
 <body>
 
-    <div class="login-card">
-        <h2>Welcome Back</h2>
-        <p class="subtitle">Enter your credentials to access the portal.</p>
-
-        <form id="loginForm">
-            <div class="input-group">
-                <label for="email">Email Address</label>
-                <input type="email" id="email" placeholder="name@email.com" required>
-            </div>
-
-            <div class="input-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" placeholder="••••••••" required>
-                <span class="toggle-password" id="togglePass">SHOW</span>
-            </div>
-
-            <div style="text-align: right; margin-bottom: 25px;">
-                <a href="javascript:void(0)" onclick="toggleModal()" style="font-size: 0.8rem; color: #64748b; text-decoration: none;">Forgot Password?</a>
-            </div>
-
-            <button type="submit" class="login-btn" id="submitBtn">SIGN IN</button>
-        </form>
-
-        <div class="divider">OR CONTINUE WITH</div>
-
-        <div class="social-container">
-            <button class="social-btn" onclick="signInWithSocial('google')">
-                <img src="https://www.google.com/favicon.ico" width="18" alt="Google"> Google
-            </button>
-            <button class="social-btn" onclick="signInWithSocial('apple')">
-                <img src="https://www.apple.com/favicon.ico" width="18" alt="Apple"> Apple
-            </button>
-        </div>
-
-        <div style="margin-top: 30px; font-size: 0.85rem; color: #64748b;">
-            Don't have an account? <a href="register.html" style="color: #0b4a8f; text-decoration: none; font-weight: 600;">Create Account</a>
-        </div>
+<div class="auth-card">
+    <div class="header">
+        <h1>Welcome Back</h1>
+        <p style="color: #64748b; font-size: 0.9rem; margin-top: 8px;">Log in to your JEE portal</p>
     </div>
 
-    <div class="modal-overlay" id="forgotModal">
-        <div class="modal-content">
-            <h2 style="font-size: 1.5rem; margin-bottom: 10px;">Reset Password</h2>
-            <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 25px;">Enter your email to receive a recovery link.</p>
-            <div class="input-group">
-                <label>Registered Email</label>
-                <input type="email" placeholder="name@email.com" id="resetEmail">
-            </div>
-            <button class="login-btn" onclick="sendReset()">SEND RESET LINK</button>
-            <div class="close-link" onclick="toggleModal()">Cancel and go back</div>
+    <form id="loginForm">
+        <div class="input-group">
+            <label>Email Address</label>
+            <input type="email" id="email" required placeholder="name@example.com">
         </div>
+        <div class="input-group">
+            <label>Password</label>
+            <input type="password" id="password" required placeholder="••••••••">
+        </div>
+        <button type="submit" class="btn-submit" id="submitBtn">LOG IN</button>
+    </form>
+
+    <div class="footer-link">
+        Don't have an account? <a href="register.html">Sign Up</a>
     </div>
+</div>
 
-    <script>
-        // 1. Password Toggle Logic
-        const togglePass = document.getElementById('togglePass');
-        const passwordInput = document.getElementById('password');
+<script>
+    // Initialize Supabase Client
+    const supabaseUrl = 'https://ijxsnunkfhudwnkrwmzk.supabase.co';
+    const supabaseKey = 'sb_publishable_V-KT1zvp-73dqHHvmx3fNA_iHw53TCl';
+    const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey); 
 
-        togglePass.addEventListener('click', function() {
-            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-            passwordInput.setAttribute('type', type);
-            this.textContent = type === 'password' ? 'SHOW' : 'HIDE';
-        });
+    const loginForm = document.getElementById('loginForm');
+    const submitBtn = document.getElementById('submitBtn');
 
-        // 2. Modal Toggle
-        function toggleModal() {
-            document.getElementById('forgotModal').classList.toggle('active');
-        }
+    loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        submitBtn.disabled = true;
+        submitBtn.innerText = "AUTHENTICATING...";
 
-        // 3. ACTUAL Login Logic
-        document.getElementById('loginForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const btn = document.getElementById('submitBtn');
-            btn.disabled = true;
-            btn.innerText = "AUTHENTICATING...";
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
 
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-
-            try {
-                // Sign in with Supabase Auth
-                const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-                    email,
-                    password
-                });
-
-                if (authError) throw authError;
-
-                // After Auth, fetch the Student ID from your custom table
-                const { data: profile, error: profileError } = await supabase
-                    .from('students')
-                    .select('student_id_number, full_name')
-                    .eq('id', authData.user.id)
-                    .single();
-
-                if (profileError) throw profileError;
-
-                // Set up local session for the app
-                localStorage.setItem("isLoggedIn", "true");
-                localStorage.setItem("username", profile.student_id_number);
-                localStorage.setItem("student_name", profile.full_name);
-
-                window.location.href = "index.html"; 
-
-            } catch (error) {
-                alert("Login Error: " + error.message);
-                btn.disabled = false;
-                btn.innerText = "SIGN IN";
-            }
-        });
-
-        // 4. Social Login Integration
-        async function signInWithSocial(provider) {
-            const { error } = await supabase.auth.signInWithOAuth({
-                provider: provider,
-                options: {
-                    redirectTo: window.location.origin + '/index.html'
-                }
-            });
-            if (error) alert("Social Login Error: " + error.message);
-        }
-
-        // 5. Real Password Reset
-        async function sendReset() {
-            const email = document.getElementById('resetEmail').value;
-            if(!email.includes('@')) {
-                alert("Please enter a valid email.");
-                return;
-            }
-            
-            const { error } = await supabase.auth.resetPasswordForEmail(email, {
-                redirectTo: window.location.origin + '/reset-password.html',
+        try {
+            // Use supabaseClient (the instance) NOT supabase (the library)
+            const { data, error } = await supabaseClient.auth.signInWithPassword({
+                email: email,
+                password: password,
             });
 
-            if (error) {
-                alert("Error: " + error.message);
-            } else {
-                alert("Reset link sent to: " + email);
-                toggleModal();
-            }
-        }
+            if (error) throw error;
 
-        window.onclick = function(event) {
-            const modal = document.getElementById('forgotModal');
-            if (event.target == modal) toggleModal();
+            if (data.user) {
+                window.location.href = 'index.html';
+            }
+        } catch (error) {
+            alert("Login Error: " + error.message);
+            submitBtn.disabled = false;
+            submitBtn.innerText = "LOG IN";
         }
-    </script>
+    });
+</script>
 </body>
 </html>
