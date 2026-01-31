@@ -35,35 +35,50 @@
         
         .option-review { margin-top: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         
-        /* THE KEY CSS CHANGES */
         .opt { 
             padding: 16px; border-radius: 12px; font-size: 0.95rem; 
             border: 2px solid #e2e8f0; position: relative; transition: 0.3s ease; 
         }
 
-        /* 1. The Encircled Correct Answer */
+        /* Encircled Correct Answer - Applied to every question */
         .opt-correct { 
-            border: 3px solid #10b981 !important; /* Thicker and forced */
+            border: 3px solid #10b981 !important; 
             background: #f0fdf4 !important; 
             color: #166534 !important; 
             font-weight: 700;
             cursor: help;
         }
 
-        /* 2. The Solution Hover Box */
+        .opt-user-wrong { border: 3px solid #ef4444 !important; background: #fef2f2; color: #991b1b; }
+
+        /* Modern Solution Hover Box */
         .solution-box {
             visibility: hidden; opacity: 0;
-            position: absolute; bottom: 110%; left: 0; width: 100%; min-width: 320px;
-            background: white; padding: 20px; border-radius: 12px;
-            border: 1px solid #10b981; box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            position: absolute; bottom: 115%; left: 0; width: 110%; min-width: 350px;
+            background: white; padding: 20px; border-radius: 14px;
+            border: 1px solid #10b981; box-shadow: 0 12px 30px rgba(0,0,0,0.15);
             z-index: 1000; transition: 0.3s ease; pointer-events: none;
         }
 
         .opt-correct:hover .solution-box {
-            visibility: visible; opacity: 1; bottom: 120%;
+            visibility: visible; opacity: 1; bottom: 125%;
         }
 
-        .opt-user-wrong { border: 3px solid #ef4444 !important; background: #fef2f2; color: #991b1b; }
+        .step-item {
+            display: block;
+            margin-bottom: 8px;
+            padding-left: 15px;
+            position: relative;
+            color: #334155;
+            font-size: 0.9rem;
+        }
+        .step-item::before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: #10b981;
+            font-weight: bold;
+        }
 
         .badge { padding: 4px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
         .badge-correct { background: #dcfce7; color: #166534; }
@@ -81,8 +96,8 @@
 
     <main>
         <div class="header-flex">
-            <div><h1 id="reportTitle">Analysis Report</h1><p id="testSubtext">Loading...</p></div>
-            <button onclick="window.print()" style="padding: 12px 24px; border-radius: 10px; border: 1px solid #cbd5e1; cursor: pointer; background: white;">Print Report</button>
+            <div><h1 id="reportTitle">Analysis Report</h1><p id="testSubtext">Loading Results...</p></div>
+            <button onclick="window.print()" style="padding: 12px 24px; border-radius: 10px; border: 1px solid #cbd5e1; cursor: pointer; background: white;">Print Analysis</button>
         </div>
 
         <div class="stats-grid">
@@ -113,17 +128,25 @@
             if (qData && pData) renderReport(qData.question_data, pData, qData.test_name);
         }
 
+        function formatSolution(sol) {
+            if (!sol) return 'No solution provided.';
+            // Splits by newline, or "Step X:", or periods followed by a space
+            const steps = sol.split(/(?:\r?\n|Step \d+:|\. )+/).filter(s => s.trim().length > 0);
+            return steps.map(step => `<span class="step-item">${step.trim()}</span>`).join('');
+        }
+
         function renderReport(questions, attempt, testName) {
             document.getElementById('reportTitle').innerText = testName;
+            document.getElementById('testSubtext').innerText = `Attempted on ${new Date(attempt.created_at).toLocaleDateString()}`;
             document.getElementById('statTime').innerText = (attempt.time_spent || 0) + "s";
 
             let correct = 0, wrong = 0, html = '';
 
             questions.forEach((q, idx) => {
-                const userAns = attempt.user_answers[idx]; 
-                const correctAns = parseInt(q.correct); // Ensure this is a number
+                const userAns = attempt.user_answers ? attempt.user_answers[idx] : null; 
+                const correctAns = parseInt(q.correct);
                 
-                let badge = (userAns === null) ? '<span class="badge badge-skipped">Skipped</span>' : 
+                let badge = (userAns === null || userAns === undefined) ? '<span class="badge badge-skipped">Skipped</span>' : 
                             (parseInt(userAns) === correctAns) ? '<span class="badge badge-correct">Correct</span>' : 
                             '<span class="badge badge-wrong">Incorrect</span>';
                 
@@ -132,26 +155,26 @@
                 html += `
                 <div class="q-row">
                     <div class="q-meta"><span style="font-weight:700">Q${idx+1}</span> ${badge}</div>
-                    <div style="margin-bottom:20px">${q.q}</div>
+                    <div style="margin-bottom:20px; font-weight: 500;">${q.q}</div>
                     <div class="option-review">
                         ${q.options.map((opt, i) => {
                             let cls = 'opt';
-                            let sol = '';
+                            let solBox = '';
                             
-                            // 1. Logic for Correct Answer (Encircle)
+                            // Every question highlights its correct answer
                             if (i === correctAns) {
                                 cls += ' opt-correct';
-                                sol = `<div class="solution-box">
-                                        <strong style="color:#10b981; font-size:0.7rem">STEP-WISE SOLUTION</strong>
-                                        <p style="font-size:0.9rem; margin-top:5px">${q.solution || 'No solution added for this question.'}</p>
-                                       </div>`;
+                                solBox = `<div class="solution-box">
+                                            <strong style="color:#10b981; font-size:0.75rem; display:block; margin-bottom:10px;">STEP-WISE SOLUTION</strong>
+                                            <div class="sol-text">${formatSolution(q.solution)}</div>
+                                          </div>`;
                             }
-                            // 2. Logic for User's Wrong Choice
+                            // Highlight user's mistake
                             if (userAns !== null && parseInt(userAns) === i && i !== correctAns) {
                                 cls += ' opt-user-wrong';
                             }
                             
-                            return `<div class="${cls}">${opt} ${sol}</div>`;
+                            return `<div class="${cls}">${opt} ${solBox}</div>`;
                         }).join('')}
                     </div>
                 </div>`;
