@@ -33,8 +33,8 @@
         .test-card.hidden { display: none; }
 
         /* Completed State */
-        .test-card.completed { border-left: 5px solid #10b981; pointer-events: none; opacity: 1; }
-        .test-card.completed .launch-btn { background: #10b981 !important; cursor: not-allowed; }
+        .test-card.completed { border-left: 5px solid #10b981; opacity: 1; pointer-events: auto; cursor: default; }
+        .test-card.completed .launch-btn { background: #10b981 !important; cursor: not-allowed; pointer-events: none; }
 
         /* Plain Text Score Styles */
         .score-info { 
@@ -42,11 +42,12 @@
             margin-bottom: 20px; 
             font-size: 0.95rem; 
             color: #1e293b;
-            line-height: 1.5;
+            line-height: 1.6;
         }
         .completed .score-info { display: block; }
         .score-val { font-weight: 700; color: #10b981; }
-        .score-pct { font-weight: 600; color: #64748b; }
+        .score-pct { font-weight: 600; color: #0b4a8f; text-decoration: underline; cursor: pointer; }
+        .score-pct:hover { color: #2563eb; }
 
         .subject-badge { display: inline-block; padding: 6px 12px; background: #f1f5f9; color: #64748b; border-radius: 8px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; margin-bottom: 16px; }
         .active .subject-badge { background: #eff6ff; color: #0b4a8f; }
@@ -83,8 +84,8 @@
                 <h3 class="test-title">Physics Mock</h3>
                 <div class="test-name-db" id="name-physics">No active tests</div>
                 <div class="score-info">
-                    Score: <span class="score-val" id="val-physics">0/0</span> <br>
-                    Accuracy: <span class="score-pct" id="pct-physics">0%</span>
+                    Correct: <span class="score-val" id="val-physics">0/0</span> <br>
+                    <span class="score-pct" id="pct-physics" onclick="viewReport('physics')">View Detailed Report →</span>
                 </div>
                 <button class="launch-btn" id="btn-physics">Start Test</button>
             </div>
@@ -94,8 +95,8 @@
                 <h3 class="test-title">Chemistry Mock</h3>
                 <div class="test-name-db" id="name-chemistry">No active tests</div>
                 <div class="score-info">
-                    Score: <span class="score-val" id="val-chemistry">0/0</span> <br>
-                    Accuracy: <span class="score-pct" id="pct-chemistry">0%</span>
+                    Correct: <span class="score-val" id="val-chemistry">0/0</span> <br>
+                    <span class="score-pct" id="pct-chemistry" onclick="viewReport('chemistry')">View Detailed Report →</span>
                 </div>
                 <button class="launch-btn" id="btn-chemistry">Start Test</button>
             </div>
@@ -105,8 +106,8 @@
                 <h3 class="test-title">Maths Mock</h3>
                 <div class="test-name-db" id="name-mathematics">No active tests</div>
                 <div class="score-info">
-                    Score: <span class="score-val" id="val-mathematics">0/0</span> <br>
-                    Accuracy: <span class="score-pct" id="pct-mathematics">0%</span>
+                    Correct: <span class="score-val" id="val-mathematics">0/0</span> <br>
+                    <span class="score-pct" id="pct-mathematics" onclick="viewReport('mathematics')">View Detailed Report →</span>
                 </div>
                 <button class="launch-btn" id="btn-mathematics">Start Test</button>
             </div>
@@ -117,6 +118,8 @@
         const supabaseUrl = 'https://ijxsnunkfhudwnkrwmzk.supabase.co';
         const supabaseKey = 'sb_publishable_V-KT1zvp-73dqHHvmx3fNA_iHw53TCl';
         const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+        let activeTestNames = {}; // Store test names by subject for the reporter
 
         async function checkAuth() {
             const { data: { session } } = await supabaseClient.auth.getSession();
@@ -135,6 +138,14 @@
                     card.classList.add('hidden');
                 }
             });
+        }
+
+        function viewReport(subject) {
+            const testName = activeTestNames[subject];
+            if (testName) {
+                localStorage.setItem('currentTestName', testName);
+                window.location.href = 'performance.html';
+            }
         }
 
         async function syncWithDB() {
@@ -158,6 +169,7 @@
                     
                     if (card) {
                         nameLabel.innerText = row.test_name;
+                        activeTestNames[subject] = row.test_name;
                         
                         const userAttempt = progress ? progress.find(p => p.test_name === row.test_name) : null;
 
@@ -171,7 +183,7 @@
                             const percentage = totalQuestions > 0 ? Math.round((correctCount / totalQuestions) * 100) : 0;
 
                             document.getElementById(`val-${subject}`).innerText = `${correctCount}/${totalQuestions}`;
-                            document.getElementById(`pct-${subject}`).innerText = `${percentage}%`;
+                            document.getElementById(`pct-${subject}`).innerText = `Accuracy: ${percentage}% (Review Report →)`;
                         } else {
                             card.classList.add('active');
                             btn.innerText = "Start Test";
