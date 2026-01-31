@@ -14,10 +14,11 @@
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background: #f1f5f9; color: #1e293b; display: flex; }
+        body { font-family: 'Inter', sans-serif; background: #f8fafc; color: #1e293b; display: flex; }
         
         /* Sidebar */
         nav { width: 280px; background: #0b4a8f; color: white; padding: 60px 0; position: fixed; height: 100vh; }
+        .logo-area { padding: 0 40px; margin-bottom: 60px; }
         .nav-link { display: block; padding: 18px 40px; text-decoration: none; color: rgba(255,255,255,0.5); text-transform: uppercase; font-size: 0.85rem; font-weight: 600; transition: 0.3s; }
         .nav-link:hover { color: white; background: rgba(255,255,255,0.05); }
         .active-link { color: white; background: rgba(255,255,255,0.1); border-right: 4px solid #fff; }
@@ -25,15 +26,15 @@
         main { margin-left: 280px; flex: 1; padding: 60px; }
         .header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
 
-        /* Stats Grid - Now 5 columns to fit Time */
+        /* Stats Grid */
         .stats-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; margin-bottom: 40px; }
-        .stat-card { background: white; padding: 20px; border-radius: 16px; border: 1px solid #e2e8f0; text-align: center; }
+        .stat-card { background: white; padding: 20px; border-radius: 16px; border: 1px solid #e2e8f0; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
         .stat-val { font-size: 1.5rem; font-weight: 700; color: #0b4a8f; display: block; }
         .stat-label { font-size: 0.7rem; color: #64748b; font-weight: 600; text-transform: uppercase; margin-top: 5px; }
 
         /* Review List */
-        .review-section { background: white; border-radius: 20px; border: 1px solid #e2e8f0; padding: 40px; }
-        .q-row { border-bottom: 1px solid #f1f5f9; padding: 30px 0; }
+        .review-section { background: white; border-radius: 24px; border: 1px solid #e2e8f0; padding: 40px; }
+        .q-row { border-bottom: 1px solid #f1f5f9; padding: 35px 0; position: relative; }
         .q-row:last-child { border: none; }
         .q-meta { display: flex; gap: 10px; margin-bottom: 15px; align-items: center; }
         .badge { padding: 4px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
@@ -41,17 +42,45 @@
         .badge-wrong { background: #fee2e2; color: #991b1b; }
         .badge-skipped { background: #f1f5f9; color: #475569; }
 
-        .option-review { margin-top: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .opt { padding: 12px; border-radius: 8px; font-size: 0.9rem; border: 1px solid #e2e8f0; position: relative; }
-        .opt-correct { border-color: #10b981; background: #f0fdf4; color: #166534; font-weight: 600; }
-        .opt-correct::after { content: '✓ Correct Answer'; position: absolute; right: 10px; font-size: 0.7rem; opacity: 0.7; }
+        .option-review { margin-top: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        
+        .opt { 
+            padding: 16px; border-radius: 12px; font-size: 0.95rem; 
+            border: 2px solid #e2e8f0; position: relative; transition: 0.2s; 
+        }
+
+        /* Encircled Correct Answer */
+        .opt-correct { 
+            border-color: #10b981 !important; 
+            background: #f0fdf4; 
+            color: #166534; 
+            font-weight: 600;
+            cursor: help;
+        }
+
         .opt-user-wrong { border-color: #ef4444; background: #fef2f2; color: #991b1b; }
-        .opt-user-wrong::after { content: '✕ Your Choice'; position: absolute; right: 10px; font-size: 0.7rem; opacity: 0.7; }
+
+        /* Solution Hover Box */
+        .solution-box {
+            visibility: hidden; opacity: 0;
+            position: absolute; top: 105%; left: 0; width: 100%; min-width: 320px;
+            background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(12px);
+            padding: 24px; border-radius: 16px; border: 1px solid #10b981;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.12); z-index: 100;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translateY(10px);
+        }
+
+        .opt-correct:hover .solution-box { visibility: visible; opacity: 1; transform: translateY(0); }
+        .sol-header { font-size: 0.75rem; text-transform: uppercase; color: #10b981; font-weight: 800; margin-bottom: 10px; display: block; letter-spacing: 1px; }
+        .sol-text { color: #334155; font-size: 0.92rem; line-height: 1.7; }
+
+        @media print { nav { display: none; } main { margin: 0; } .solution-box { visibility: visible; opacity: 1; position: relative; box-shadow: none; border: 1px dashed #ccc; } }
     </style>
 </head>
 <body>
     <nav>
-        <div style="padding: 0 40px; margin-bottom: 60px;"><h2>JEE Portal</h2></div>
+        <div class="logo-area"><h2>JEE Portal</h2></div>
         <a href="index.html" class="nav-link">Dashboard</a>
         <a href="tests.html" class="nav-link">Available Tests</a>
         <a href="performance.html" class="nav-link active-link">Performance</a>
@@ -60,10 +89,10 @@
     <main>
         <div class="header-flex">
             <div>
-                <h1 id="reportTitle" style="font-size: 2rem;">Analysis Report</h1>
-                <p id="testSubtext" style="color: #64748b; margin-top: 5px;">Loading test data...</p>
+                <h1 id="reportTitle" style="font-size: 2.2rem; font-weight: 800;">Analysis Report</h1>
+                <p id="testSubtext" style="color: #64748b; margin-top: 5px;">Fetching your results...</p>
             </div>
-            <button onclick="window.print()" style="padding: 10px 20px; border-radius: 8px; border: 1px solid #cbd5e1; cursor: pointer; font-weight: 600; background: white; transition: 0.2s;">Print Analysis</button>
+            <button onclick="window.print()" style="padding: 12px 24px; border-radius: 10px; border: 1px solid #cbd5e1; cursor: pointer; font-weight: 600; background: white; transition: 0.2s;">Print Report</button>
         </div>
 
         <div class="stats-grid">
@@ -75,7 +104,8 @@
         </div>
 
         <div class="review-section" id="reviewList">
-            </div>
+            <p style="text-align: center; color: #64748b;">Loading detailed review...</p>
+        </div>
     </main>
 
     <script>
@@ -87,33 +117,25 @@
             const tName = localStorage.getItem('currentTestName');
             const { data: { session } } = await supabaseClient.auth.getSession();
             
-            if (!session || !tName) {
-                window.location.href = 'tests.html';
-                return;
-            }
+            if (!session || !tName) { window.location.href = 'tests.html'; return; }
 
             const { data: qData } = await supabaseClient.from('questions_table').select('*').eq('test_name', tName).single();
             const { data: pData } = await supabaseClient.from('student_progress')
                 .select('*').eq('student_id', session.user.id).eq('test_name', tName).single();
 
-            if (qData && pData) {
-                renderReport(qData.question_data, pData, qData.test_name);
-            }
+            if (qData && pData) renderReport(qData.question_data, pData, qData.test_name);
         }
 
         function formatTime(seconds) {
             if (!seconds) return "N/A";
-            const h = Math.floor(seconds / 3600);
-            const m = Math.floor((seconds % 3600) / 60);
+            const m = Math.floor(seconds / 60);
             const s = seconds % 60;
-            return h > 0 ? `${h}h ${m}m` : `${m}m ${s}s`;
+            return `${m}m ${s}s`;
         }
 
         function renderReport(questions, attempt, testName) {
             document.getElementById('reportTitle').innerText = testName;
-            document.getElementById('testSubtext').innerText = `Completed on ${new Date(attempt.created_at).toLocaleString()}`;
-            
-            // Setting Time Taken (Assumes you save 'time_spent' in seconds in student_progress)
+            document.getElementById('testSubtext').innerText = `Attempted on ${new Date(attempt.created_at).toLocaleString()}`;
             document.getElementById('statTime').innerText = formatTime(attempt.time_spent);
 
             let correct = 0, wrong = 0, html = '';
@@ -136,23 +158,32 @@
                 html += `
                 <div class="q-row">
                     <div class="q-meta">
-                        <span style="font-weight:700; color:#64748b; font-size:0.8rem;">Q${idx+1}</span>
+                        <span style="font-weight:700; color:#94a3b8; font-size:0.85rem;">QUESTION ${idx+1}</span>
                         ${statusBadge}
                     </div>
-                    <div style="font-size: 1.1rem; margin-bottom: 20px; line-height: 1.6;">${q.q}</div>
+                    <div style="font-size: 1.15rem; margin-bottom: 25px; line-height: 1.6; font-weight: 500;">${q.q}</div>
                     <div class="option-review">
                         ${q.options.map((opt, i) => {
                             let cls = 'opt';
-                            if (i === correctAns) cls += ' opt-correct';
+                            let solutionMarkup = '';
+                            
+                            if (i === correctAns) {
+                                cls += ' opt-correct';
+                                solutionMarkup = `
+                                    <div class="solution-box">
+                                        <span class="sol-header">Step-wise Solution</span>
+                                        <div class="sol-text">${q.solution || 'Detailed explanation not available for this question.'}</div>
+                                    </div>`;
+                            }
                             if (userAns !== null && i === parseInt(userAns) && i !== correctAns) cls += ' opt-user-wrong';
-                            return `<div class="${cls}">${opt}</div>`;
+                            
+                            return `<div class="${cls}">${opt} ${solutionMarkup}</div>`;
                         }).join('')}
                     </div>
                 </div>`;
             });
 
             document.getElementById('reviewList').innerHTML = html;
-            
             document.getElementById('statCorrect').innerText = correct;
             document.getElementById('statWrong').innerText = wrong;
             document.getElementById('statScore').innerText = `${correct}/${questions.length}`;
