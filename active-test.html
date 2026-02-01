@@ -23,7 +23,7 @@
             --thin-line: #e2e8f0; 
         }
 
-        /* Loading Screen Styles */
+        /* Full-Screen Loading Guard */
         #loadingOverlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: radial-gradient(circle at top left, #e0e7ff, #f8fafc);
@@ -31,9 +31,9 @@
             z-index: 9999; transition: opacity 0.5s ease;
         }
         .spinner {
-            width: 50px; height: 50px; border: 5px solid var(--grey-hover);
-            border-top: 5px solid var(--accent-blue); border-radius: 50%;
-            animation: spin 1s linear infinite; margin-bottom: 20px;
+            width: 40px; height: 40px; border: 4px solid var(--grey-hover);
+            border-top: 4px solid var(--accent-blue); border-radius: 50%;
+            animation: spin 0.8s linear infinite; margin-bottom: 20px;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
@@ -43,15 +43,9 @@
             100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
         }
 
-        @keyframes slideInRight {
-            from { transform: translateX(30px); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-        @keyframes slideInLeft {
-            from { transform: translateX(-30px); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-
+        /* Slide Animations */
+        @keyframes slideInRight { from { transform: translateX(30px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes slideInLeft { from { transform: translateX(-30px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         .slide-right { animation: slideInRight 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
         .slide-left { animation: slideInLeft 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
 
@@ -86,6 +80,7 @@
             box-shadow: 0 4px 20px rgba(0,0,0,0.03); margin-bottom: 25px;
         }
 
+        /* Option Cards & Radio Buttons */
         .option-sub-card {
             background: white; padding: 20px 25px; border-radius: 15px;
             margin-bottom: 12px; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -93,6 +88,11 @@
         }
         .option-sub-card:hover { transform: translateY(-3px); border-color: var(--grey-hover); box-shadow: 0 10px 20px rgba(0,0,0,0.06); }
         .option-sub-card.selected { border-color: var(--accent-blue); background: #f8faff; }
+
+        .radio-btn { width: 20px; height: 20px; border: 2px solid #cbd5e1; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: border-color 0.2s; }
+        .selected .radio-btn { border-color: var(--accent-blue); }
+        .radio-inner { width: 10px; height: 10px; border-radius: 50%; background: var(--accent-blue); display: none; }
+        .selected .radio-inner { display: block; }
 
         .palette-card { width: 350px; background: var(--glass); backdrop-filter: blur(25px); border-radius: 30px; border: 1px solid var(--glass-border); display: flex; flex-direction: column; }
         .palette-header { padding: 30px 25px 15px 25px; }
@@ -109,17 +109,15 @@
         }
         .btn-grey { background: var(--grey-btn); color: #475569; }
         .btn-grey:hover { background: var(--grey-hover); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        
         .btn-finish { background: var(--navy); color: white; padding: 12px 35px; }
         .btn-finish:hover { background: var(--navy-hover); transform: translateY(-2px); box-shadow: 0 8px 20px rgba(15, 23, 42, 0.3); }
 
         #timer { font-size: 1.6rem; font-weight: 800; color: var(--navy); font-variant-numeric: tabular-nums; }
         
         .p-circle { 
-            aspect-ratio: 1/1; border-radius: 50%; display: flex; align-items: center; 
-            justify-content: center; font-weight: 600; cursor: pointer; background: var(--grey-btn); 
-            color: #64748b; font-size: 0.85rem; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
-            border: 2px solid transparent; margin: 3px; 
+            aspect-ratio: 1/1; border-radius: 50%; display: flex; align-items: center; justify-content: center; 
+            font-weight: 600; cursor: pointer; background: var(--grey-btn); color: #64748b; font-size: 0.85rem; 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 2px solid transparent; margin: 3px; 
         }
         .p-circle:hover { border-color: var(--accent-blue); transform: scale(1.15); background: white; box-shadow: 0 5px 15px rgba(0,0,0,0.08); }
         .p-circle.active { border: 3px solid var(--accent-blue); background: white; color: var(--accent-blue); transform: scale(1.05); animation: pulse-blue 2s infinite; }
@@ -131,7 +129,7 @@
 
 <div id="loadingOverlay">
     <div class="spinner"></div>
-    <p style="font-weight: 600; color: var(--navy); letter-spacing: 1px;">PREPARING TEST ENVIRONMENT...</p>
+    <p style="font-weight: 600; color: var(--navy); letter-spacing: 1px;">SYNCING SECURE CONNECTION...</p>
 </div>
 
 <header>
@@ -146,12 +144,9 @@
     <div class="test-engine">
         <div class="q-scroll-area" id="questionArea">
             <p id="qLabel" style="color: var(--accent-blue); font-weight: 800; font-size: 0.7rem; margin-bottom: 12px; letter-spacing: 2px;">QUESTION 1</p>
-            <div class="question-sub-card">
-                <div id="qText" style="font-size: 1.35rem; color: #1e293b; line-height: 1.5; font-weight: 500;">...</div>
-            </div>
+            <div class="question-sub-card"><div id="qText" style="font-size: 1.35rem; color: #1e293b; line-height: 1.5; font-weight: 500;">...</div></div>
             <div id="optionsContainer"></div>
         </div>
-        
         <div class="footer-nav">
             <div style="display:flex; gap:10px;">
                 <button class="btn btn-grey" onclick="changeQ(-1)">&larr; Previous</button>
@@ -162,7 +157,6 @@
             <button class="btn btn-finish" onclick="finalSubmit()">Finish Test</button>
         </div>
     </div>
-
     <div class="palette-card">
         <div class="palette-header"><h3 style="font-size: 1.1rem; color: var(--navy); border-bottom: 2px solid #f1f5f9; padding-bottom: 12px; font-weight: 700;">Question Palette</h3></div>
         <div class="palette-grid" id="paletteGrid"></div>
@@ -179,12 +173,7 @@
     const supabaseKey = 'sb_publishable_V-KT1zvp-73dqHHvmx3fNA_iHw53TCl'; 
     const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-    let questions = [];
-    let currentIdx = 0;
-    let userAnswers = [];
-    let marked = [];
-    let timeLeft = 2400; // 40m
-    let recordId = null; 
+    let questions = []; let currentIdx = 0; let userAnswers = []; let marked = []; let timeLeft = 2400; let recordId = null; 
     const testName = localStorage.getItem('currentTestName');
 
     async function start() {
@@ -193,25 +182,16 @@
             if (!user) { window.location.href = 'login.html'; return; }
             const username = user.email.split('@')[0];
 
-            // 1. Fetch Questions
             const { data: qData } = await supabaseClient.from('questions_table').select('*').eq('test_name', testName);
-            if (!qData || qData.length === 0) { alert("Test questions not found."); return; }
+            if (!qData || qData.length === 0) return;
             questions = qData[0].question_data;
             document.getElementById('testTitle').innerText = testName;
 
-            // 2. Check Progress / No Retake
-            const { data: existingRecords } = await supabaseClient
-                .from('student_progress')
-                .select('*')
-                .eq('username', username)
-                .eq('subject', testName);
+            const { data: existingRecords } = await supabaseClient.from('student_progress').select('*').eq('username', username).eq('subject', testName);
 
             if (existingRecords && existingRecords.length > 0) {
                 const record = existingRecords[0];
-                if (record.accuracy !== null && record.accuracy !== undefined) {
-                    window.location.href = 'performance.html';
-                    return;
-                }
+                if (record.accuracy !== null) { window.location.href = 'performance.html'; return; }
                 recordId = record.id;
                 userAnswers = record.user_answers || new Array(questions.length).fill(null);
                 marked = record.marked_for_review || new Array(questions.length).fill(false);
@@ -219,70 +199,46 @@
                 const startAt = new Date(record.created_at).getTime();
                 timeLeft = Math.max(0, 2400 - Math.floor((new Date().getTime() - startAt) / 1000));
             } else {
-                userAnswers = new Array(questions.length).fill(null);
-                marked = new Array(questions.length).fill(false);
-                const { data: newRec } = await supabaseClient.from('student_progress').insert([{
-                    username: username, subject: testName, current_index: 0, 
-                    user_answers: userAnswers, marked_for_review: marked
-                }]).select();
+                userAnswers = new Array(questions.length).fill(null); marked = new Array(questions.length).fill(false);
+                const { data: newRec } = await supabaseClient.from('student_progress').insert([{ username: username, subject: testName, current_index: 0, user_answers: userAnswers, marked_for_review: marked }]).select();
                 if (newRec) recordId = newRec[0].id;
             }
-
-            // 3. Setup UI and HIDE LOADING OVERLAY
-            setupPalette(); 
-            render(); 
-            runTimer();
+            setupPalette(); render(); runTimer();
             document.getElementById('loadingOverlay').style.opacity = '0';
             setTimeout(() => { document.getElementById('loadingOverlay').style.display = 'none'; }, 500);
-
-        } catch (e) { 
-            console.error(e);
-            alert("Connection error. Please refresh.");
-        }
+        } catch (e) { alert("Session Expired or Connection Failed."); }
     }
 
     async function autoSave() {
         if (!recordId) return;
-        const statusEl = document.getElementById('syncStatus');
-        statusEl.innerText = "● Syncing...";
-        await supabaseClient.from('student_progress')
-            .update({ user_answers: userAnswers, marked_for_review: marked, current_index: currentIdx })
-            .eq('id', recordId);
-        statusEl.innerText = "● Synced";
+        document.getElementById('syncStatus').innerText = "● Syncing...";
+        await supabaseClient.from('student_progress').update({ user_answers: userAnswers, marked_for_review: marked, current_index: currentIdx }).eq('id', recordId);
+        document.getElementById('syncStatus').innerText = "● Synced";
     }
 
     function setupPalette() {
-        const grid = document.getElementById('paletteGrid');
-        grid.innerHTML = '';
+        const grid = document.getElementById('paletteGrid'); grid.innerHTML = '';
         questions.forEach((_, i) => {
-            const c = document.createElement('div');
-            c.className = 'p-circle';
-            c.id = `pc-${i}`;
-            c.innerText = i + 1;
-            c.onclick = () => { 
-                const direction = i > currentIdx ? 'slide-right' : 'slide-left';
-                currentIdx = i; render(direction); autoSave(); 
-            };
+            const c = document.createElement('div'); c.className = 'p-circle'; c.id = `pc-${i}`; c.innerText = i + 1;
+            c.onclick = () => { const dir = i > currentIdx ? 'slide-right' : 'slide-left'; currentIdx = i; render(dir); autoSave(); };
             grid.appendChild(c);
         });
     }
 
-    function render(animationClass = '') {
-        const q = questions[currentIdx];
-        const area = document.getElementById('questionArea');
+    function render(anim = '') {
+        const q = questions[currentIdx]; const area = document.getElementById('questionArea');
         area.classList.remove('slide-right', 'slide-left');
-        if(animationClass) { void area.offsetWidth; area.classList.add(animationClass); }
-
+        if(anim) { void area.offsetWidth; area.classList.add(anim); }
         document.getElementById('qLabel').innerText = `QUESTION ${currentIdx + 1}`;
         document.getElementById('qText').innerText = q.q;
         document.getElementById('optionsContainer').innerHTML = q.options.map((opt, i) => `
             <div class="option-sub-card ${userAnswers[currentIdx] === i ? 'selected' : ''}" onclick="select(${i})">
+                <div class="radio-btn"><div class="radio-inner"></div></div>
                 <span style="font-weight:700; color:var(--accent-blue); min-width: 20px;">${String.fromCharCode(65+i)}.</span> 
                 <span style="color: #334155; font-weight: 500;">${opt}</span>
             </div>
         `).join('');
-        updatePaletteUI();
-        if(window.MathJax) MathJax.typesetPromise();
+        updatePaletteUI(); if(window.MathJax) MathJax.typesetPromise();
     }
 
     function select(i) { userAnswers[currentIdx] = i; render(); autoSave(); }
@@ -290,20 +246,15 @@
     function markReview() { marked[currentIdx] = !marked[currentIdx]; render(); autoSave(); }
     function changeQ(step) {
         let next = currentIdx + step;
-        if(next >= 0 && next < questions.length) { 
-            const anim = step > 0 ? 'slide-right' : 'slide-left';
-            currentIdx = next; render(anim); autoSave(); 
-        }
+        if(next >= 0 && next < questions.length) { const anim = step > 0 ? 'slide-right' : 'slide-left'; currentIdx = next; render(anim); autoSave(); }
     }
 
     function updatePaletteUI() {
         questions.forEach((_, i) => {
-            const el = document.getElementById(`pc-${i}`);
-            if(!el) return;
+            const el = document.getElementById(`pc-${i}`); if(!el) return;
             el.className = 'p-circle';
             if(i === currentIdx) el.classList.add('active');
-            if(marked[i]) el.classList.add('marked');
-            else if(userAnswers[i] !== null) el.classList.add('answered');
+            if(marked[i]) el.classList.add('marked'); else if(userAnswers[i] !== null) el.classList.add('answered');
         });
     }
 
@@ -311,8 +262,7 @@
         const el = document.getElementById('timer');
         const itv = setInterval(() => {
             if(timeLeft <= 0) { clearInterval(itv); finalSubmit(true); return; }
-            let m = Math.floor(timeLeft / 60);
-            let s = timeLeft % 60;
+            let m = Math.floor(timeLeft / 60); let s = timeLeft % 60;
             el.innerText = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
             timeLeft--;
         }, 1000);
@@ -326,11 +276,7 @@
             if(userAnswers[i] === cIdx) correct++;
         });
         const acc = Math.round((correct / questions.length) * 100);
-        if (recordId) {
-            await supabaseClient.from('student_progress')
-                .update({ accuracy: acc, user_answers: userAnswers, current_index: currentIdx })
-                .eq('id', recordId);
-        }
+        if (recordId) await supabaseClient.from('student_progress').update({ accuracy: acc, user_answers: userAnswers }).eq('id', recordId);
         window.location.href = 'performance.html';
     }
 
