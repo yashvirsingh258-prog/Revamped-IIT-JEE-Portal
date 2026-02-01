@@ -53,7 +53,6 @@
         #syncStatus { 
             font-size: 0.7rem; font-weight: 700; color: #94a3b8; 
             display: flex; align-items: center; gap: 5px; text-transform: uppercase;
-            transition: all 0.3s;
         }
         #syncStatus.saving { animation: sync-flash 0.6s ease; }
 
@@ -148,7 +147,9 @@
     <div class="test-engine">
         <div class="q-scroll-area">
             <p id="qLabel" style="color: var(--accent-blue); font-weight: 800; font-size: 0.7rem; margin-bottom: 12px; letter-spacing: 2px;">QUESTION 1</p>
-            <div class="question-sub-card"><div id="qText" style="font-size: 1.35rem; color: #1e293b; line-height: 1.5; font-weight: 500;">Establishing Secure Connection...</div></div>
+            <div class="question-sub-card">
+                <div id="qText" style="font-size: 1.35rem; color: #1e293b; line-height: 1.5; font-weight: 500;">Establishing Secure Connection...</div>
+            </div>
             <div id="optionsContainer"></div>
         </div>
         
@@ -183,7 +184,7 @@
     let currentIdx = 0;
     let userAnswers = [];
     let marked = [];
-    let timeLeft = 2400; 
+    let timeLeft = 2400; // Locked at 40 mins
     let recordId = null; 
     const testName = localStorage.getItem('currentTestName');
 
@@ -203,6 +204,7 @@
             questions = qData[0].question_data;
             document.getElementById('testTitle').innerText = testName;
 
+            // Secure Resume Logic
             const { data: existingRecords } = await supabaseClient
                 .from('student_progress')
                 .select('*')
@@ -216,7 +218,6 @@
                 userAnswers = record.user_answers || new Array(questions.length).fill(null);
                 marked = record.marked_status || new Array(questions.length).fill(false);
                 
-                // Calculate remaining time based on start_at
                 const startAt = new Date(record.created_at).getTime();
                 const now = new Date().getTime();
                 const elapsed = Math.floor((now - startAt) / 1000);
@@ -289,21 +290,9 @@
         if(window.MathJax) MathJax.typesetPromise();
     }
 
-    function select(i) { 
-        userAnswers[currentIdx] = i; 
-        render(); autoSave(); 
-    }
-
-    function clearAns() { 
-        userAnswers[currentIdx] = null; 
-        render(); autoSave(); 
-    }
-
-    function markReview() { 
-        marked[currentIdx] = !marked[currentIdx]; 
-        render(); autoSave(); 
-    }
-
+    function select(i) { userAnswers[currentIdx] = i; render(); autoSave(); }
+    function clearAns() { userAnswers[currentIdx] = null; render(); autoSave(); }
+    function markReview() { marked[currentIdx] = !marked[currentIdx]; render(); autoSave(); }
     function changeQ(step) {
         let next = currentIdx + step;
         if(next >= 0 && next < questions.length) { currentIdx = next; render(); }
