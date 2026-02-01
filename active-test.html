@@ -35,6 +35,19 @@
             100% { color: #94a3b8; }
         }
 
+        /* Slide Animations */
+        @keyframes slideInRight {
+            from { transform: translateX(30px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes slideInLeft {
+            from { transform: translateX(-30px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .slide-right { animation: slideInRight 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        .slide-left { animation: slideInLeft 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
             font-family: 'Inter', sans-serif; 
@@ -49,11 +62,7 @@
         }
 
         .header-right { display: flex; align-items: center; gap: 25px; }
-        
-        #syncStatus { 
-            font-size: 0.7rem; font-weight: 700; color: #94a3b8; 
-            display: flex; align-items: center; gap: 5px; text-transform: uppercase;
-        }
+        #syncStatus { font-size: 0.7rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; }
         #syncStatus.saving { animation: sync-flash 0.6s ease; }
 
         .main-layout { display: flex; flex: 1; padding: 25px; gap: 25px; overflow: hidden; align-items: stretch; }
@@ -61,10 +70,10 @@
         .test-engine {
             flex: 1; background: var(--glass); backdrop-filter: blur(25px);
             border-radius: 30px; border: 1px solid var(--glass-border);
-            display: flex; flex-direction: column;
+            display: flex; flex-direction: column; overflow: hidden;
         }
 
-        .q-scroll-area { padding: 40px; flex: 1; overflow-y: auto; }
+        .q-scroll-area { padding: 50px 40px 40px 40px; flex: 1; overflow-y: auto; overflow-x: hidden; }
 
         .question-sub-card {
             background: white; padding: 30px; border-radius: 20px;
@@ -76,59 +85,30 @@
             margin-bottom: 12px; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             border: 2px solid transparent; display: flex; align-items: center; gap: 15px;
         }
-        .option-sub-card:hover { 
-            transform: translateY(-3px); border-color: var(--grey-hover);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.06);
-        }
+        .option-sub-card:hover { transform: translateY(-3px); border-color: var(--grey-hover); box-shadow: 0 10px 20px rgba(0,0,0,0.06); }
         .option-sub-card.selected { border-color: var(--accent-blue); background: #f8faff; }
 
-        .radio-btn {
-            width: 20px; height: 20px; border: 2px solid #cbd5e1;
-            border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-        }
+        .radio-btn { width: 20px; height: 20px; border: 2px solid #cbd5e1; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         .selected .radio-btn { border-color: var(--accent-blue); }
         .radio-inner { width: 10px; height: 10px; border-radius: 50%; background: var(--accent-blue); display: none; }
         .selected .radio-inner { display: block; }
 
-        .palette-card {
-            width: 350px; background: var(--glass); backdrop-filter: blur(25px);
-            border-radius: 30px; border: 1px solid var(--glass-border);
-            padding: 0; display: flex; flex-direction: column;
-        }
-
+        .palette-card { width: 350px; background: var(--glass); backdrop-filter: blur(25px); border-radius: 30px; border: 1px solid var(--glass-border); display: flex; flex-direction: column; }
         .palette-header { padding: 30px 25px 15px 25px; }
-        .palette-grid { padding: 0 25px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; flex: 1; overflow-y: auto; align-content: start; }
+        .palette-grid { padding: 10px 25px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; flex: 1; overflow-y: auto; align-content: start; }
 
-        .footer-nav, .legend-section {
-            height: 90px; border-top: 1px solid var(--thin-line);
-            display: flex; align-items: center;
-        }
-
+        .footer-nav, .legend-section { height: 90px; border-top: 1px solid var(--thin-line); display: flex; align-items: center; }
         .footer-nav { padding: 0 40px; justify-content: space-between; }
         .legend-section { padding: 0 25px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.75rem; font-weight: 500; color: #64748b; }
 
-        .btn {
-            padding: 12px 24px; border-radius: 12px; border: none;
-            font-weight: 600; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            font-size: 0.85rem; display: flex; align-items: center; gap: 8px;
-        }
+        .btn { padding: 12px 24px; border-radius: 12px; border: none; font-weight: 600; cursor: pointer; transition: all 0.3s; font-size: 0.85rem; display: flex; align-items: center; gap: 8px; }
         .btn-grey { background: var(--grey-btn); color: #475569; }
-        .btn-grey:hover { background: var(--grey-hover); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
         .btn-finish { background: var(--navy); color: white; padding: 12px 35px; }
-        .btn-finish:hover { background: var(--navy-hover); transform: translateY(-2px); box-shadow: 0 8px 20px rgba(15, 23, 42, 0.3); }
 
-        #timer { font-size: 1.6rem; font-weight: 800; color: var(--navy); font-variant-numeric: tabular-nums; }
+        #timer { font-size: 1.6rem; font-weight: 800; color: var(--navy); }
         
-        .p-circle {
-            aspect-ratio: 1/1; border-radius: 50%; display: flex; align-items: center;
-            justify-content: center; font-weight: 600; cursor: pointer; background: var(--grey-btn); color: #64748b;
-            font-size: 0.85rem; transition: all 0.2s ease; border: 2px solid transparent;
-        }
-        .p-circle:hover { border-color: var(--accent-blue); transform: scale(1.08); background: white; }
-        .p-circle.active { 
-            border: 3px solid var(--accent-blue); background: white; color: var(--accent-blue); 
-            transform: scale(1.05); animation: pulse-blue 2s infinite; 
-        }
+        .p-circle { aspect-ratio: 1/1; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer; background: var(--grey-btn); color: #64748b; font-size: 0.85rem; transition: all 0.2s ease; border: 2px solid transparent; margin: 2px; }
+        .p-circle.active { border: 3px solid var(--accent-blue); background: white; color: var(--accent-blue); transform: scale(1.05); animation: pulse-blue 2s infinite; }
         .p-circle.answered { background: var(--correct); color: white; border-color: transparent; }
         .p-circle.marked { background: var(--purple); color: white; border-color: transparent; }
     </style>
@@ -145,7 +125,7 @@
 
 <div class="main-layout">
     <div class="test-engine">
-        <div class="q-scroll-area">
+        <div class="q-scroll-area" id="questionArea">
             <p id="qLabel" style="color: var(--accent-blue); font-weight: 800; font-size: 0.7rem; margin-bottom: 12px; letter-spacing: 2px;">QUESTION 1</p>
             <div class="question-sub-card">
                 <div id="qText" style="font-size: 1.35rem; color: #1e293b; line-height: 1.5; font-weight: 500;">Establishing Secure Connection...</div>
@@ -184,33 +164,26 @@
     let currentIdx = 0;
     let userAnswers = [];
     let marked = [];
-    let timeLeft = 2400; // 40 minutes
+    let timeLeft = 2400; // Locked to 40 mins
     let recordId = null; 
     const testName = localStorage.getItem('currentTestName');
 
     async function start() {
         try {
             const { data: { user } } = await supabaseClient.auth.getUser();
-            if (!user || !user.email) {
-                window.location.href = 'login.html';
-                return;
-            }
-
+            if (!user) { window.location.href = 'login.html'; return; }
             const username = user.email.split('@')[0];
-            if (!testName) return;
 
             const { data: qData } = await supabaseClient.from('questions_table').select('*').eq('test_name', testName);
             if (!qData || qData.length === 0) return;
-
             questions = qData[0].question_data;
             document.getElementById('testTitle').innerText = testName;
 
-            // Check for existing record to RESUME
             const { data: existingRecords } = await supabaseClient
                 .from('student_progress')
                 .select('*')
                 .eq('username', username)
-                .eq('subject', testName);
+                .eq('subject', testName); // Matching your specific column
 
             if (existingRecords && existingRecords.length > 0) {
                 const record = existingRecords[0];
@@ -218,56 +191,29 @@
                 userAnswers = record.user_answers || new Array(questions.length).fill(null);
                 marked = record.marked_for_review || new Array(questions.length).fill(false);
                 currentIdx = record.current_index || 0;
-                
-                // Calculate remaining time
                 const startAt = new Date(record.created_at).getTime();
-                const now = new Date().getTime();
-                const elapsed = Math.floor((now - startAt) / 1000);
-                timeLeft = Math.max(0, 2400 - elapsed);
+                timeLeft = Math.max(0, 2400 - Math.floor((new Date().getTime() - startAt) / 1000));
             } else {
-                // Initial Row Insertion on Entry
                 userAnswers = new Array(questions.length).fill(null);
                 marked = new Array(questions.length).fill(false);
-                
-                const { data: newRec, error: insError } = await supabaseClient
-                    .from('student_progress')
-                    .insert([{
-                        username: username,
-                        subject: testName,
-                        current_index: 0,
-                        user_answers: userAnswers,
-                        marked_for_review: marked
-                    }])
-                    .select();
-                
-                if (insError) console.error("Insertion Failed:", insError);
-                else recordId = newRec[0].id;
+                const { data: newRec } = await supabaseClient.from('student_progress').insert([{
+                    username: username, subject: testName, current_index: 0, 
+                    user_answers: userAnswers, marked_for_review: marked
+                }]).select();
+                if (newRec) recordId = newRec[0].id;
             }
-
             setupPalette(); render(); runTimer();
-        } catch (e) {
-            console.error("Fatal Start Error:", e);
-        }
+        } catch (e) { console.error(e); }
     }
 
     async function autoSave() {
         if (!recordId) return;
         const statusEl = document.getElementById('syncStatus');
         statusEl.classList.add('saving');
-        statusEl.innerText = "● Syncing...";
-        
-        const { error } = await supabaseClient.from('student_progress')
-            .update({
-                user_answers: userAnswers,
-                marked_for_review: marked,
-                current_index: currentIdx
-            })
+        await supabaseClient.from('student_progress')
+            .update({ user_answers: userAnswers, marked_for_review: marked, current_index: currentIdx })
             .eq('id', recordId);
-
-        setTimeout(() => {
-            statusEl.classList.remove('saving');
-            statusEl.innerText = error ? "● Offline" : "● Synced";
-        }, 600);
+        setTimeout(() => statusEl.classList.remove('saving'), 600);
     }
 
     function setupPalette() {
@@ -278,13 +224,25 @@
             c.className = 'p-circle';
             c.id = `pc-${i}`;
             c.innerText = i + 1;
-            c.onclick = () => { currentIdx = i; render(); autoSave(); };
+            c.onclick = () => { 
+                const direction = i > currentIdx ? 'slide-right' : 'slide-left';
+                currentIdx = i; render(direction); autoSave(); 
+            };
             grid.appendChild(c);
         });
     }
 
-    function render() {
+    function render(animationClass = '') {
         const q = questions[currentIdx];
+        const area = document.getElementById('questionArea');
+        
+        // Apply Animation
+        area.classList.remove('slide-right', 'slide-left');
+        if(animationClass) {
+            void area.offsetWidth; // Trigger reflow
+            area.classList.add(animationClass);
+        }
+
         document.getElementById('qLabel').innerText = `QUESTION ${currentIdx + 1}`;
         document.getElementById('qText').innerText = q.q;
         document.getElementById('optionsContainer').innerHTML = q.options.map((opt, i) => `
@@ -305,8 +263,9 @@
     function changeQ(step) {
         let next = currentIdx + step;
         if(next >= 0 && next < questions.length) { 
+            const anim = step > 0 ? 'slide-right' : 'slide-left';
             currentIdx = next; 
-            render(); 
+            render(anim); 
             autoSave(); 
         }
     }
@@ -335,17 +294,9 @@
 
     async function finalSubmit(auto = false) {
         if(!auto && !confirm("Finish test?")) return;
-        
-        // Final Sync before leaving
-        if (recordId) {
-            await autoSave();
-        }
+        if (recordId) await autoSave();
         window.location.href = 'performance.html';
     }
-
-    window.addEventListener('beforeunload', (e) => {
-        if (recordId) { e.preventDefault(); e.returnValue = ''; }
-    });
 
     start();
 </script>
