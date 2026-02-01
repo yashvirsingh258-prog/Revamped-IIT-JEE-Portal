@@ -205,8 +205,23 @@
                             card.classList.remove('active');
                             btn.innerText = "Submitted";
 
-                            const correctCount = userAttempt.confirmed_answered ? userAttempt.confirmed_answered.length : 0;
+                            // --- FIXED SCORE CALCULATION LOGIC ---
+                            let correctCount = 0;
                             const totalQuestions = row.question_data ? row.question_data.length : 0;
+                            const submittedAnswers = userAttempt.confirmed_answered || [];
+
+                            if (row.question_data) {
+                                row.question_data.forEach((q, index) => {
+                                    // Check if student's answer at this index matches the correct_option
+                                    if (submittedAnswers[index] !== null && 
+                                        submittedAnswers[index] !== undefined && 
+                                        String(submittedAnswers[index]) === String(q.correct_option)) {
+                                        correctCount++;
+                                    }
+                                });
+                            }
+                            // --------------------------------------
+
                             const percentage = totalQuestions > 0 ? Math.round((correctCount / totalQuestions) * 100) : 0;
 
                             document.getElementById(`val-${subject}`).innerText = `${correctCount}/${totalQuestions}`;
