@@ -40,7 +40,6 @@
 
         .main-layout { display: flex; flex: 1; padding: 25px; gap: 25px; overflow: hidden; align-items: stretch; }
 
-        /* Test Engine Styles */
         .test-engine {
             flex: 1;
             background: var(--glass);
@@ -59,18 +58,19 @@
 
         .option-sub-card {
             background: white; padding: 20px 25px; border-radius: 15px;
-            margin-bottom: 12px; cursor: pointer; transition: all 0.3s;
+            margin-bottom: 12px; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             border: 2px solid transparent; display: flex; align-items: center; gap: 15px;
         }
-        /* Hover Effect for Options */
+
+        /* RESTORED HOVER EFFECT */
         .option-sub-card:hover { 
-            transform: translateY(-2px); 
+            transform: translateY(-3px); 
             border-color: var(--grey-hover);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.06);
         }
+        
         .option-sub-card.selected { border-color: var(--accent-blue); background: #f8faff; }
 
-        /* Custom Radio Button */
         .radio-btn {
             width: 20px; height: 20px; border: 2px solid #cbd5e1;
             border-radius: 50%; display: flex; align-items: center; justify-content: center;
@@ -80,7 +80,6 @@
         .radio-inner { width: 10px; height: 10px; border-radius: 50%; background: var(--accent-blue); display: none; }
         .selected .radio-inner { display: block; }
 
-        /* Palette Card Styles */
         .palette-card {
             width: 350px; background: var(--glass); backdrop-filter: blur(25px);
             border-radius: 30px; border: 1px solid var(--glass-border);
@@ -89,13 +88,11 @@
 
         .palette-header { padding: 30px 25px 15px 25px; }
         
-        /* Compact Palette Grid */
         .palette-grid { 
             padding: 0 25px; display: grid; grid-template-columns: repeat(5, 1fr); 
             gap: 10px; flex: 1; overflow-y: auto; align-content: start;
         }
 
-        /* Footer Alignment logic */
         .footer-nav, .legend-section {
             height: 90px;
             border-top: 1px solid var(--thin-line);
@@ -109,7 +106,6 @@
             gap: 8px; font-size: 0.75rem; font-weight: 500; color: #64748b;
         }
 
-        /* Buttons */
         .btn {
             padding: 12px 24px; border-radius: 12px; border: none;
             font-weight: 600; cursor: pointer; transition: all 0.3s;
@@ -119,13 +115,12 @@
         .btn-finish { background: var(--navy); color: white; padding: 12px 35px; }
         .btn-finish:hover { background: var(--navy-hover); transform: translateY(-2px); box-shadow: 0 8px 20px rgba(15, 23, 42, 0.3); }
 
-        /* Timer - Navy Blue */
         #timer { font-size: 1.6rem; font-weight: 800; color: var(--navy); font-variant-numeric: tabular-nums; }
         
         .p-circle {
             aspect-ratio: 1/1; border-radius: 50%; display: flex; align-items: center;
             justify-content: center; font-weight: 600; cursor: pointer; background: var(--grey-btn); color: #64748b;
-            font-size: 0.85rem; transition: 0.2s;
+            font-size: 0.85rem;
         }
         .p-circle.active { border: 3px solid var(--accent-blue); background: white; color: var(--accent-blue); }
         .p-circle.answered { background: var(--correct); color: white; }
@@ -144,7 +139,7 @@
         <div class="q-scroll-area">
             <p id="qLabel" style="color: var(--accent-blue); font-weight: 800; font-size: 0.7rem; margin-bottom: 12px; letter-spacing: 2px;">QUESTION 1</p>
             <div class="question-sub-card">
-                <div id="qText" style="font-size: 1.35rem; color: #1e293b; line-height: 1.5; font-weight: 500;">Loading Questions...</div>
+                <div id="qText" style="font-size: 1.35rem; color: #1e293b; line-height: 1.5; font-weight: 500;">Loading...</div>
             </div>
             <div id="optionsContainer"></div>
         </div>
@@ -183,34 +178,25 @@
     let currentIdx = 0;
     let userAnswers = [];
     let marked = [];
-    let timeLeft = 2400; // 40 Minutes
+    let timeLeft = 2400; 
     const testName = localStorage.getItem('currentTestName');
 
     async function start() {
-        if (!testName) {
-            document.getElementById('qText').innerText = "No test selected. Please return to dashboard.";
-            return;
-        }
-
+        if (!testName) return;
         const { data, error } = await supabaseClient
             .from('questions_table')
             .select('*')
             .eq('test_name', testName);
 
-        if (error || !data || data.length === 0) {
-            document.getElementById('qText').innerText = "Error loading questions from database.";
-            console.error(error);
-            return;
+        if (data && data.length > 0) {
+            questions = data[0].question_data;
+            userAnswers = new Array(questions.length).fill(null);
+            marked = new Array(questions.length).fill(false);
+            document.getElementById('testTitle').innerText = testName;
+            setupPalette();
+            render();
+            runTimer();
         }
-
-        questions = data[0].question_data;
-        userAnswers = new Array(questions.length).fill(null);
-        marked = new Array(questions.length).fill(false);
-        document.getElementById('testTitle').innerText = testName;
-        
-        setupPalette();
-        render();
-        runTimer();
     }
 
     function setupPalette() {
@@ -230,7 +216,6 @@
         const q = questions[currentIdx];
         document.getElementById('qLabel').innerText = `QUESTION ${currentIdx + 1}`;
         document.getElementById('qText').innerText = q.q;
-        
         document.getElementById('optionsContainer').innerHTML = q.options.map((opt, i) => `
             <div class="option-sub-card ${userAnswers[currentIdx] === i ? 'selected' : ''}" onclick="select(${i})">
                 <div class="radio-btn"><div class="radio-inner"></div></div>
@@ -238,7 +223,6 @@
                 <span style="color: #334155; font-weight: 500;">${opt}</span>
             </div>
         `).join('');
-
         updatePaletteUI();
         if(window.MathJax) MathJax.typesetPromise();
     }
@@ -266,10 +250,7 @@
     function runTimer() {
         const el = document.getElementById('timer');
         const itv = setInterval(() => {
-            if(timeLeft <= 0) { 
-                clearInterval(itv); 
-                finalSubmit(true); 
-            }
+            if(timeLeft <= 0) { clearInterval(itv); finalSubmit(true); }
             let m = Math.floor(timeLeft / 60);
             let s = timeLeft % 60;
             el.innerText = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
@@ -278,16 +259,13 @@
     }
 
     async function finalSubmit(auto = false) {
-        if(!auto && !confirm("Are you sure you want to finish the test?")) return;
-        
+        if(!auto && !confirm("Submit test?")) return;
         const { data: { user } } = await supabaseClient.auth.getUser();
         let correct = 0;
-        
         questions.forEach((q, i) => {
             const cIdx = q.options.findIndex(o => o.trim() === q.correct.trim());
             if(userAnswers[i] === cIdx) correct++;
         });
-
         await supabaseClient.from('student_progress').insert([{
             student_id: user.id,
             username: user.email.split('@')[0],
@@ -296,10 +274,8 @@
             user_answers: userAnswers,
             accuracy: Math.round((correct/questions.length)*100)
         }]);
-        
         window.location.href = 'performance.html';
     }
-
     start();
 </script>
 </body>
