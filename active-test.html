@@ -104,9 +104,8 @@
         .btn-grey { background: var(--grey-btn); color: #475569; }
         .btn-finish { background: var(--navy); color: white; padding: 12px 35px; }
 
-        #timer { font-size: 1.6rem; font-weight: 800; color: var(--navy); }
+        #timer { font-size: 1.6rem; font-weight: 800; color: var(--navy); font-variant-numeric: tabular-nums; }
         
-        /* RESTORED HOVER & PIXEL SPACING */
         .p-circle { 
             aspect-ratio: 1/1; border-radius: 50%; display: flex; align-items: center; 
             justify-content: center; font-weight: 600; cursor: pointer; background: var(--grey-btn); 
@@ -170,7 +169,7 @@
     let currentIdx = 0;
     let userAnswers = [];
     let marked = [];
-    let timeLeft = 2400; 
+    let timeLeft = 2400; // Default 40 mins
     let recordId = null; 
     const testName = localStorage.getItem('currentTestName');
 
@@ -193,12 +192,24 @@
 
             if (existingRecords && existingRecords.length > 0) {
                 const record = existingRecords[0];
+                
+                // NO RETAKE: Redirect if accuracy column is set
+                if (record.accuracy !== null && record.accuracy !== undefined) {
+                    alert("Test already completed. You cannot retake it.");
+                    window.location.href = 'performance.html';
+                    return;
+                }
+
                 recordId = record.id;
                 userAnswers = record.user_answers || new Array(questions.length).fill(null);
                 marked = record.marked_for_review || new Array(questions.length).fill(false);
                 currentIdx = record.current_index || 0;
+                
+                // Fixed Timer Calculation
                 const startAt = new Date(record.created_at).getTime();
-                timeLeft = Math.max(0, 2400 - Math.floor((new Date().getTime() - startAt) / 1000));
+                const now = new Date().getTime();
+                const elapsed = isNaN(startAt) ? 0 : Math.floor((now - startAt) / 1000);
+                timeLeft = Math.max(0, 2400 - elapsed);
             } else {
                 userAnswers = new Array(questions.length).fill(null);
                 marked = new Array(questions.length).fill(false);
@@ -207,6 +218,7 @@
                     user_answers: userAnswers, marked_for_review: marked
                 }]).select();
                 if (newRec) recordId = newRec[0].id;
+                timeLeft = 2400;
             }
             setupPalette(); render(); runTimer();
         } catch (e) { console.error(e); }
@@ -216,10 +228,14 @@
         if (!recordId) return;
         const statusEl = document.getElementById('syncStatus');
         statusEl.classList.add('saving');
+        statusEl.innerText = "● Syncing...";
         await supabaseClient.from('student_progress')
             .update({ user_answers: userAnswers, marked_for_review: marked, current_index: currentIdx })
             .eq('id', recordId);
-        setTimeout(() => statusEl.classList.remove('saving'), 600);
+        setTimeout(() => {
+            statusEl.classList.remove('saving');
+            statusEl.innerText = "● Synced";
+        }, 600);
     }
 
     function setupPalette() {
@@ -282,7 +298,12 @@
     function runTimer() {
         const el = document.getElementById('timer');
         const itv = setInterval(() => {
-            if(timeLeft <= 0) { clearInterval(itv); finalSubmit(true); }
+            if(timeLeft <= 0) { 
+                clearInterval(itv); 
+                el.innerText = "00:00";
+                finalSubmit(true); 
+                return;
+            }
             let m = Math.floor(timeLeft / 60);
             let s = timeLeft % 60;
             el.innerText = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
@@ -292,7 +313,19 @@
 
     async function finalSubmit(auto = false) {
         if(!auto && !confirm("Finish test?")) return;
-        if (recordId) await autoSave();
+        
+        let correct = 0;
+        questions.forEach((q, i) => {
+            const cIdx = q.options.findIndex(o => o.trim() === q.correct.trim());
+            if(userAnswers[i] === cIdx) correct++;
+        });
+        const acc = Math.round((correct / questions.length) * 100);
+
+        if (recordId) {
+            await supabaseClient.from('student_progress')
+                .update({ accuracy: acc, user_answers: userAnswers, current_index: currentIdx })
+                .eq('id', recordId);
+        }
         window.location.href = 'performance.html';
     }
 
