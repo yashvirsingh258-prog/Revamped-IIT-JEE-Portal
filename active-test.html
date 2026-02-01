@@ -29,6 +29,12 @@
             100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
         }
 
+        @keyframes sync-flash {
+            0% { color: #94a3b8; }
+            50% { color: var(--correct); transform: scale(1.1); }
+            100% { color: #94a3b8; }
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
             font-family: 'Inter', sans-serif; 
@@ -37,12 +43,19 @@
         }
 
         header {
-            background: var(--glass);
-            backdrop-filter: blur(20px);
+            background: var(--glass); backdrop-filter: blur(20px);
             border-bottom: 1px solid var(--glass-border);
-            padding: 15px 50px;
-            display: flex; justify-content: space-between; align-items: center;
+            padding: 15px 50px; display: flex; justify-content: space-between; align-items: center;
         }
+
+        .header-right { display: flex; align-items: center; gap: 25px; }
+        
+        #syncStatus { 
+            font-size: 0.7rem; font-weight: 700; color: #94a3b8; 
+            display: flex; align-items: center; gap: 5px; text-transform: uppercase;
+            transition: all 0.3s;
+        }
+        #syncStatus.saving { animation: sync-flash 0.6s ease; }
 
         .main-layout { display: flex; flex: 1; padding: 25px; gap: 25px; overflow: hidden; align-items: stretch; }
 
@@ -113,8 +126,6 @@
             font-size: 0.85rem; transition: all 0.2s ease; border: 2px solid transparent;
         }
         .p-circle:hover { border-color: var(--accent-blue); transform: scale(1.08); background: white; }
-        
-        /* Pulse for active question */
         .p-circle.active { 
             border: 3px solid var(--accent-blue); background: white; color: var(--accent-blue); 
             transform: scale(1.05); animation: pulse-blue 2s infinite; 
@@ -127,14 +138,17 @@
 
 <header>
     <h2 id="testTitle" style="color: var(--navy); font-weight: 700;">--</h2>
-    <div id="timer">40:00</div>
+    <div class="header-right">
+        <div id="syncStatus">● Synced</div>
+        <div id="timer">40:00</div>
+    </div>
 </header>
 
 <div class="main-layout">
     <div class="test-engine">
         <div class="q-scroll-area">
             <p id="qLabel" style="color: var(--accent-blue); font-weight: 800; font-size: 0.7rem; margin-bottom: 12px; letter-spacing: 2px;">QUESTION 1</p>
-            <div class="question-sub-card"><div id="qText" style="font-size: 1.35rem; color: #1e293b; line-height: 1.5; font-weight: 500;">Loading...</div></div>
+            <div class="question-sub-card"><div id="qText" style="font-size: 1.35rem; color: #1e293b; line-height: 1.5; font-weight: 500;">Establishing Secure Connection...</div></div>
             <div id="optionsContainer"></div>
         </div>
         
@@ -170,18 +184,81 @@
     let userAnswers = [];
     let marked = [];
     let timeLeft = 2400; 
+    let recordId = null; 
     const testName = localStorage.getItem('currentTestName');
 
     async function start() {
+        const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
+        if (authError || !user || !user.email) {
+            window.location.href = 'login.html';
+            return;
+        }
+
+        const username = user.email.split('@')[0];
         if (!testName) return;
-        const { data } = await supabaseClient.from('questions_table').select('*').eq('test_name', testName);
-        if (data && data.length > 0) {
-            questions = data[0].question_data;
-            userAnswers = new Array(questions.length).fill(null);
-            marked = new Array(questions.length).fill(false);
+
+        const { data: qData } = await supabaseClient.from('questions_table').select('*').eq('test_name', testName);
+        
+        if (qData && qData.length > 0) {
+            questions = qData[0].question_data;
             document.getElementById('testTitle').innerText = testName;
+
+            const { data: existingRecords } = await supabaseClient
+                .from('student_progress')
+                .select('*')
+                .eq('student_id', user.id)
+                .eq('test_name', testName)
+                .is('accuracy', null);
+
+            if (existingRecords && existingRecords.length > 0) {
+                const record = existingRecords[0];
+                recordId = record.id;
+                userAnswers = record.user_answers || new Array(questions.length).fill(null);
+                marked = record.marked_status || new Array(questions.length).fill(false);
+                
+                // Calculate remaining time based on start_at
+                const startAt = new Date(record.created_at).getTime();
+                const now = new Date().getTime();
+                const elapsed = Math.floor((now - startAt) / 1000);
+                timeLeft = Math.max(0, 2400 - elapsed);
+            } else {
+                userAnswers = new Array(questions.length).fill(null);
+                marked = new Array(questions.length).fill(false);
+                const { data: newRec } = await supabaseClient
+                    .from('student_progress')
+                    .insert([{
+                        student_id: user.id,
+                        username: username,
+                        test_name: testName,
+                        score: `0/${questions.length}`,
+                        user_answers: userAnswers,
+                        marked_status: marked
+                    }])
+                    .select();
+                recordId = newRec[0].id;
+            }
+
             setupPalette(); render(); runTimer();
         }
+    }
+
+    async function autoSave() {
+        if (!recordId) return;
+        const statusEl = document.getElementById('syncStatus');
+        statusEl.classList.add('saving');
+        statusEl.innerText = "● Syncing...";
+        
+        const { error } = await supabaseClient.from('student_progress')
+            .update({
+                user_answers: userAnswers,
+                marked_status: marked
+            })
+            .eq('id', recordId);
+
+        setTimeout(() => {
+            statusEl.classList.remove('saving');
+            statusEl.innerText = error ? "● Offline" : "● Synced";
+        }, 600);
     }
 
     function setupPalette() {
@@ -212,9 +289,21 @@
         if(window.MathJax) MathJax.typesetPromise();
     }
 
-    function select(i) { userAnswers[currentIdx] = i; render(); }
-    function clearAns() { userAnswers[currentIdx] = null; render(); }
-    function markReview() { marked[currentIdx] = !marked[currentIdx]; render(); }
+    function select(i) { 
+        userAnswers[currentIdx] = i; 
+        render(); autoSave(); 
+    }
+
+    function clearAns() { 
+        userAnswers[currentIdx] = null; 
+        render(); autoSave(); 
+    }
+
+    function markReview() { 
+        marked[currentIdx] = !marked[currentIdx]; 
+        render(); autoSave(); 
+    }
+
     function changeQ(step) {
         let next = currentIdx + step;
         if(next >= 0 && next < questions.length) { currentIdx = next; render(); }
@@ -244,18 +333,29 @@
 
     async function finalSubmit(auto = false) {
         if(!auto && !confirm("Finish test?")) return;
-        const { data: { user } } = await supabaseClient.auth.getUser();
         let correct = 0;
         questions.forEach((q, i) => {
             const cIdx = q.options.findIndex(o => o.trim() === q.correct.trim());
             if(userAnswers[i] === cIdx) correct++;
         });
-        await supabaseClient.from('student_progress').insert([{
-            student_id: user.id, username: user.email.split('@')[0], test_name: testName,
-            score: `${correct}/${questions.length}`, user_answers: userAnswers, accuracy: Math.round((correct/questions.length)*100)
-        }]);
+
+        if (recordId) {
+            await supabaseClient.from('student_progress')
+                .update({
+                    score: `${correct}/${questions.length}`,
+                    user_answers: userAnswers,
+                    accuracy: Math.round((correct/questions.length)*100),
+                    marked_status: marked
+                })
+                .eq('id', recordId);
+        }
         window.location.href = 'performance.html';
     }
+
+    window.addEventListener('beforeunload', (e) => {
+        if (recordId) { e.preventDefault(); e.returnValue = ''; }
+    });
+
     start();
 </script>
 </body>
