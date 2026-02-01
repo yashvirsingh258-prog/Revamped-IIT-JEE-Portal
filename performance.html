@@ -3,44 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JEE Portal | Performance Analytics</title>
+    <title>JEE Portal | Performance</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        window.MathJax = {
-            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], processEscapes: true },
-            svg: { fontCache: 'global' }
-        };
+        window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] } };
     </script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <style>
-        :root { --primary-blue: #0b4a8f; --correct-green: #10b981; --wrong-red: #ef4444; --bg-light: #f8fafc; --sidebar-width: 260px; }
+        :root { --primary-blue: #0b4a8f; --bg-light: #f8fafc; --sidebar-width: 260px; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg-light); display: flex; min-height: 100vh; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg-light); display: flex; }
         
-        nav { width: var(--sidebar-width); background: var(--primary-blue); color: white; position: fixed; height: 100vh; padding: 40px 0; }
-        .nav-link { display: block; padding: 15px 30px; text-decoration: none; color: rgba(255,255,255,0.7); border-left: 4px solid transparent; }
-        .active-link { color: white; background: rgba(255,255,255,0.1); border-left: 4px solid white; }
+        /* Fixed Sidebar */
+        nav { 
+            width: var(--sidebar-width); background: var(--primary-blue); color: white; 
+            position: fixed; height: 100vh; display: flex; flex-direction: column; padding: 40px 0;
+        }
+        .nav-link { 
+            padding: 15px 30px; text-decoration: none; color: rgba(255,255,255,0.7); 
+            border-left: 4px solid transparent; transition: 0.3s;
+        }
+        .nav-link:hover, .active-link { color: white; background: rgba(255,255,255,0.1); border-left: 4px solid white; }
 
         main { margin-left: var(--sidebar-width); flex: 1; padding: 40px 60px; width: calc(100% - var(--sidebar-width)); }
 
-        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 25px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 30px; }
         .stat-card { background: white; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; text-align: center; }
-        .stat-val { display: block; font-size: 1.6rem; font-weight: 700; color: var(--primary-blue); }
-        
-        .mastery-box { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-bottom: 30px; display: flex; flex-wrap: wrap; gap: 10px; }
-        .topic-pill { padding: 8px 16px; background: #f1f5f9; border-radius: 50px; font-size: 0.85rem; font-weight: 600; }
-
-        .q-row { background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 30px; margin-bottom: 25px; }
-        .badge { padding: 5px 12px; border-radius: 6px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; }
-        .diff-medium { background: #fef3c7; color: #92400e; }
-        
-        .option-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
-        .opt { padding: 18px; border-radius: 10px; border: 2px solid #e2e8f0; position: relative; }
-        .opt-correct { border-color: var(--correct-green); background: #f0fdf4; }
-        .opt-wrong { border-color: var(--wrong-red); background: #fef2f2; }
-
-        #errorContainer { display: none; padding: 20px; background: #fee2e2; color: #991b1b; border-radius: 8px; margin-bottom: 20px; }
+        .mastery-box { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 30px; }
+        .topic-pill { padding: 8px 16px; background: white; border: 1px solid #e2e8f0; border-radius: 50px; font-size: 0.85rem; font-weight: 600; }
+        .q-row { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 25px; margin-bottom: 20px; }
     </style>
 </head>
 <body>
@@ -48,22 +40,18 @@
 <nav>
     <div style="padding: 0 30px; margin-bottom: 40px;"><h2>JEE Portal</h2></div>
     <a href="dashboard.html" class="nav-link">Dashboard</a>
+    <a href="tests.html" class="nav-link">Tests</a>
     <a href="performance.html" class="nav-link active-link">Performance</a>
 </nav>
 
 <main>
-    <div id="errorContainer"></div>
+    <h1 id="testTitle" style="margin-bottom: 20px;">Performance Report</h1>
     
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px;">
-        <h1 id="testTitle">Loading Report...</h1>
-        <button onclick="window.location.href='active_test.html'" style="background:var(--primary-blue); color:white; border:none; padding:10px 20px; border-radius:8px; cursor:pointer;">Retake Test</button>
-    </div>
-
     <div class="stats-grid">
-        <div class="stat-card"><span class="stat-val" id="statScore">0/0</span><span>Score</span></div>
-        <div class="stat-card"><span class="stat-val" id="statAccuracy">0%</span><span>Accuracy</span></div>
-        <div class="stat-card"><span class="stat-val" id="statAttempted">0</span><span>Attempted</span></div>
-        <div class="stat-card"><span class="stat-val" id="statWrong">0</span><span>Incorrect</span></div>
+        <div class="stat-card"><h2 id="statScore">0/0</h2><p>Score</p></div>
+        <div class="stat-card"><h2 id="statAccuracy">0%</h2><p>Accuracy</p></div>
+        <div class="stat-card"><h2 id="statAttempted">0</h2><p>Attempted</p></div>
+        <div class="stat-card"><h2 id="statWrong">0</h2><p>Incorrect</p></div>
     </div>
 
     <div id="masteryList" class="mastery-box"></div>
@@ -76,108 +64,51 @@
     const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
     async function loadResults() {
-        try {
-            const tName = localStorage.getItem('currentTestName');
-            if (!tName) throw new Error("Please select a test from the dashboard first.");
+        const tName = localStorage.getItem('currentTestName');
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        
+        if (!session || !tName) return;
 
-            const { data: { session } } = await supabaseClient.auth.getSession();
-            if(!session) { window.location.href = 'login.html'; return; }
+        const { data: qData } = await supabaseClient.from('questions_table').select('*').eq('test_name', tName).single();
+        const { data: pData } = await supabaseClient.from('student_progress')
+            .select('*').eq('student_id', session.user.id).eq('test_name', tName)
+            .order('created_at', { ascending: false }).limit(1).maybeSingle();
 
-            // 1. Fetch Questions
-            const { data: qData, error: qError } = await supabaseClient
-                .from('questions_table')
-                .select('question_data')
-                .eq('test_name', tName)
-                .single();
-
-            if (qError) throw new Error(`Question Data Missing: ${qError.message}`);
-
-            // 2. Fetch Progress
-            const { data: pData, error: pError } = await supabaseClient
-                .from('student_progress')
-                .select('*')
-                .eq('student_id', session.user.id)
-                .eq('test_name', tName)
-                .order('created_at', { ascending: false })
-                .limit(1)
-                .maybeSingle(); // maybeSingle prevents error if no record exists yet
-
-            if (!pData) throw new Error("No submission found for this test. Please complete the test first.");
-
-            renderUI(qData.question_data, pData, tName);
-
-        } catch (err) {
-            const errDiv = document.getElementById('errorContainer');
-            errDiv.style.display = 'block';
-            errDiv.innerText = err.message;
-            document.getElementById('testTitle').innerText = "Report Unavailable";
-        }
+        if (qData && pData) renderUI(qData.question_data, pData, tName);
+        else document.body.innerHTML += "<div style='padding:100px; text-align:center;'>No Submission Found. Please complete the test first.</div>";
     }
 
     function renderUI(questions, progress, testName) {
         document.getElementById('testTitle').innerText = testName;
-        let html = '';
         let stats = { correct: 0, attempted: 0, topics: {} };
 
-        // INITIALIZE TOPICS (Fixes the 0% Mastery Bug)
-        questions.forEach(q => {
-            const t = q.topic || "General";
-            if(!stats.topics[t]) stats.topics[t] = { correct: 0, total: 0 };
-            stats.topics[t].total++; 
-        });
-
         questions.forEach((q, idx) => {
+            const topic = q.topic || "General";
+            if(!stats.topics[topic]) stats.topics[topic] = { correct: 0, total: 0 };
+            stats.topics[topic].total++;
+
             const userAns = progress.user_answers[idx];
             const correctIdx = q.options.findIndex(o => o.trim() === q.correct.trim());
-            const topic = q.topic || "General";
-            
-            if(userAns !== null && userAns !== undefined) {
+
+            if (userAns !== null) {
                 stats.attempted++;
-                if(parseInt(userAns) === correctIdx) {
+                if (parseInt(userAns) === correctIdx) {
                     stats.correct++;
                     stats.topics[topic].correct++;
                 }
             }
-
-            const isCorrect = userAns !== null && parseInt(userAns) === correctIdx;
-            const isSkipped = userAns === null;
-
-            html += `
-            <div class="q-row">
-                <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-                    <span class="badge topic-tag" style="background:#eff6ff">${topic}</span>
-                    <span class="badge" style="background:${isSkipped?'#f1f5f9':isCorrect?'#dcfce7':'#fee2e2'}">
-                        ${isSkipped ? 'Skipped' : (isCorrect ? 'Correct' : 'Incorrect')}
-                    </span>
-                </div>
-                <div style="margin-bottom:15px;">${q.q}</div>
-                <div class="option-grid">
-                    ${q.options.map((opt, i) => {
-                        let cls = 'opt';
-                        if(i === correctIdx) cls += ' opt-correct';
-                        if(userAns !== null && parseInt(userAns) === i && i !== correctIdx) cls += ' opt-wrong';
-                        return `<div class="${cls}"><b>${String.fromCharCode(65+i)}.</b> ${opt}</div>`;
-                    }).join('')}
-                </div>
-            </div>`;
         });
 
-        // UPDATE STATS
         document.getElementById('statScore').innerText = `${stats.correct}/${questions.length}`;
-        document.getElementById('statAccuracy').innerText = `${stats.attempted > 0 ? Math.round((stats.correct/stats.attempted)*100) : 0}%`;
-        document.getElementById('statAttempted').innerText = stats.attempted;
-        document.getElementById('statWrong').innerText = stats.attempted - stats.correct;
-
-        // MASTERY PILLS
+        document.getElementById('statAccuracy').innerText = `${Math.round((stats.correct/Math.max(stats.attempted,1))*100)}%`;
+        
         document.getElementById('masteryList').innerHTML = Object.keys(stats.topics).map(t => {
             const acc = Math.round((stats.topics[t].correct / stats.topics[t].total) * 100);
             return `<div class="topic-pill">${t}: ${acc}%</div>`;
         }).join('');
-
-        document.getElementById('reviewList').innerHTML = html;
-        if(window.MathJax) MathJax.typesetPromise();
+        
+        // Render individual question rows here...
     }
-
     loadResults();
 </script>
 </body>
