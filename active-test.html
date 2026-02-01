@@ -17,9 +17,9 @@
             --grey-btn: #f1f5f9;
             --grey-hover: #e2e8f0;
             --correct: #10b981;
-            --warning: #f43f5e;
             --purple: #8b5cf6;
             --accent-blue: #3b82f6;
+            --default-grey: #cbd5e1;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -35,8 +35,6 @@
             border-bottom: 1px solid var(--glass-border);
             padding: 15px 50px;
             display: flex; justify-content: space-between; align-items: center;
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03);
-            z-index: 10;
         }
 
         .main-layout { display: flex; flex: 1; padding: 25px; gap: 25px; overflow: hidden; }
@@ -48,7 +46,6 @@
             border-radius: 30px;
             border: 1px solid var(--glass-border);
             display: flex; flex-direction: column;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.05);
         }
 
         .q-scroll-area { padding: 40px; flex: 1; overflow-y: auto; }
@@ -59,7 +56,6 @@
             border-radius: 20px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.03);
             margin-bottom: 25px;
-            border: 1px solid rgba(0,0,0,0.02);
         }
 
         .option-sub-card {
@@ -71,17 +67,15 @@
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             border: 2px solid transparent;
             display: flex; align-items: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
         }
         .option-sub-card:hover { 
-            transform: translateY(-3px) scale(1.01); 
+            transform: translateY(-3px); 
             box-shadow: 0 10px 25px rgba(0,0,0,0.08);
             border-color: var(--grey-hover);
         }
         .option-sub-card.selected { 
             border-color: var(--accent-blue); 
             background: #f8faff;
-            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.1);
         }
 
         .palette-card {
@@ -92,7 +86,6 @@
             border: 1px solid var(--glass-border);
             padding: 30px;
             display: flex; flex-direction: column;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.05);
         }
 
         .palette-grid {
@@ -109,16 +102,15 @@
             transition: all 0.3s ease; border: 2px solid transparent;
         }
         .p-circle:hover { transform: scale(1.1); filter: brightness(0.9); }
-        .p-circle.active { border-color: var(--accent-blue); background: white; border-width: 3px; color: var(--accent-blue); }
-        .p-circle.answered { background: var(--correct); color: white; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); }
-        .p-circle.visited { background: var(--warning); color: white; box-shadow: 0 4px 12px rgba(244, 63, 94, 0.3); }
-        .p-circle.marked { background: var(--purple); color: white; box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3); }
+        .p-circle.active { border-color: var(--accent-blue); background: white; border-width: 3px; }
+        .p-circle.answered { background: var(--correct); color: white; }
+        .p-circle.marked { background: var(--purple); color: white; }
 
         .footer-nav {
             padding: 25px 40px;
             background: rgba(255,255,255,0.4);
             border-top: 1px solid var(--glass-border);
-            display: flex; justify-content: space-between; align-items: center;
+            display: flex; justify-content: space-between;
         }
 
         .btn {
@@ -127,18 +119,18 @@
             font-size: 0.9rem;
         }
         .btn-grey { background: var(--grey-btn); color: #475569; }
-        .btn-grey:hover { background: var(--grey-hover); transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .btn-grey:hover { background: var(--grey-hover); transform: translateY(-2px); }
         
         .btn-finish { background: var(--navy); color: white; padding: 14px 40px; }
         .btn-finish:hover { background: var(--navy-hover); transform: translateY(-3px); box-shadow: 0 10px 25px rgba(15, 23, 42, 0.3); }
 
-        #timer { font-size: 1.6rem; font-weight: 800; color: var(--navy); font-variant-numeric: tabular-nums; }
+        #timer { font-size: 1.6rem; font-weight: 800; color: var(--navy); }
     </style>
 </head>
 <body>
 
 <header>
-    <h2 id="testTitle" style="color: var(--navy); font-weight: 800; letter-spacing: -1px;">--</h2>
+    <h2 id="testTitle" style="color: var(--navy);">--</h2>
     <div id="timer">40:00</div>
 </header>
 
@@ -159,7 +151,7 @@
                 <button class="btn btn-grey" onclick="changeQ(-1)">Previous</button>
                 <button class="btn btn-grey" onclick="clearAns()">Clear</button>
                 <button class="btn btn-grey" onclick="markReview()">Review</button>
-                <button class="btn btn-grey" style="background:var(--accent-blue); color:white;" onclick="changeQ(1)">Next</button>
+                <button class="btn btn-grey" onclick="changeQ(1)">Next</button>
             </div>
             <button class="btn btn-finish" onclick="finalSubmit()">Finish Test</button>
         </div>
@@ -172,8 +164,7 @@
         <div style="margin-top: auto; padding-top: 30px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; font-size: 0.8rem; font-weight: 500; color: #64748b;">
             <div style="display:flex; align-items:center; gap:8px;"><span style="width:12px;height:12px;border-radius:50%;background:var(--correct)"></span> Answered</div>
             <div style="display:flex; align-items:center; gap:8px;"><span style="width:12px;height:12px;border-radius:50%;background:var(--purple)"></span> Review</div>
-            <div style="display:flex; align-items:center; gap:8px;"><span style="width:12px;height:12px;border-radius:50%;background:var(--warning)"></span> Skipped</div>
-            <div style="display:flex; align-items:center; gap:8px;"><span style="width:12px;height:12px;border-radius:50%;background:var(--grey-btn)"></span> Not Visited</div>
+            <div style="display:flex; align-items:center; gap:8px;"><span style="width:12px;height:12px;border-radius:50%;background:var(--grey-btn)"></span> Not Answered</div>
         </div>
     </div>
 </div>
@@ -186,9 +177,8 @@
     let questions = [];
     let currentIdx = 0;
     let userAnswers = [];
-    let visited = [];
     let marked = [];
-    let timeLeft = 2400; // Timer set to 40 minutes (40 * 60)
+    let timeLeft = 2400; // 40 minutes
     const testName = localStorage.getItem('currentTestName');
 
     async function start() {
@@ -196,7 +186,6 @@
         if(data) {
             questions = data.question_data;
             userAnswers = new Array(questions.length).fill(null);
-            visited = new Array(questions.length).fill(false);
             marked = new Array(questions.length).fill(false);
             document.getElementById('testTitle').innerText = testName;
             setupPalette();
@@ -218,7 +207,6 @@
     }
 
     function render() {
-        visited[currentIdx] = true;
         const q = questions[currentIdx];
         document.getElementById('qLabel').innerText = `QUESTION ${currentIdx + 1}`;
         document.getElementById('qText').innerText = q.q;
@@ -250,7 +238,6 @@
             if(i === currentIdx) el.classList.add('active');
             if(marked[i]) el.classList.add('marked');
             else if(userAnswers[i] !== null) el.classList.add('answered');
-            else if(visited[i]) el.classList.add('visited');
         });
     }
 
