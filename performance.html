@@ -30,18 +30,23 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: var(--bg-light); display: flex; min-height: 100vh; }
         
+        /* --- SIDEBAR STYLE FROM INDEX --- */
         nav { 
-            width: var(--sidebar-width); background: var(--primary-blue); color: white; 
-            position: fixed; height: 100vh; display: flex; flex-direction: column; padding: 40px 0; z-index: 1000;
+            width: 280px; background: #0b4a8f; color: white; padding: 60px 0; 
+            position: fixed; height: 100vh; z-index: 100; display: flex; flex-direction: column; 
         }
-        .logo-area { padding: 0 30px; margin-bottom: 40px; }
-        .nav-link { 
-            display: block; padding: 15px 30px; text-decoration: none; 
-            color: rgba(255,255,255,0.7); font-size: 0.95rem; font-weight: 500; 
-            transition: all 0.3s ease; border-left: 4px solid transparent;
+        .logo-area { padding: 0 40px; margin-bottom: 60px; }
+        .logo-area h2 { font-size: 1.2rem; letter-spacing: 4px; font-weight: 700; text-transform: uppercase; }
+        
+        .nav-link {
+            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+            display: block; padding: 18px 40px; text-decoration: none;
+            color: rgba(255, 255, 255, 0.5); font-size: 0.85rem; font-weight: 500;
+            letter-spacing: 1px; text-transform: uppercase;
+            cursor: pointer;
         }
-        .nav-link:hover { color: white; background: rgba(255,255,255,0.1); border-left: 4px solid rgba(255,255,255,0.5); padding-left: 35px; }
-        .active-link { color: white; background: rgba(255,255,255,0.15); border-left: 4px solid white; }
+        .nav-link:hover { color: white; padding-left: 50px; }
+        .active-link { color: white; background: rgba(255, 255, 255, 0.1); font-weight: 700; border-right: 4px solid #fff; }
         
         main { margin-left: var(--sidebar-width); flex: 1; padding: 50px 70px; width: calc(100% - var(--sidebar-width)); }
 
@@ -104,14 +109,11 @@
 <body>
     <nav>
         <div class="logo-area"><h2>JEE Portal</h2></div>
-        <div class="nav-links-group">
-            <a href="index.html" class="nav-link">Dashboard</a>
-            <a href="tests.html" class="nav-link">Available Tests</a>
-            <a href="performance.html" class="nav-link active-link">Performance</a>
-        </div>
-        <div style="padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); margin-top: auto;">
-            <a href="#" onclick="handleLogout()" class="nav-link">Logout</a>
-        </div>
+        <a href="index.html" class="nav-link">Dashboard</a>
+        <a href="tests.html" class="nav-link active-link">Available Tests</a>
+        <a href="performance.html" class="nav-link">Performance</a>
+        
+        <a onclick="handleLogout()" class="nav-link" style="margin-top: auto; border-top: 1px solid rgba(255,255,255,0.1);">Logout</a>
     </nav>
 
     <main>
