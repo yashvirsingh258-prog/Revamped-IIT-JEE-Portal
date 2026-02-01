@@ -259,83 +259,95 @@
                 }).join('');
             }
 
-        function renderReport(questions, attempt, testName) {
-            document.getElementById('reportTitle').innerText = testName;
-            let html = '';
-            let correctCount = 0, attemptedCount = 0;
-            let topicStats = {};
-
-            questions.forEach((q, idx) => {
-                const userAnsRaw = (attempt.user_answers && attempt.user_answers[idx] !== undefined) ? attempt.user_answers[idx] : null;
-                const correctText = q.correct; 
-                const correctIdx = q.options.findIndex(opt => opt.trim() === correctText.trim());
-                const userChoiceIdx = userAnsRaw !== null ? parseInt(userAnsRaw) : null;
-                const topicLabel = q.topic || "General";
-
-                if (!topicStats[topicLabel]) topicStats[topicLabel] = { correct: 0, total: 0 };
-                
-                if (userChoiceIdx !== null) {
-                    attemptedCount++;
-                    topicStats[topicLabel].total++;
-                    if (userChoiceIdx === correctIdx) {
-                        correctCount++;
-                        topicStats[topicLabel].correct++;
-                    }
+    function renderReport(questions, attempt, testName) {
+        document.getElementById('reportTitle').innerText = testName;
+        let html = '';
+        let correctCount = 0, attemptedCount = 0;
+        let topicStats = {};
+    
+        questions.forEach((q, idx) => {
+            // 1. Precise data matching: Handle potential whitespace or type mismatches
+            const userAnsRaw = (attempt.user_answers && attempt.user_answers[idx] !== undefined) ? attempt.user_answers[idx] : null;
+            const correctText = q.correct ? q.correct.trim() : ""; 
+            const correctIdx = q.options.findIndex(opt => opt.trim() === correctText);
+            const userChoiceIdx = userAnsRaw !== null ? parseInt(userAnsRaw) : null;
+            
+            const topicLabel = q.topic || "General";
+    
+            // 2. Initialize Topic Stats: Track TOTAL questions in topic vs CORRECT
+            if (!topicStats[topicLabel]) {
+                topicStats[topicLabel] = { correct: 0, total_in_topic: 0 };
+            }
+            
+            // Every question in the list increments the topic denominator
+            topicStats[topicLabel].total_in_topic++;
+    
+            const isCorrect = userChoiceIdx !== null && userChoiceIdx === correctIdx;
+            const isSkipped = userChoiceIdx === null;
+    
+            // 3. Update global and topic-specific success counters
+            if (!isSkipped) {
+                attemptedCount++;
+                if (isCorrect) {
+                    correctCount++;
+                    topicStats[topicLabel].correct++; 
                 }
-
-                const isCorrect = userChoiceIdx !== null && userChoiceIdx === correctIdx;
-                const isSkipped = userChoiceIdx === null;
-
-                html += `
-                <div class="q-row">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                        <div style="display:flex; align-items:center;">
-                            <span style="font-weight:700; color:#64748b; font-size:0.85rem;">Q${idx+1}</span>
-                            <span class="meta-badge type-tag">${q.type || 'MCQ'}</span>
-                            <span class="meta-badge diff-tag">${q.difficulty || 'Medium'}</span>
-                            <span class="badge topic-badge">${topicLabel}</span>
-                        </div>
-                        <span class="badge ${isSkipped ? 'bg-grey' : (isCorrect ? 'bg-green' : 'bg-red')}">
-                            ${isSkipped ? 'Skipped' : (isCorrect ? 'Correct' : 'Incorrect')}
-                        </span>
+            }
+    
+            // 4. UI Generation (Keeping your exact structure)
+            html += `
+            <div class="q-row">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                    <div style="display:flex; align-items:center;">
+                        <span style="font-weight:700; color:#64748b; font-size:0.85rem;">Q${idx+1}</span>
+                        <span class="meta-badge type-tag">${q.type || 'MCQ'}</span>
+                        <span class="meta-badge diff-tag">${q.difficulty || 'Medium'}</span>
+                        <span class="badge topic-badge">${topicLabel}</span>
                     </div>
-                    <div style="margin-bottom:25px; font-size:1.05rem; line-height:1.6;">${q.q}</div>
-                    <div class="option-review">
-                        ${q.options.map((opt, i) => {
-                            let cls = 'opt';
-                            let solMarkup = '';
-                            if (i === correctIdx) {
-                                cls += ' opt-correct';
-                                solMarkup = `<div class="solution-box"><b style="color:var(--correct-green); font-size:0.65rem; display:block; margin-bottom:8px;">EXPLANATION</b>${formatStepSolution(q.solution)}</div>`;
-                            }
-                            if (userChoiceIdx === i && i !== correctIdx) cls += ' opt-user-wrong';
-                            return `<div class="${cls}"><span style="font-size:0.75rem; color:#94a3b8; margin-right:12px; font-weight:600;">${String.fromCharCode(65 + i)}.</span><div>${opt}</div>${solMarkup}</div>`;
-                        }).join('')}
-                    </div>
-                </div>`;
-            });
-
-            const masteryContainer = document.getElementById('topicMastery');
-            let masteryHtml = '<span style="width:100%; font-size:0.7rem; color:#94a3b8; font-weight:800; text-transform:uppercase; margin-bottom:10px;">Performance by Topic</span>';
-            Object.keys(topicStats).forEach(topic => {
-                const s = topicStats[topic];
-                if(s.total > 0) {
-                    const pct = Math.round((s.correct / s.total) * 100);
-                    masteryHtml += `<div class="topic-pill">${topic}: <span class="topic-pct">${pct}%</span></div>`;
-                }
-            });
-            masteryContainer.innerHTML = masteryHtml;
-            masteryContainer.style.display = 'flex';
-
-            document.getElementById('reviewList').innerHTML = html;
-            document.getElementById('statScore').innerText = `${correctCount}/${questions.length}`;
-            document.getElementById('statAttempted').innerText = attemptedCount;
-            document.getElementById('statIncorrect').innerText = attemptedCount - correctCount;
-            document.getElementById('statAccuracy').innerText = `${attemptedCount > 0 ? Math.round((correctCount / attemptedCount) * 100) : 0}%`;
-
-            if(window.MathJax) MathJax.typesetPromise();
-        }
-
+                    <span class="badge ${isSkipped ? 'bg-grey' : (isCorrect ? 'bg-green' : 'bg-red')}">
+                        ${isSkipped ? 'Skipped' : (isCorrect ? 'Correct' : 'Incorrect')}
+                    </span>
+                </div>
+                <div style="margin-bottom:25px; font-size:1.05rem; line-height:1.6;">${q.q}</div>
+                <div class="option-review">
+                    ${q.options.map((opt, i) => {
+                        let cls = 'opt';
+                        let solMarkup = '';
+                        if (i === correctIdx) {
+                            cls += ' opt-correct';
+                            // formatStepSolution is called here - keeping your Step 1: bolding
+                            solMarkup = `<div class="solution-box"><b style="color:var(--correct-green); font-size:0.65rem; display:block; margin-bottom:8px;">EXPLANATION</b>${formatStepSolution(q.solution)}</div>`;
+                        }
+                        if (userChoiceIdx === i && i !== correctIdx) cls += ' opt-user-wrong';
+                        return `<div class="${cls}"><span style="font-size:0.75rem; color:#94a3b8; margin-right:12px; font-weight:600;">${String.fromCharCode(65 + i)}.</span><div>${opt}</div>${solMarkup}</div>`;
+                    }).join('')}
+                </div>
+            </div>`;
+        });
+    
+        // 5. Render Topic Mastery Pills
+        const masteryContainer = document.getElementById('topicMastery');
+        let masteryHtml = '<span style="width:100%; font-size:0.7rem; color:#94a3b8; font-weight:800; text-transform:uppercase; margin-bottom:10px;">Performance by Topic</span>';
+        
+        Object.keys(topicStats).forEach(topic => {
+            const s = topicStats[topic];
+            // Mastery Percentage = (Correct / Total Questions in Topic) * 100
+            const pct = s.total_in_topic > 0 ? Math.round((s.correct / s.total_in_topic) * 100) : 0;
+            masteryHtml += `<div class="topic-pill">${topic}: <span class="topic-pct">${pct}%</span></div>`;
+        });
+        
+        masteryContainer.innerHTML = masteryHtml;
+        masteryContainer.style.display = 'flex';
+    
+        // 6. Final Stats Update
+        document.getElementById('reviewList').innerHTML = html;
+        document.getElementById('statScore').innerText = `${correctCount}/${questions.length}`;
+        document.getElementById('statAttempted').innerText = attemptedCount;
+        document.getElementById('statIncorrect').innerText = attemptedCount - correctCount;
+        document.getElementById('statAccuracy').innerText = `${attemptedCount > 0 ? Math.round((correctCount / attemptedCount) * 100) : 0}%`;
+    
+        if(window.MathJax) MathJax.typesetPromise();
+    }
         loadPerformance();
     </script>
 </body>
