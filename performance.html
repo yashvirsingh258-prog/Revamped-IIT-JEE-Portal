@@ -7,66 +7,111 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        window.MathJax = {
-            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], processEscapes: true },
-            svg: { fontCache: 'global' }
-        };
+        window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] } };
     </script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
     <style>
-        :root { --primary-blue: #0b4a8f; --correct-green: #10b981; --wrong-red: #ef4444; --bg-light: #f8fafc; --sidebar-width: 260px; }
+        :root { 
+            --navy: #1e3a8a; 
+            --navy-light: #2563eb;
+            --correct: #10b981; 
+            --wrong: #ef4444; 
+            --skipped: #3b82f6;
+            --bg: #f8fafc; 
+            --sidebar-w: 260px; 
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg-light); display: flex; min-height: 100vh; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); display: flex; min-height: 100vh; overflow-x: hidden; }
+
+        /* Sidebar - Exact Match to Reference */
+        nav { 
+            width: var(--sidebar-w); background: var(--navy); color: white; 
+            position: fixed; height: 100vh; display: flex; flex-direction: column; 
+        }
+        .nav-header { padding: 40px 30px; font-size: 1.2rem; font-weight: 800; letter-spacing: 1px; }
+        .nav-links { flex: 1; }
+        .nav-link { 
+            display: block; padding: 18px 30px; text-decoration: none; color: rgba(255,255,255,0.7); 
+            font-weight: 500; font-size: 0.9rem; transition: all 0.3s; border-right: 4px solid transparent;
+        }
+        .nav-link:hover { background: rgba(255,255,255,0.1); color: white; }
+        .active-link { 
+            background: rgba(255,255,255,0.15); color: white; 
+            border-right: 4px solid white !important; /* The Vertical Indicator */
+        }
+        .logout-link { padding: 30px; border-top: 1px solid rgba(255,255,255,0.1); text-decoration: none; color: rgba(255,255,255,0.7); font-weight: 600; }
+
+        /* Main Content */
+        main { margin-left: var(--sidebar-w); flex: 1; padding: 40px 60px; }
+        .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
         
-        nav { width: var(--sidebar-width); background: var(--primary-blue); color: white; position: fixed; height: 100vh; padding: 40px 0; }
-        .nav-link { display: block; padding: 15px 30px; text-decoration: none; color: rgba(255,255,255,0.7); border-left: 4px solid transparent; }
-        .active-link { color: white; background: rgba(255,255,255,0.1); border-left: 4px solid white; }
+        /* Stat Ribbon */
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 40px; }
+        .stat-card { background: white; padding: 25px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); text-align: center; border-bottom: 4px solid var(--navy); }
+        .stat-val { display: block; font-size: 2rem; font-weight: 800; color: var(--navy); }
+        .stat-label { font-size: 0.8rem; color: #64748b; font-weight: 600; text-transform: uppercase; margin-top: 5px; }
 
-        main { margin-left: var(--sidebar-width); flex: 1; padding: 40px 60px; width: calc(100% - var(--sidebar-width)); }
-
-        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 25px; }
-        .stat-card { background: white; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; text-align: center; }
-        .stat-val { display: block; font-size: 1.6rem; font-weight: 700; color: var(--primary-blue); }
+        /* Question Review Cards with Dynamic Borders */
+        .q-row { 
+            background: white; border-radius: 16px; padding: 30px; margin-bottom: 25px; 
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); border-left: 8px solid #cbd5e1;
+            transition: transform 0.2s;
+        }
+        .q-row:hover { transform: translateY(-3px); }
         
-        .mastery-box { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-bottom: 30px; display: flex; flex-wrap: wrap; gap: 10px; }
-        .topic-pill { padding: 8px 16px; background: #f1f5f9; border-radius: 50px; font-size: 0.85rem; font-weight: 600; }
+        /* Frozen Status Borders */
+        .status-correct { border-left-color: var(--correct) !important; outline: 1px solid var(--correct); }
+        .status-wrong { border-left-color: var(--wrong) !important; outline: 1px solid var(--wrong); }
+        .status-skipped { border-left-color: var(--skipped) !important; outline: 1px solid var(--skipped); }
 
-        .q-row { background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 30px; margin-bottom: 25px; }
-        .badge { padding: 5px 12px; border-radius: 6px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; }
-        .diff-medium { background: #fef3c7; color: #92400e; }
+        .badge { padding: 6px 14px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
         
-        .option-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
-        .opt { padding: 18px; border-radius: 10px; border: 2px solid #e2e8f0; position: relative; }
-        .opt-correct { border-color: var(--correct-green); background: #f0fdf4; }
-        .opt-wrong { border-color: var(--wrong-red); background: #fef2f2; }
+        .option-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 25px; }
+        .opt { padding: 15px 20px; border-radius: 12px; border: 2px solid #f1f5f9; font-weight: 500; }
+        .opt-correct { border-color: var(--correct); background: #f0fdf4; color: #166534; }
+        .opt-wrong { border-color: var(--wrong); background: #fef2f2; color: #991b1b; }
 
-        #errorContainer { display: none; padding: 20px; background: #fee2e2; color: #991b1b; border-radius: 8px; margin-bottom: 20px; }
+        .btn-retake { 
+            background: var(--navy); color: white; border: none; padding: 12px 25px; 
+            border-radius: 10px; cursor: pointer; font-weight: 600; transition: 0.3s;
+        }
+        .btn-retake:hover { background: var(--navy-light); transform: translateY(-2px); box-shadow: 0 10px 15px rgba(30, 58, 138, 0.3); }
+
+        #loadingOverlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white;
+            display: flex; justify-content: center; align-items: center; z-index: 1000;
+        }
     </style>
 </head>
 <body>
 
+<div id="loadingOverlay"><b>GENERATING ANALYTICS...</b></div>
+
 <nav>
-    <div style="padding: 0 30px; margin-bottom: 40px;"><h2>JEE Portal</h2></div>
-    <a href="index.html" class="nav-link">Dashboard</a>
-    <a href="performance.html" class="nav-link active-link">Performance</a>
+    <div class="nav-header">JEE PORTAL</div>
+    <div class="nav-links">
+        <a href="index.html" class="nav-link">DASHBOARD</a>
+        <a href="#" class="nav-link">AVAILABLE TESTS</a>
+        <a href="performance.html" class="nav-link active-link">PERFORMANCE</a>
+    </div>
+    <a href="#" onclick="supabaseClient.auth.signOut(); location.href='login.html'" class="logout-link">LOGOUT</a>
 </nav>
 
 <main>
-    <div id="errorContainer"></div>
-    
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px;">
-        <h1 id="testTitle">Loading Report...</h1>
-        <button onclick="window.location.href='active_test.html'" style="background:var(--primary-blue); color:white; border:none; padding:10px 20px; border-radius:8px; cursor:pointer;">Retake Test</button>
+    <div class="header-row">
+        <h1 id="testTitle" style="color: var(--navy); font-weight: 800;">Analytics Report</h1>
+        <button class="btn-retake" onclick="window.location.href='active_test.html'">Retake Test</button>
     </div>
 
     <div class="stats-grid">
-        <div class="stat-card"><span class="stat-val" id="statScore">0/0</span><span>Score</span></div>
-        <div class="stat-card"><span class="stat-val" id="statAccuracy">0%</span><span>Accuracy</span></div>
-        <div class="stat-card"><span class="stat-val" id="statAttempted">0</span><span>Attempted</span></div>
-        <div class="stat-card"><span class="stat-val" id="statWrong">0</span><span>Incorrect</span></div>
+        <div class="stat-card"><span class="stat-val" id="statScore">0/0</span><span class="stat-label">Total Score</span></div>
+        <div class="stat-card"><span class="stat-val" id="statAccuracy">0%</span><span class="stat-label">Accuracy</span></div>
+        <div class="stat-card"><span class="stat-val" id="statAttempted">0</span><span class="stat-label">Attempted</span></div>
+        <div class="stat-card"><span class="stat-val" id="statWrong">0</span><span class="stat-label">Incorrect</span></div>
     </div>
 
-    <div id="masteryList" class="mastery-box"></div>
     <div id="reviewList"></div>
 </main>
 
@@ -75,110 +120,70 @@
     const supabaseKey = 'sb_publishable_V-KT1zvp-73dqHHvmx3fNA_iHw53TCl'; 
     const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-    async function loadResults() {
+    async function init() {
         try {
             const tName = localStorage.getItem('currentTestName');
-            if (!tName) throw new Error("Please select a test from the dashboard first.");
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            if(!user) { window.location.href='login.html'; return; }
 
-            const { data: { session } } = await supabaseClient.auth.getSession();
-            if(!session) { window.location.href = 'login.html'; return; }
+            // Fetch Data
+            const { data: qData } = await supabaseClient.from('questions_table').select('*').eq('test_name', tName).single();
+            const { data: pData } = await supabaseClient.from('student_progress')
+                .select('*').eq('username', user.email.split('@')[0]).eq('subject', tName).single();
 
-            // 1. Fetch Questions
-            const { data: qData, error: qError } = await supabaseClient
-                .from('questions_table')
-                .select('question_data')
-                .eq('test_name', tName)
-                .single();
-
-            if (qError) throw new Error(`Question Data Missing: ${qError.message}`);
-
-            // 2. Fetch Progress
-            const { data: pData, error: pError } = await supabaseClient
-                .from('student_progress')
-                .select('*')
-                .eq('student_id', session.user.id)
-                .eq('test_name', tName)
-                .order('created_at', { ascending: false })
-                .limit(1)
-                .maybeSingle(); // maybeSingle prevents error if no record exists yet
-
-            if (!pData) throw new Error("No submission found for this test. Please complete the test first.");
-
-            renderUI(qData.question_data, pData, tName);
-
-        } catch (err) {
-            const errDiv = document.getElementById('errorContainer');
-            errDiv.style.display = 'block';
-            errDiv.innerText = err.message;
-            document.getElementById('testTitle').innerText = "Report Unavailable";
-        }
+            if (qData && pData) render(qData.question_data, pData, tName);
+            document.getElementById('loadingOverlay').style.display = 'none';
+        } catch (e) { console.error(e); }
     }
 
-    function renderUI(questions, progress, testName) {
-        document.getElementById('testTitle').innerText = testName;
+    function render(questions, progress, tName) {
+        document.getElementById('testTitle').innerText = tName;
         let html = '';
-        let stats = { correct: 0, attempted: 0, topics: {} };
-
-        // INITIALIZE TOPICS (Fixes the 0% Mastery Bug)
-        questions.forEach(q => {
-            const t = q.topic || "General";
-            if(!stats.topics[t]) stats.topics[t] = { correct: 0, total: 0 };
-            stats.topics[t].total++; 
-        });
+        let stats = { correct: 0, attempted: 0 };
 
         questions.forEach((q, idx) => {
             const userAns = progress.user_answers[idx];
             const correctIdx = q.options.findIndex(o => o.trim() === q.correct.trim());
-            const topic = q.topic || "General";
-            
-            if(userAns !== null && userAns !== undefined) {
+            const isCorrect = userAns !== null && parseInt(userAns) === correctIdx;
+            const isSkipped = userAns === null || userAns === undefined;
+
+            if(!isSkipped) {
                 stats.attempted++;
-                if(parseInt(userAns) === correctIdx) {
-                    stats.correct++;
-                    stats.topics[topic].correct++;
-                }
+                if(isCorrect) stats.correct++;
             }
 
-            const isCorrect = userAns !== null && parseInt(userAns) === correctIdx;
-            const isSkipped = userAns === null;
+            // Determine border class
+            let statusClass = isSkipped ? 'status-skipped' : (isCorrect ? 'status-correct' : 'status-wrong');
 
             html += `
-            <div class="q-row">
-                <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-                    <span class="badge topic-tag" style="background:#eff6ff">${topic}</span>
-                    <span class="badge" style="background:${isSkipped?'#f1f5f9':isCorrect?'#dcfce7':'#fee2e2'}">
-                        ${isSkipped ? 'Skipped' : (isCorrect ? 'Correct' : 'Incorrect')}
+            <div class="q-row ${statusClass}">
+                <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
+                    <span style="font-weight:800; color:var(--navy)">QUESTION ${idx + 1}</span>
+                    <span class="badge" style="background:${isSkipped?'#dbeafe':isCorrect?'#dcfce7':'#fee2e2'}; color:${isSkipped?'#1e40af':isCorrect?'#166534':'#991b1b'}">
+                        ${isSkipped ? 'SKIPPED' : (isCorrect ? 'CORRECT' : 'INCORRECT')}
                     </span>
                 </div>
-                <div style="margin-bottom:15px;">${q.q}</div>
+                <div style="font-size: 1.1rem; line-height:1.6; color:#1e293b; margin-bottom:20px;">${q.q}</div>
                 <div class="option-grid">
                     ${q.options.map((opt, i) => {
                         let cls = 'opt';
                         if(i === correctIdx) cls += ' opt-correct';
-                        if(userAns !== null && parseInt(userAns) === i && i !== correctIdx) cls += ' opt-wrong';
+                        if(!isSkipped && parseInt(userAns) === i && i !== correctIdx) cls += ' opt-wrong';
                         return `<div class="${cls}"><b>${String.fromCharCode(65+i)}.</b> ${opt}</div>`;
                     }).join('')}
                 </div>
             </div>`;
         });
 
-        // UPDATE STATS
-        document.getElementById('statScore').innerText = `${stats.correct}/${questions.length}`;
+        document.getElementById('statScore').innerText = `${(stats.correct * 4) - (stats.attempted - stats.correct)}`;
         document.getElementById('statAccuracy').innerText = `${stats.attempted > 0 ? Math.round((stats.correct/stats.attempted)*100) : 0}%`;
         document.getElementById('statAttempted').innerText = stats.attempted;
         document.getElementById('statWrong').innerText = stats.attempted - stats.correct;
-
-        // MASTERY PILLS
-        document.getElementById('masteryList').innerHTML = Object.keys(stats.topics).map(t => {
-            const acc = Math.round((stats.topics[t].correct / stats.topics[t].total) * 100);
-            return `<div class="topic-pill">${t}: ${acc}%</div>`;
-        }).join('');
-
         document.getElementById('reviewList').innerHTML = html;
         if(window.MathJax) MathJax.typesetPromise();
     }
 
-    loadResults();
+    init();
 </script>
 </body>
 </html>
