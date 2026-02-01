@@ -57,7 +57,7 @@
         .stat-val { display: block; font-size: 1.6rem; font-weight: 700; color: var(--primary-blue); }
         .stat-label { font-size: 0.75rem; color: #64748b; font-weight: 600; text-transform: uppercase; margin-top: 5px; }
 
-        /* Topic Mastery */
+        /* Mastery Pills */
         .topic-mastery-container { 
             background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; 
             padding: 20px; margin-bottom: 40px; display: flex; flex-wrap: wrap; gap: 12px; 
@@ -75,7 +75,7 @@
         }
         .retake-btn:hover { background: var(--primary-hover); transform: translateY(-1px); }
 
-        /* Questions & Status Borders */
+        /* Question Rows with 8px Status Borders */
         .q-row { background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 35px; margin-bottom: 30px; position: relative; }
         .border-correct { border-left: 8px solid var(--correct-green) !important; }
         .border-incorrect { border-left: 8px solid var(--wrong-red) !important; }
@@ -189,25 +189,47 @@
             const { data: { session } } = await supabaseClient.auth.getSession();
             if (!session) return window.location.href = 'login.html';
 
-            const { data: qData } = await supabaseClient.from('questions_table').select('*').eq('test_name', tName).single();
-            const { data: pData } = await supabaseClient.from('student_progress').select('*').eq('student_id', session.user.id).eq('test_name', tName).single();
+            const username = session.user.email.split('@')[0];
 
-            if (qData && pData) renderReport(qData.question_data, pData, qData.test_name);
+            const [qRes, pRes] = await Promise.all([
+                supabaseClient.from('questions_table').select('*').eq('test_name', tName).single(),
+                supabaseClient.from('student_progress')
+                    .select('*')
+                    .eq('username', username)
+                    .eq('test_name', tName)
+                    .order('updated_at', { ascending: false })
+                    .limit(1)
+            ]);
+
+            if (qRes.data && pRes.data && pRes.data.length > 0) {
+                renderReport(qRes.data.question_data, pRes.data[0], qRes.data.test_name);
+            } else {
+                document.getElementById('reportTitle').innerText = "Test analysis not found.";
+            }
         }
 
         async function loadPastPerformances() {
             const { data: { session } } = await supabaseClient.auth.getSession();
-            const { data } = await supabaseClient.from('student_progress').select('*').eq('student_id', session.user.id).order('created_at', { ascending: false });
+            const username = session.user.email.split('@')[0];
+            const { data } = await supabaseClient.from('student_progress')
+                .select('*')
+                .eq('username', username)
+                .order('updated_at', { ascending: false });
+                
             const historyList = document.getElementById('historyList');
-            historyList.innerHTML = data.map(entry => `
+            historyList.innerHTML = data.map(entry => {
+                // Calculation for accuracy to display in history table
+                const totalQ = entry.user_answers ? Object.keys(entry.user_answers).length : 0;
+                return `
                 <tr>
                     <td style="font-weight:600;">${entry.test_name}</td>
                     <td>${entry.score || '0'}</td>
                     <td style="color:#10b981; font-weight:600;">${entry.accuracy || '0'}%</td>
-                    <td style="color:#64748b;">${new Date(entry.created_at).toLocaleDateString()}</td>
+                    <td style="color:#64748b;">${new Date(entry.updated_at).toLocaleDateString()}</td>
                     <td><button onclick="viewTest('${entry.test_name}')" style="color:var(--primary-blue); border:none; background:none; cursor:pointer; font-weight:700;">View Report</button></td>
                 </tr>
-            `).join('');
+                `;
+            }).join('');
         }
 
         function viewTest(testName) {
