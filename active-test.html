@@ -39,6 +39,7 @@
 
         .main-layout { display: flex; flex: 1; padding: 25px; gap: 25px; overflow: hidden; align-items: stretch; }
 
+        /* Test Engine Card */
         .test-engine {
             flex: 1;
             background: var(--glass);
@@ -60,29 +61,38 @@
             margin-bottom: 12px; cursor: pointer; transition: all 0.3s;
             border: 2px solid transparent; display: flex; align-items: center; gap: 15px;
         }
-        .option-sub-card:hover { transform: translateY(-2px); border-color: var(--grey-hover); }
         .option-sub-card.selected { border-color: var(--accent-blue); background: #f8faff; }
 
-        /* Custom Radio Styling */
         .radio-btn {
             width: 20px; height: 20px; border: 2px solid #cbd5e1;
             border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            flex-shrink: 0; transition: all 0.2s;
+            flex-shrink: 0;
         }
         .selected .radio-btn { border-color: var(--accent-blue); }
         .radio-inner { width: 10px; height: 10px; border-radius: 50%; background: var(--accent-blue); display: none; }
         .selected .radio-inner { display: block; }
 
+        /* Palette Card with tightened grid */
         .palette-card {
-            width: 380px; background: var(--glass); backdrop-filter: blur(25px);
+            width: 350px; /* Slightly narrower for a tighter look */
+            background: var(--glass); backdrop-filter: blur(25px);
             border-radius: 30px; border: 1px solid var(--glass-border);
             padding: 0; display: flex; flex-direction: column;
         }
 
-        .palette-header { padding: 30px 30px 15px 30px; }
-        .palette-grid { padding: 0 30px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; flex: 1; overflow-y: auto; }
+        .palette-header { padding: 30px 25px 15px 25px; }
+        
+        .palette-grid { 
+            padding: 0 25px; 
+            display: grid; 
+            grid-template-columns: repeat(5, 45px); /* Fixed width for circles */
+            justify-content: space-between; /* Evenly spaced but contained */
+            row-gap: 12px; /* Tighter vertical spacing */
+            flex: 1; 
+            overflow-y: auto; 
+        }
 
-        /* Strict Alignment for Lines */
+        /* Footer Alignment */
         .footer-nav, .legend-section {
             height: 90px;
             border-top: 1px solid var(--thin-line);
@@ -91,9 +101,15 @@
         }
 
         .footer-nav { padding: 0 40px; justify-content: space-between; }
+        
         .legend-section {
-            padding: 0 30px; display: grid; grid-template-columns: 1fr 1fr; 
-            gap: 10px; font-size: 0.8rem; font-weight: 500; color: #64748b;
+            padding: 0 25px; 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 8px; 
+            font-size: 0.75rem; 
+            font-weight: 500; 
+            color: #64748b;
         }
 
         .btn {
@@ -102,14 +118,16 @@
             font-size: 0.85rem; display: flex; align-items: center; gap: 8px;
         }
         .btn-grey { background: var(--grey-btn); color: #475569; }
+        
         .btn-finish { background: var(--navy); color: white; padding: 12px 35px; }
         .btn-finish:hover { background: var(--navy-hover); transform: translateY(-2px); box-shadow: 0 8px 20px rgba(15, 23, 42, 0.3); }
 
         #timer { font-size: 1.6rem; font-weight: 800; color: var(--navy); font-variant-numeric: tabular-nums; }
         
         .p-circle {
-            width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center;
+            width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center;
             justify-content: center; font-weight: 600; cursor: pointer; background: var(--grey-btn); color: #64748b;
+            font-size: 0.9rem;
         }
         .p-circle.active { border: 3px solid var(--accent-blue); background: white; color: var(--accent-blue); }
         .p-circle.answered { background: var(--correct); color: white; }
@@ -119,16 +137,16 @@
 <body>
 
 <header>
-    <h2 id="testTitle" style="color: var(--navy);">--</h2>
+    <h2 id="testTitle" style="color: var(--navy); font-weight: 700;">--</h2>
     <div id="timer">40:00</div>
 </header>
 
 <div class="main-layout">
     <div class="test-engine">
         <div class="q-scroll-area">
-            <p id="qLabel" style="color: var(--accent-blue); font-weight: 800; font-size: 0.75rem; margin-bottom: 12px; letter-spacing: 2px;">QUESTION 1</p>
+            <p id="qLabel" style="color: var(--accent-blue); font-weight: 800; font-size: 0.7rem; margin-bottom: 12px; letter-spacing: 2px;">QUESTION 1</p>
             <div class="question-sub-card">
-                <div id="qText" style="font-size: 1.35rem; color: #1e293b; line-height: 1.5;">Loading...</div>
+                <div id="qText" style="font-size: 1.35rem; color: #1e293b; line-height: 1.5; font-weight: 500;">Loading...</div>
             </div>
             <div id="optionsContainer"></div>
         </div>
@@ -146,19 +164,20 @@
 
     <div class="palette-card">
         <div class="palette-header">
-            <h3 style="font-size: 1.2rem; color: var(--navy); border-bottom: 2px solid #f1f5f9; padding-bottom: 15px; font-weight: 700;">Question Palette</h3>
+            <h3 style="font-size: 1.1rem; color: var(--navy); border-bottom: 2px solid #f1f5f9; padding-bottom: 12px; font-weight: 700;">Question Palette</h3>
         </div>
         <div class="palette-grid" id="paletteGrid"></div>
         
         <div class="legend-section">
-            <div style="display:flex; align-items:center; gap:8px;"><span style="width:10px;height:10px;border-radius:50%;background:var(--correct)"></span> Answered</div>
-            <div style="display:flex; align-items:center; gap:8px;"><span style="width:10px;height:10px;border-radius:50%;background:var(--purple)"></span> Review</div>
-            <div style="display:flex; align-items:center; gap:8px;"><span style="width:10px;height:10px;border-radius:50%;background:var(--grey-btn)"></span> Unanswered</div>
+            <div style="display:flex; align-items:center; gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:var(--correct)"></span> Answered</div>
+            <div style="display:flex; align-items:center; gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:var(--purple)"></span> Review</div>
+            <div style="display:flex; align-items:center; gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:var(--grey-btn)"></span> Unanswered</div>
         </div>
     </div>
 </div>
 
 <script>
+    // Supabase config and current timer state
     const supabaseUrl = 'https://ijxsnunkfhudwnkrwmzk.supabase.co';
     const supabaseKey = 'sb_publishable_V-KT1zvp-73dqHHvmx3fNA_iHw53TCl'; 
     const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
@@ -167,7 +186,7 @@
     let currentIdx = 0;
     let userAnswers = [];
     let marked = [];
-    let timeLeft = 2400; // 40 minutes exactly
+    let timeLeft = 2400; // 40 minutes
     const testName = localStorage.getItem('currentTestName');
 
     async function start() {
@@ -204,7 +223,7 @@
             <div class="option-sub-card ${userAnswers[currentIdx] === i ? 'selected' : ''}" onclick="select(${i})">
                 <div class="radio-btn"><div class="radio-inner"></div></div>
                 <span style="font-weight:700; color:var(--accent-blue); min-width: 20px;">${String.fromCharCode(65+i)}.</span> 
-                <span style="color: #334155;">${opt}</span>
+                <span style="color: #334155; font-weight: 500;">${opt}</span>
             </div>
         `).join('');
 
