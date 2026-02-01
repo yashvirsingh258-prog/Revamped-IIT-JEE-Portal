@@ -9,7 +9,6 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: #f8fafc; display: flex; color: #1e293b; }
         
-        /* Sidebar */
         nav { width: 280px; background: #0b4a8f; color: white; padding: 60px 0; position: fixed; height: 100vh; display: flex; flex-direction: column; }
         .logo-area { padding: 0 40px; margin-bottom: 60px; }
         .nav-link { display: block; padding: 18px 40px; text-decoration: none; color: rgba(255,255,255,0.5); text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px; transition: 0.3s; cursor: pointer; }
@@ -18,7 +17,6 @@
         
         main { margin-left: 280px; flex: 1; padding: 80px 60px; }
         
-        /* Tabs */
         .tabs-container { display: flex; gap: 10px; margin-bottom: 40px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; }
         .tab-btn { padding: 12px 24px; border: none; background: transparent; font-size: 0.9rem; font-weight: 600; color: #64748b; cursor: pointer; border-radius: 10px; transition: 0.3s; text-transform: uppercase; letter-spacing: 0.5px; }
         .tab-btn:hover { color: #0b4a8f; background: #eff6ff; }
@@ -34,39 +32,18 @@
         .test-card.completed { border-left: 5px solid #10b981; opacity: 1; pointer-events: auto; cursor: default; }
         .test-card.completed .launch-btn { background: #10b981 !important; cursor: not-allowed; pointer-events: none; }
 
-        .score-info { 
-            display: none; 
-            margin-bottom: 24px; 
-            font-size: 0.95rem; 
-            color: #1e293b;
-        }
+        .score-info { display: none; margin-bottom: 24px; font-size: 0.95rem; color: #1e293b; }
         .completed .score-info { display: block; }
         
         .score-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
         
         .accuracy-pill {
-            background: #f1f5f9;
-            color: #0b4a8f;
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-weight: 700;
-            font-size: 0.85rem;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            border: 1px solid transparent;
-            display: inline-block;
+            background: #f1f5f9; color: #0b4a8f; padding: 6px 14px; border-radius: 20px;
+            font-weight: 700; font-size: 0.85rem; transition: all 0.3s ease;
+            cursor: pointer; border: 1px solid transparent; display: inline-block;
         }
-        
-        .accuracy-pill:hover {
-            background: #0b4a8f;
-            color: white;
-            transform: scale(1.05);
-            box-shadow: 0 4px 12px rgba(11, 74, 143, 0.2);
-        }
-
-        .accuracy-pill:hover::after {
-            content: ' → Review';
-        }
+        .accuracy-pill:hover { background: #0b4a8f; color: white; transform: scale(1.05); }
+        .accuracy-pill:hover::after { content: ' → Review'; }
 
         .subject-badge { display: inline-block; padding: 6px 12px; background: #f1f5f9; color: #64748b; border-radius: 8px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; margin-bottom: 16px; }
         .active .subject-badge { background: #eff6ff; color: #0b4a8f; }
@@ -89,7 +66,6 @@
 
     <main>
         <h1 style="margin-bottom: 10px; font-weight: 700; font-size: 2.2rem;">Select Subject</h1>
-        
         <div class="tabs-container">
             <button class="tab-btn active-tab" onclick="filterTests('all', this)">All Tests</button>
             <button class="tab-btn" onclick="filterTests('physics', this)">Physics</button>
@@ -110,7 +86,6 @@
                 </div>
                 <button class="launch-btn" id="btn-physics">Start Test</button>
             </div>
-
             <div class="test-card" id="card-chemistry" data-subject="chemistry">
                 <span class="subject-badge">Chemistry</span>
                 <h3 class="test-title">Chemistry Mock</h3>
@@ -123,7 +98,6 @@
                 </div>
                 <button class="launch-btn" id="btn-chemistry">Start Test</button>
             </div>
-
             <div class="test-card" id="card-mathematics" data-subject="mathematics">
                 <span class="subject-badge">Mathematics</span>
                 <h3 class="test-title">Maths Mock</h3>
@@ -155,95 +129,67 @@
         function filterTests(subject, btn) {
             document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active-tab'));
             btn.classList.add('active-tab');
-            const cards = document.querySelectorAll('.test-card');
-            cards.forEach(card => {
-                if (subject === 'all' || card.getAttribute('data-subject') === subject) {
-                    card.classList.remove('hidden');
-                } else {
-                    card.classList.add('hidden');
-                }
+            document.querySelectorAll('.test-card').forEach(card => {
+                card.classList.toggle('hidden', subject !== 'all' && card.getAttribute('data-subject') !== subject);
             });
         }
 
         function viewReport(subject) {
             const testName = activeTestNames[subject];
-            if (testName) {
-                localStorage.setItem('currentTestName', testName);
-                window.location.href = 'performance.html';
-            }
+            if (testName) { localStorage.setItem('currentTestName', testName); window.location.href = 'performance.html'; }
         }
 
         async function syncWithDB() {
             const user = await checkAuth();
+            const [qRes, pRes] = await Promise.all([
+                supabaseClient.from('questions_table').select('*'),
+                supabaseClient.from('student_progress').select('*').eq('student_id', user.id)
+            ]);
 
-            const { data: questions } = await supabaseClient
-                .from('questions_table')
-                .select('subject, test_name, question_data');
-
-            const { data: progress } = await supabaseClient
-                .from('student_progress')
-                .select('test_name, confirmed_answered')
-                .eq('student_id', user.id);
-
-            if (questions) {
-                questions.forEach(row => {
+            if (qRes.data) {
+                qRes.data.forEach(row => {
                     const subject = row.subject.toLowerCase();
                     const card = document.getElementById(`card-${subject}`);
-                    const nameLabel = document.getElementById(`name-${subject}`);
-                    const btn = document.getElementById(`btn-${subject}`);
+                    if (!card) return;
+
+                    document.getElementById(`name-${subject}`).innerText = row.test_name;
+                    activeTestNames[subject] = row.test_name;
                     
-                    if (card) {
-                        nameLabel.innerText = row.test_name;
-                        activeTestNames[subject] = row.test_name;
-                        
-                        const userAttempt = progress ? progress.find(p => p.test_name === row.test_name) : null;
+                    // Match attempt using the OR logic from performance.html
+                    const attempt = pRes.data ? pRes.data.find(p => p.test_name === row.test_name || p.subject === row.test_name) : null;
 
-                        if (userAttempt) {
-                            card.classList.add('completed');
-                            card.classList.remove('active');
-                            btn.innerText = "Submitted";
+                    if (attempt) {
+                        card.classList.add('completed');
+                        document.getElementById(`btn-${subject}`).innerText = "Submitted";
 
-                            // Logic to calculate score from student_progress only
-                            let correctCount = 0;
-                            const totalQuestions = row.question_data ? row.question_data.length : 0;
-                            const answers = userAttempt.confirmed_answered || [];
+                        // --- THE EXACT LOGIC FROM PERFORMANCE.HTML ---
+                        let correctCount = 0;
+                        const questions = row.question_data || [];
+                        const userAnswers = attempt.user_answers || {};
 
-                            if (row.question_data) {
-                                row.question_data.forEach((q, index) => {
-                                    const userAnswer = answers[index];
-                                    const correctAnswer = q.correct_option;
+                        questions.forEach((q, idx) => {
+                            const userAnsRaw = userAnswers[idx] !== undefined ? userAnswers[idx] : null;
+                            const correctText = q.correct ? q.correct.trim() : "";
+                            const correctIdx = q.options.findIndex(opt => opt.trim() === correctText);
+                            const userChoiceIdx = userAnsRaw !== null ? parseInt(userAnsRaw) : null;
 
-                                    // Check if student's answer at this index is not null and matches
-                                    if (userAnswer !== null && userAnswer !== undefined && userAnswer !== "") {
-                                        if (String(userAnswer).trim() === String(correctAnswer).trim()) {
-                                            correctCount++;
-                                        }
-                                    }
-                                });
+                            if (userChoiceIdx !== null && userChoiceIdx === correctIdx) {
+                                correctCount++;
                             }
+                        });
 
-                            const percentage = totalQuestions > 0 ? Math.round((correctCount / totalQuestions) * 100) : 0;
-
-                            document.getElementById(`val-${subject}`).innerText = `${correctCount}/${totalQuestions}`;
-                            document.getElementById(`pct-${subject}`).innerText = `${percentage}%`;
-                        } else {
-                            card.classList.add('active');
-                            btn.innerText = "Start Test";
-                            card.onclick = () => {
-                                localStorage.setItem('currentTestName', row.test_name);
-                                window.location.href = 'active-test.html';
-                            };
-                        }
+                        const percentage = questions.length > 0 ? Math.round((correctCount / questions.length) * 100) : 0;
+                        document.getElementById(`val-${subject}`).innerText = `${correctCount}/${questions.length}`;
+                        document.getElementById(`pct-${subject}`).innerText = `${percentage}%`;
+                    } else {
+                        card.classList.add('active');
+                        card.onclick = () => { localStorage.setItem('currentTestName', row.test_name); window.location.href = 'active-test.html'; };
                     }
                 });
             }
         }
 
-        async function handleLogout() {
-            await supabaseClient.auth.signOut();
-            window.location.href = 'login.html';
-        }
-
+        async function handleLogout() { await supabaseClient.auth.signOut(); window.location.href = 'login.html'; }
         syncWithDB();
     </script>
 </body>
