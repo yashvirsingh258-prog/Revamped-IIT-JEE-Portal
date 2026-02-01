@@ -46,9 +46,9 @@
         .history-table th { background: #f1f5f9; padding: 15px; text-align: left; font-size: 0.8rem; color: #64748b; text-transform: uppercase; }
         .history-table td { padding: 15px; border-bottom: 1px solid #f1f5f9; font-size: 0.9rem; }
 
-        /* DIAGNOSTIC CSS */
-        .diag-box { margin-top: 15px; padding: 10px; background: #2d3436; color: #00ff00; font-family: monospace; font-size: 11px; border-radius: 5px; border-left: 4px solid #fab1a0; }
-        .diag-title { color: #fab1a0; font-weight: bold; margin-bottom: 5px; display: block; }
+        /* DIAGNOSTIC STYLES */
+        .diag-overlay { background: #1a1a1a; color: #00ff00; font-family: monospace; font-size: 11px; padding: 10px; border-radius: 5px; margin-top: 10px; border-left: 4px solid #f39c12; }
+        .diag-key { color: #f39c12; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -96,29 +96,28 @@
 
         function formatStepSolution(solText) {
             if (!solText) return "No explanation.";
-
-            // --- DIAGNOSTIC BLOCK ---
-            const rawTrace = solText; 
+            
+            // --- DIAGNOSTIC START ---
+            const rawTrace = solText;
             // ------------------------
 
-            const lines = solText.split(/\\n|\n/);
-            const formatted = lines.map((line, i) => {
+            const formatted = solText.split(/\\n|\n/).map((line, i) => {
                 const clean = line.trim();
                 if(!clean) return '';
-                // Non-destructive: We keep the math part ($...$) exactly as is
+                // Preserving characters: Replace prefix only, keep rest
                 const body = clean.replace(/^Step\s*\d+\s*:?\s*/i, '');
                 return `<div style="margin-bottom:8px;"><b style="color:var(--primary-blue)">Step ${i+1}:</b> ${body}</div>`;
             }).join('');
 
-            // Diagnostic Output attached to the bottom of the box
-            const diagOutput = `
-                <div class="diag-box">
-                    <span class="diag-title">[DIAGNOSTIC TRACE]</span>
-                    <b>DB_INPUT:</b> ${rawTrace.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
+            // Diagnostic block to be displayed in UI
+            const diagBlock = `
+                <div class="diag-overlay">
+                    <div class="diag-key">[DIAGNOSTIC TRACE]</div>
+                    <div><span style="color:#fff">FETCHED RAW:</span> ${rawTrace.replace(/</g, "&lt;")}</div>
                 </div>
             `;
 
-            return formatted + diagOutput;
+            return formatted + diagBlock;
         }
 
         async function loadPerformance() {
@@ -166,7 +165,7 @@
             document.getElementById('statAttempted').innerText = attempted;
             document.getElementById('statAccuracy').innerText = `${attempted > 0 ? Math.round((correct/attempted)*100) : 0}%`;
             
-            // Critical: Re-run MathJax after DOM injection
+            // Re-triggering MathJax
             if (window.MathJax && MathJax.typesetPromise) {
                 MathJax.typesetPromise();
             }
