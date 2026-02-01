@@ -208,29 +208,63 @@
             }
         }
 
-        async function loadPastPerformances() {
-            const { data: { session } } = await supabaseClient.auth.getSession();
-            const username = session.user.email.split('@')[0];
-            const { data } = await supabaseClient.from('student_progress')
-                .select('*')
-                .eq('username', username)
-                .order('updated_at', { ascending: false });
-                
-            const historyList = document.getElementById('historyList');
-            historyList.innerHTML = data.map(entry => {
-                // Calculation for accuracy to display in history table
-                const totalQ = entry.user_answers ? Object.keys(entry.user_answers).length : 0;
-                return `
-                <tr>
-                    <td style="font-weight:600;">${entry.test_name}</td>
-                    <td>${entry.score || '0'}</td>
-                    <td style="color:#10b981; font-weight:600;">${entry.accuracy || '0'}%</td>
-                    <td style="color:#64748b;">${new Date(entry.updated_at).toLocaleDateString()}</td>
-                    <td><button onclick="viewTest('${entry.test_name}')" style="color:var(--primary-blue); border:none; background:none; cursor:pointer; font-weight:700;">View Report</button></td>
-                </tr>
-                `;
-            }).join('');
-        }
+        async function loadPerformance() {
+    const tName = localStorage.getItem('currentTestName');
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    
+    if (!session) return window.location.href = 'login.html';
+
+    // Using the exact identifiers from your schema
+    const username = session.user.email.split('@')[0];
+    const studentId = session.user.id; // Your UUID column
+
+    // We fetch questions by test_name and progress by student_id + identifiers
+    const [qRes, pRes] = await Promise.all([
+        supabaseClient.from('questions_table')
+            .select('*')
+            .eq('test_name', tName)
+            .single(),
+        
+        supabaseClient.from('student_progress')
+            .select('*')
+            .eq('student_id', studentId)
+            .or(`test_name.eq."${tName}",subject.eq."${tName}"`) // Checks both potential title columns
+            .order('updated_at', { ascending: false })
+            .limit(1)
+    ]);
+
+    if (qRes.data && pRes.data && pRes.data.length > 0) {
+        renderReport(qRes.data.question_data, pRes.data[0], qRes.data.test_name);
+    } else {
+        // Debug info if not found
+        console.log("Query Params:", { tName, studentId, username });
+        document.getElementById('reportTitle').innerText = "Test analysis not found.";
+    }
+}
+
+async function loadPastPerformances() {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (!session) return;
+
+    // Fetching by student_id UUID as per your schema's foreign key
+    const { data, error } = await supabaseClient.from('student_progress')
+        .select('*')
+        .eq('student_id', session.user.id)
+        .order('updated_at', { ascending: false });
+        
+    if (error) return console.error(error);
+
+    const historyList = document.getElementById('historyList');
+    historyList.innerHTML = data.map(entry => `
+        <tr>
+            <td style="font-weight:600;">${entry.test_name || entry.subject}</td>
+            <td>${entry.score || '0'}</td>
+            <td style="color:#10b981; font-weight:600;">${entry.accuracy || '0'}%</td>
+            <td style="color:#64748b;">${new Date(entry.updated_at).toLocaleDateString()}</td>
+            <td><button onclick="viewTest('${entry.test_name || entry.subject}')" style="color:var(--primary-blue); border:none; background:none; cursor:pointer; font-weight:700;">View Report</button></td>
+        </tr>
+    `).join('');
+}
 
         function viewTest(testName) {
             localStorage.setItem('currentTestName', testName);
