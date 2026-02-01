@@ -7,41 +7,76 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         window.MathJax = {
-            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], processEscapes: true },
+            tex: { 
+                inlineMath: [['$', '$'], ['\\(', '\\)']], 
+                displayMath: [['$$', '$$']],
+                processEscapes: true 
+            },
             svg: { fontCache: 'global' }
         };
     </script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <style>
-        :root { --primary-blue: #0b4a8f; --active-strip: #335d91; --correct-green: #10b981; --wrong-red: #ef4444; --bg-light: #f8fafc; }
+        :root {
+            --primary-blue: #0b4a8f;
+            --active-strip: #335d91;
+            --correct-green: #10b981;
+            --wrong-red: #ef4444;
+            --bg-light: #f8fafc;
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: var(--bg-light); display: flex; min-height: 100vh; }
-        nav { width: 280px; background: var(--primary-blue); color: white; padding: 60px 0; position: fixed; height: 100vh; z-index: 100; display: flex; flex-direction: column; }
+        
+        nav { 
+            width: 280px; background: var(--primary-blue); color: white; padding: 60px 0; 
+            position: fixed; height: 100vh; z-index: 100; display: flex; flex-direction: column; 
+        }
         .logo-area { padding: 0 40px; margin-bottom: 60px; }
         .logo-area h2 { font-size: 1.2rem; letter-spacing: 4px; font-weight: 700; text-transform: uppercase; }
-        .nav-link { display: block; padding: 18px 40px; text-decoration: none; color: rgba(255, 255, 255, 0.5); font-size: 0.85rem; font-weight: 500; text-transform: uppercase; cursor: pointer; }
-        .active-link { color: white !important; background: var(--active-strip) !important; font-weight: 700; }
+        
+        .nav-link {
+            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+            display: block; padding: 18px 40px; text-decoration: none;
+            color: rgba(255, 255, 255, 0.5); font-size: 0.85rem; font-weight: 500;
+            letter-spacing: 1px; text-transform: uppercase; cursor: pointer;
+        }
+        .nav-link:hover { color: white; padding-left: 50px; }
+        
+        .active-link { color: white !important; background: var(--active-strip) !important; font-weight: 700; padding-left: 40px; }
+        
         main { margin-left: 280px; flex: 1; padding: 50px 70px; }
+
         .tab-container { display: flex; gap: 20px; border-bottom: 2px solid #e2e8f0; margin-bottom: 30px; }
         .tab-btn { padding: 12px 24px; border: none; background: none; cursor: pointer; font-weight: 600; color: #64748b; border-bottom: 3px solid transparent; }
         .tab-btn.active-tab { color: var(--primary-blue); border-bottom-color: var(--primary-blue); }
         .tab-content { display: none; }
         .tab-content.active-content { display: block; }
+
         .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 25px; }
         .stat-card { background: white; padding: 25px; border-radius: 12px; border: 1px solid #e2e8f0; text-align: center; }
         .stat-val { display: block; font-size: 1.6rem; font-weight: 700; color: var(--primary-blue); }
-        .stat-label { font-size: 0.75rem; color: #64748b; font-weight: 600; text-transform: uppercase; }
+        .stat-label { font-size: 0.75rem; color: #64748b; font-weight: 600; text-transform: uppercase; margin-top: 5px; }
+
         .q-row { background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 35px; margin-bottom: 30px; position: relative; }
         .option-review { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 25px; }
         .opt { padding: 18px; border-radius: 10px; border: 2px solid #e2e8f0; background: white; display: flex; align-items: center; position: relative; }
-        .opt-correct { border-color: var(--correct-green) !important; background: #f0fdf4 !important; color: #065f46 !important; }
+        
+        .opt-correct { border-color: var(--correct-green) !important; background: #f0fdf4 !important; color: #065f46 !important; font-weight: 600; }
         .opt-user-wrong { border-color: var(--wrong-red) !important; background: #fef2f2 !important; color: #991b1b !important; }
-        .solution-box { display: none; position: absolute; bottom: 105%; left: 0; width: 100%; min-width: 350px; background: white; border: 2px solid var(--correct-green); padding: 20px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); z-index: 100; color: #333; }
+
+        .solution-box {
+            display: none; position: absolute; bottom: 105%; left: 0; width: 100%; min-width: 380px;
+            background: white; border: 2px solid var(--correct-green); padding: 20px; border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); z-index: 100;
+        }
         .opt-correct:hover .solution-box { display: block; }
+        
         .badge { padding: 5px 12px; border-radius: 6px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; }
         .bg-red { background: #fee2e2; color: #991b1b; }
         .bg-green { background: #dcfce7; color: #166534; }
         .bg-grey { background: #f1f5f9; color: #475569; }
+        
         .history-table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; }
         .history-table th { background: #f1f5f9; padding: 15px; text-align: left; font-size: 0.8rem; color: #64748b; text-transform: uppercase; }
         .history-table td { padding: 15px; border-bottom: 1px solid #f1f5f9; font-size: 0.9rem; }
@@ -55,13 +90,15 @@
         <a href="performance.html" class="nav-link active-link">Performance</a>
         <a onclick="handleLogout()" class="nav-link" style="margin-top: auto; border-top: 1px solid rgba(255,255,255,0.1);">Logout</a>
     </nav>
+
     <main>
         <div class="tab-container">
             <button class="tab-btn active-tab" onclick="switchTab('current')">Current Analysis</button>
             <button class="tab-btn" onclick="switchTab('history')">Past Performances</button>
         </div>
+
         <div id="currentTab" class="tab-content active-content">
-            <h1 id="reportTitle" style="font-size: 1.8rem; margin-bottom:30px;">Loading...</h1>
+            <h1 id="reportTitle" style="font-size: 1.8rem; margin-bottom:30px;">Loading Analysis...</h1>
             <div class="stats-grid">
                 <div class="stat-card"><span class="stat-val" id="statScore">0/0</span><span class="stat-label">Total Score</span></div>
                 <div class="stat-card"><span class="stat-val" id="statAccuracy" style="color: #10b981;">0%</span><span class="stat-label">Accuracy</span></div>
@@ -70,9 +107,13 @@
             </div>
             <div id="reviewList"></div>
         </div>
+
         <div id="historyTab" class="tab-content">
-            <h1 style="font-size: 1.8rem; margin-bottom: 30px;">History</h1>
-            <table class="history-table"><thead><tr><th>Test</th><th>Score</th><th>Accuracy</th><th>Date</th><th>Action</th></tr></thead><tbody id="historyList"></tbody></table>
+            <h1 style="font-size: 1.8rem; margin-bottom: 30px;">Your Progress Journey</h1>
+            <table class="history-table">
+                <thead><tr><th>Test Name</th><th>Score</th><th>Accuracy</th><th>Date</th><th>Action</th></tr></thead>
+                <tbody id="historyList"></tbody>
+            </table>
         </div>
     </main>
 
@@ -81,77 +122,127 @@
         const supabaseKey = 'sb_publishable_V-KT1zvp-73dqHHvmx3fNA_iHw53TCl';
         const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-        async function handleLogout() { await supabaseClient.auth.signOut(); window.location.href = 'login.html'; }
-
         function switchTab(tab) {
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active-tab'));
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active-content'));
-            if(tab === 'current') { document.querySelectorAll('.tab-btn')[0].classList.add('active-tab'); document.getElementById('currentTab').classList.add('active-content'); }
-            else { document.querySelectorAll('.tab-btn')[1].classList.add('active-tab'); document.getElementById('historyTab').classList.add('active-content'); loadPastPerformances(); }
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active-tab'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active-content'));
+            if(tab === 'current') {
+                document.querySelectorAll('.tab-btn')[0].classList.add('active-tab');
+                document.getElementById('currentTab').classList.add('active-content');
+            } else {
+                document.querySelectorAll('.tab-btn')[1].classList.add('active-tab');
+                document.getElementById('historyTab').classList.add('active-content');
+                loadPastPerformances();
+            }
+        }
+
+        async function handleLogout() {
+            await supabaseClient.auth.signOut();
+            window.location.href = 'login.html';
         }
 
         function formatStepSolution(solText) {
-            if (!solText) return "No explanation.";
-            // Split by literal \n or escaped \\n. Zero regex interference with math symbols.
-            return solText.split(/\\n|\n/).map((line, i) => {
-                const clean = line.trim();
-                if(!clean) return '';
-                // Only wrap "Step X" in bold, leave the math content untouched
-                const body = clean.replace(/^Step\s*\d+\s*:?\s*/i, '');
-                return `<div style="margin-bottom:8px;"><b style="color:var(--primary-blue)">Step ${i+1}:</b> ${body}</div>`;
+            if (!solText) return "No explanation available.";
+            // Split strictly by literal \n or escaped \\n characters found in the data string
+            let steps = solText.split(/\\n|\n/).filter(s => s.trim().length > 0);
+            return steps.map((step, index) => {
+                // We identify the step label but leave the math content completely untouched
+                let body = step.trim().replace(/^Step\s*\d+\s*:?\s*/i, '');
+                return `<div style="margin-bottom:10px; line-height:1.5;">
+                            <b style="color:var(--primary-blue); font-weight:700;">Step ${index + 1}:</b> 
+                            <span style="font-weight:400;">${body}</span>
+                        </div>`;
             }).join('');
         }
 
         async function loadPerformance() {
             const tName = localStorage.getItem('currentTestName');
             const { data: { session } } = await supabaseClient.auth.getSession();
+            if (!session) return window.location.href = 'login.html';
+
             const [qRes, pRes] = await Promise.all([
                 supabaseClient.from('questions_table').select('*').eq('test_name', tName).single(),
-                supabaseClient.from('student_progress').select('*').eq('student_id', session.user.id).or(`test_name.eq."${tName}",subject.eq."${tName}"`).order('updated_at', { ascending: false }).limit(1)
+                supabaseClient.from('student_progress').select('*').eq('student_id', session.user.id)
+                    .or(`test_name.eq."${tName}",subject.eq."${tName}"`)
+                    .order('updated_at', { ascending: false }).limit(1)
             ]);
-            if (qRes.data && pRes.data[0]) renderReport(qRes.data.question_data, pRes.data[0], qRes.data.test_name);
+
+            if (qRes.data && pRes.data && pRes.data.length > 0) {
+                renderReport(qRes.data.question_data, pRes.data[0], qRes.data.test_name);
+            } else {
+                document.getElementById('reportTitle').innerText = "Test analysis not found.";
+            }
         }
 
         function renderReport(questions, attempt, testName) {
             document.getElementById('reportTitle').innerText = testName;
-            let html = '', correct = 0, attempted = 0;
+            let html = '';
+            let correctCount = 0, attemptedCount = 0;
+            
             questions.forEach((q, idx) => {
-                const uAns = attempt.user_answers?.[idx];
-                const cIdx = q.options.findIndex(o => o.trim() === q.correct.trim());
-                const isCorrect = uAns !== undefined && parseInt(uAns) === cIdx;
-                if(uAns !== undefined) attempted++;
-                if(isCorrect) correct++;
+                const userAnsRaw = (attempt.user_answers && attempt.user_answers[idx] !== undefined) ? attempt.user_answers[idx] : null;
+                const correctText = q.correct ? q.correct.trim() : ""; 
+                const correctIdx = q.options.findIndex(opt => opt.trim() === correctText);
+                const userChoiceIdx = userAnsRaw !== null ? parseInt(userAnsRaw) : null;
+                
+                const isCorrect = userChoiceIdx !== null && userChoiceIdx === correctIdx;
+                const isSkipped = userChoiceIdx === null;
 
-                html += `<div class="q-row">
-                    <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
-                        <span style="font-weight:700">Q${idx+1}</span>
-                        <span class="badge ${uAns === undefined ? 'bg-grey' : (isCorrect ? 'bg-green' : 'bg-red')}">${uAns === undefined ? 'Skipped' : (isCorrect ? 'Correct' : 'Incorrect')}</span>
+                if (!isSkipped) {
+                    attemptedCount++;
+                    if (isCorrect) correctCount++;
+                }
+
+                html += `
+                <div class="q-row">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                        <span style="font-weight:700; color:#64748b;">Q${idx+1}</span>
+                        <span class="badge ${isSkipped ? 'bg-grey' : (isCorrect ? 'bg-green' : 'bg-red')}">
+                            ${isSkipped ? 'Skipped' : (isCorrect ? 'Correct' : 'Incorrect')}
+                        </span>
                     </div>
-                    <div>${q.q}</div>
+                    <div style="margin-bottom:25px; font-size:1.05rem;">${q.q}</div>
                     <div class="option-review">
                         ${q.options.map((opt, i) => {
                             let cls = 'opt';
-                            let sol = '';
-                            if(i === cIdx) { cls += ' opt-correct'; sol = `<div class="solution-box"><b>EXPLANATION</b><br>${formatStepSolution(q.solution)}</div>`; }
-                            if(parseInt(uAns) === i && i !== cIdx) cls += ' opt-user-wrong';
-                            return `<div class="${cls}"><span style="margin-right:10px; opacity:0.5">${String.fromCharCode(65+i)}.</span>${opt}${sol}</div>`;
+                            let solMarkup = '';
+                            if (i === correctIdx) {
+                                cls += ' opt-correct';
+                                solMarkup = `<div class="solution-box">
+                                                <b style="font-weight:700; display:block; border-bottom:1px solid #eee; margin-bottom:12px; padding-bottom:5px;">EXPLANATION</b>
+                                                ${formatStepSolution(q.solution)}
+                                             </div>`;
+                            }
+                            if (userChoiceIdx === i && i !== correctIdx) cls += ' opt-user-wrong';
+                            return `<div class="${cls}"><span style="margin-right:10px; opacity:0.5;">${String.fromCharCode(65 + i)}.</span>${opt}${solMarkup}</div>`;
                         }).join('')}
                     </div>
                 </div>`;
             });
+
             document.getElementById('reviewList').innerHTML = html;
-            document.getElementById('statScore').innerText = `${correct}/${questions.length}`;
-            document.getElementById('statAttempted').innerText = attempted;
-            document.getElementById('statAccuracy').innerText = `${attempted > 0 ? Math.round((correct/attempted)*100) : 0}%`;
-            MathJax.typesetPromise();
+            document.getElementById('statScore').innerText = `${correctCount}/${questions.length}`;
+            document.getElementById('statAttempted').innerText = attemptedCount;
+            document.getElementById('statIncorrect').innerText = attemptedCount - correctCount;
+            document.getElementById('statAccuracy').innerText = `${attemptedCount > 0 ? Math.round((correctCount / attemptedCount) * 100) : 0}%`;
+            
+            // Critical: Typeset the new content so math renders
+            if(window.MathJax) MathJax.typesetPromise();
         }
 
         async function loadPastPerformances() {
             const { data: { session } } = await supabaseClient.auth.getSession();
             const { data } = await supabaseClient.from('student_progress').select('*').eq('student_id', session.user.id).order('updated_at', { ascending: false });
-            document.getElementById('historyList').innerHTML = data.map(e => `<tr><td>${e.test_name || e.subject}</td><td>${e.score}</td><td>${e.accuracy}%</td><td>${new Date(e.updated_at).toLocaleDateString()}</td><td><button onclick="viewTest('${e.test_name || e.subject}')" style="color:var(--primary-blue); border:none; background:none; cursor:pointer; font-weight:700;">View</button></td></tr>`).join('');
+            document.getElementById('historyList').innerHTML = (data || []).map(entry => `
+                <tr>
+                    <td style="font-weight:600;">${entry.test_name || entry.subject}</td>
+                    <td>${entry.score || '0'}</td>
+                    <td style="color:#10b981; font-weight:600;">${entry.accuracy || '0'}%</td>
+                    <td style="color:#64748b;">${new Date(entry.updated_at).toLocaleDateString()}</td>
+                    <td><button onclick="viewTest('${entry.test_name || entry.subject}')" style="color:var(--primary-blue); font-weight:700; border:none; background:none; cursor:pointer;">View Report</button></td>
+                </tr>`).join('');
         }
-        function viewTest(n) { localStorage.setItem('currentTestName', n); switchTab('current'); loadPerformance(); }
+
+        function viewTest(testName) { localStorage.setItem('currentTestName', testName); switchTab('current'); loadPerformance(); }
         loadPerformance();
     </script>
 </body>
