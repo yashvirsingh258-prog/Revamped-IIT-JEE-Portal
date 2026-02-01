@@ -19,7 +19,7 @@
             --correct: #10b981;
             --purple: #8b5cf6;
             --accent-blue: #3b82f6;
-            --thin-line: #e2e8f0; /* Soft grey with a blue hue */
+            --thin-line: #e2e8f0; 
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -37,7 +37,7 @@
             display: flex; justify-content: space-between; align-items: center;
         }
 
-        .main-layout { display: flex; flex: 1; padding: 25px; gap: 25px; overflow: hidden; }
+        .main-layout { display: flex; flex: 1; padding: 25px; gap: 25px; overflow: hidden; align-items: stretch; }
 
         .test-engine {
             flex: 1;
@@ -91,6 +91,7 @@
         .palette-grid {
             display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px;
             margin-top: 25px;
+            overflow-y: auto;
         }
 
         .p-circle {
@@ -106,38 +107,46 @@
         .p-circle.answered { background: var(--correct); color: white; }
         .p-circle.marked { background: var(--purple); color: white; }
 
+        /* Unified Alignment Styling */
+        .footer-nav, .legend-section {
+            height: 100px; /* Fixed height for symmetry */
+            display: flex;
+            align-items: center;
+            border-top: 1px solid var(--thin-line);
+        }
+
         .footer-nav {
-            padding: 25px 40px;
+            padding: 0 40px;
             background: rgba(255,255,255,0.4);
-            border-top: 1px solid var(--thin-line); /* Thin grey line with hue */
-            display: flex; justify-content: space-between;
+            justify-content: space-between;
+            border-bottom-left-radius: 30px;
+            border-bottom-right-radius: 30px;
         }
 
         .legend-section {
-            margin-top: auto; 
-            padding-top: 30px; 
-            border-top: 1px solid var(--thin-line); /* Thin grey line for legends */
+            padding: 0;
             display: grid; 
             grid-template-columns: 1fr 1fr; 
-            gap: 15px; 
+            gap: 10px; 
             font-size: 0.8rem; 
             font-weight: 500; 
             color: #64748b;
         }
 
         .btn {
-            padding: 14px 28px; border-radius: 14px; border: none;
+            padding: 12px 24px; border-radius: 12px; border: none;
             font-weight: 600; cursor: pointer; transition: all 0.3s;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             display: flex; align-items: center; gap: 8px;
         }
         .btn-grey { background: var(--grey-btn); color: #475569; }
         .btn-grey:hover { background: var(--grey-hover); transform: translateY(-2px); }
         
-        .btn-finish { background: var(--navy); color: white; padding: 14px 40px; }
-        .btn-finish:hover { background: var(--navy-hover); transform: translateY(-3px); box-shadow: 0 10px 25px rgba(15, 23, 42, 0.3); }
+        .btn-finish { background: var(--navy); color: white; padding: 12px 35px; }
+        .btn-finish:hover { background: var(--navy-hover); transform: translateY(-3px); box-shadow: 0 8px 20px rgba(15, 23, 42, 0.3); }
 
-        #timer { font-size: 1.6rem; font-weight: 800; color: var(--navy); }
+        /* Timer in Navy */
+        #timer { font-size: 1.6rem; font-weight: 800; color: var(--navy); font-variant-numeric: tabular-nums; }
     </style>
 </head>
 <body>
@@ -151,24 +160,18 @@
     <div class="test-engine">
         <div class="q-scroll-area">
             <p id="qLabel" style="color: var(--accent-blue); font-weight: 800; font-size: 0.75rem; margin-bottom: 12px; letter-spacing: 2px;">QUESTION 1</p>
-            
             <div class="question-sub-card">
-                <div id="qText" style="font-size: 1.4rem; color: #1e293b; line-height: 1.5; font-weight: 500;">Loading...</div>
+                <div id="qText" style="font-size: 1.35rem; color: #1e293b; line-height: 1.5; font-weight: 500;">Loading...</div>
             </div>
-
             <div id="optionsContainer"></div>
         </div>
         
         <div class="footer-nav">
-            <div style="display:flex; gap:12px;">
-                <button class="btn btn-grey" onclick="changeQ(-1)">
-                    <span>&larr;</span> Previous
-                </button>
+            <div style="display:flex; gap:10px;">
+                <button class="btn btn-grey" onclick="changeQ(-1)">&larr; Previous</button>
                 <button class="btn btn-grey" onclick="clearAns()">Clear</button>
                 <button class="btn btn-grey" onclick="markReview()">Review</button>
-                <button class="btn btn-grey" onclick="changeQ(1)">
-                    Next <span>&rarr;</span>
-                </button>
+                <button class="btn btn-grey" onclick="changeQ(1)">Next &rarr;</button>
             </div>
             <button class="btn btn-finish" onclick="finalSubmit()">Finish Test</button>
         </div>
@@ -179,9 +182,9 @@
         <div class="palette-grid" id="paletteGrid"></div>
         
         <div class="legend-section">
-            <div style="display:flex; align-items:center; gap:8px;"><span style="width:12px;height:12px;border-radius:50%;background:var(--correct)"></span> Answered</div>
-            <div style="display:flex; align-items:center; gap:8px;"><span style="width:12px;height:12px;border-radius:50%;background:var(--purple)"></span> Review</div>
-            <div style="display:flex; align-items:center; gap:8px;"><span style="width:12px;height:12px;border-radius:50%;background:var(--grey-btn)"></span> Not Answered</div>
+            <div style="display:flex; align-items:center; gap:8px;"><span style="width:10px;height:10px;border-radius:50%;background:var(--correct)"></span> Answered</div>
+            <div style="display:flex; align-items:center; gap:8px;"><span style="width:10px;height:10px;border-radius:50%;background:var(--purple)"></span> Review</div>
+            <div style="display:flex; align-items:center; gap:8px;"><span style="width:10px;height:10px;border-radius:50%;background:var(--grey-btn)"></span> Unanswered</div>
         </div>
     </div>
 </div>
@@ -195,7 +198,7 @@
     let currentIdx = 0;
     let userAnswers = [];
     let marked = [];
-    let timeLeft = 2400; // 40 minutes exactly
+    let timeLeft = 2400; // Updated to 40 Minutes
     const testName = localStorage.getItem('currentTestName');
 
     async function start() {
@@ -227,14 +230,12 @@
         const q = questions[currentIdx];
         document.getElementById('qLabel').innerText = `QUESTION ${currentIdx + 1}`;
         document.getElementById('qText').innerText = q.q;
-        
         document.getElementById('optionsContainer').innerHTML = q.options.map((opt, i) => `
             <div class="option-sub-card ${userAnswers[currentIdx] === i ? 'selected' : ''}" onclick="select(${i})">
-                <span style="font-weight:800; margin-right:20px; color:var(--accent-blue); width: 25px;">${String.fromCharCode(65+i)}</span> 
-                <span style="font-weight: 500; color: #334155;">${opt}</span>
+                <span style="font-weight:800; margin-right:20px; color:var(--accent-blue);">${String.fromCharCode(65+i)}</span> 
+                <span>${opt}</span>
             </div>
         `).join('');
-
         updatePaletteUI();
         if(window.MathJax) MathJax.typesetPromise();
     }
@@ -270,7 +271,7 @@
     }
 
     async function finalSubmit(auto = false) {
-        if(!auto && !confirm("Finish test and submit answers?")) return;
+        if(!auto && !confirm("Submit Test?")) return;
         const { data: { user } } = await supabaseClient.auth.getUser();
         let correct = 0;
         questions.forEach((q, i) => {
@@ -288,7 +289,6 @@
         }]);
         window.location.href = 'performance.html';
     }
-
     start();
 </script>
 </body>
