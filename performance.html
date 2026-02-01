@@ -57,7 +57,7 @@
         .stat-val { display: block; font-size: 1.6rem; font-weight: 700; color: var(--primary-blue); }
         .stat-label { font-size: 0.75rem; color: #64748b; font-weight: 600; text-transform: uppercase; margin-top: 5px; }
 
-        /* Mastery Breakdown */
+        /* Topic Mastery */
         .topic-mastery-container { 
             background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; 
             padding: 20px; margin-bottom: 40px; display: flex; flex-wrap: wrap; gap: 12px; 
@@ -75,8 +75,12 @@
         }
         .retake-btn:hover { background: var(--primary-hover); transform: translateY(-1px); }
 
-        /* Questions */
+        /* Questions & Status Borders */
         .q-row { background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 35px; margin-bottom: 30px; position: relative; }
+        .border-correct { border-left: 8px solid var(--correct-green) !important; }
+        .border-incorrect { border-left: 8px solid var(--wrong-red) !important; }
+        .border-skipped { border-left: 8px solid var(--primary-blue) !important; }
+
         .option-review { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 25px; }
         .opt { padding: 18px; border-radius: 10px; border: 2px solid #e2e8f0; background: white; display: flex; align-items: center; position: relative; }
         .opt-correct { border-color: var(--correct-green) !important; background: #f0fdf4 !important; color: #065f46 !important; font-weight: 600; cursor: help; }
@@ -91,11 +95,16 @@
         .step-row { margin-bottom: 8px; padding-left: 15px; position: relative; font-size: 0.9rem; line-height: 1.5; color: #334155; }
         .step-row::before { content: "•"; position: absolute; left: 0; color: var(--correct-green); }
 
+        /* Badges */
         .badge { padding: 5px 12px; border-radius: 6px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; }
         .bg-red { background: #fee2e2; color: #991b1b; }
         .bg-green { background: #dcfce7; color: #166534; }
         .bg-grey { background: #f1f5f9; color: #475569; }
         .topic-badge { background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; margin-left: 8px; }
+
+        .meta-badge { padding: 4px 8px; border-radius: 4px; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; border: 1px solid #e2e8f0; margin-left: 6px; }
+        .type-tag { background: #f1f5f9; color: #475569; }
+        .diff-tag { background: #fff7ed; color: #c2410c; }
 
         .history-table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; }
         .history-table th { background: #f1f5f9; padding: 15px; text-align: left; font-size: 0.8rem; color: #64748b; text-transform: uppercase; }
@@ -110,7 +119,7 @@
             <a href="tests.html" class="nav-link">Available Tests</a>
             <a href="performance.html" class="nav-link active-link">Performance</a>
         </div>
-        <div style="padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1);">
+        <div style="padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); margin-top: auto;">
             <a href="#" onclick="handleLogout()" class="nav-link">Logout</a>
         </div>
     </nav>
@@ -172,7 +181,7 @@
 
         async function retakeTest() {
             const tName = localStorage.getItem('currentTestName');
-            if(tName) window.location.href = 'exam.html'; // Adjust this to your exam page filename
+            if(tName) window.location.href = 'exam.html';
         }
 
         async function loadPerformance() {
@@ -245,12 +254,15 @@
 
                 const isCorrect = userChoiceIdx !== null && userChoiceIdx === correctIdx;
                 const isSkipped = userChoiceIdx === null;
+                const borderClass = isSkipped ? 'border-skipped' : (isCorrect ? 'border-correct' : 'border-incorrect');
 
                 html += `
-                <div class="q-row">
+                <div class="q-row ${borderClass}">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
                         <div style="display:flex; align-items:center;">
                             <span style="font-weight:700; color:#64748b; font-size:0.85rem;">Q${idx+1}</span>
+                            <span class="meta-badge type-tag">${q.type || 'MCQ'}</span>
+                            <span class="meta-badge diff-tag">${q.difficulty || 'Medium'}</span>
                             <span class="badge topic-badge">${topicLabel}</span>
                         </div>
                         <span class="badge ${isSkipped ? 'bg-grey' : (isCorrect ? 'bg-green' : 'bg-red')}">
