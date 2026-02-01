@@ -14,7 +14,8 @@
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <style>
         :root { 
-            --primary-blue: #0b4a8f; 
+            --primary-blue: #1e3a8a; /* Darker blue matching your screenshot */
+            --active-overlay: rgba(255, 255, 255, 0.1);
             --correct-green: #10b981; 
             --wrong-red: #ef4444; 
             --skipped-blue: #3b82f6;
@@ -25,81 +26,79 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: var(--bg-light); display: flex; min-height: 100vh; }
         
-        /* SIDEBAR - PRECISE RENDER */
+        /* SIDEBAR - MATCHING SCREENSHOT image_5c3378.png */
         nav { 
-            width: var(--sidebar-width); background: var(--primary-blue); color: white; 
+            width: var(--sidebar-width); background: #1e3a8a; color: white; 
             position: fixed; height: 100vh; display: flex; flex-direction: column; z-index: 100;
         }
-        .nav-brand { padding: 40px 30px; font-size: 1.25rem; font-weight: 700; letter-spacing: 0.5px; }
-        .nav-links-wrapper { flex: 1; }
+        .nav-brand { padding: 40px 30px; font-size: 1.5rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+        .nav-links-wrapper { flex: 1; margin-top: 20px; }
         .nav-link { 
-            display: block; padding: 15px 30px; text-decoration: none; color: rgba(255,255,255,0.7); 
-            border-left: 4px solid transparent; font-weight: 500; transition: 0.3s; 
+            display: block; padding: 18px 30px; text-decoration: none; color: rgba(255,255,255,0.6); 
+            font-size: 0.9rem; font-weight: 600; text-transform: uppercase; transition: 0.3s;
         }
-        .nav-link:hover { background: rgba(255,255,255,0.1); color: white; }
-        .active-link { color: white; background: rgba(255,255,255,0.15); border-left: 4px solid white; }
-        .logout-btn { padding: 25px 30px; border-top: 1px solid rgba(255,255,255,0.1); text-decoration: none; color: rgba(255,255,255,0.7); font-weight: 600; cursor: pointer; }
+        .nav-link:hover { color: white; background: var(--active-overlay); }
+        .active-link { color: white; background: var(--active-overlay); border-right: 4px solid white; }
+        .logout-btn { padding: 30px; border-top: 1px solid rgba(255,255,255,0.1); text-decoration: none; color: rgba(255,255,255,0.6); font-weight: 600; text-transform: uppercase; font-size: 0.9rem; }
 
-        /* MAIN AREA */
+        /* MAIN CONTENT - MATCHING image_5b4e5e.png */
         main { margin-left: var(--sidebar-width); flex: 1; padding: 40px 60px; width: calc(100% - var(--sidebar-width)); }
+        .report-header { font-size: 2rem; color: #1e3a8a; font-weight: 700; margin-bottom: 25px; }
 
-        /* BOX STYLING: GREY BORDER + SHADOW */
-        .stat-card, .q-row, .history-card { 
-            background: white; border: 1px solid var(--light-border); border-radius: 12px; 
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
-            margin-bottom: 25px;
+        /* TABS */
+        .tabs-container { display: flex; gap: 30px; border-bottom: 1px solid var(--light-border); margin-bottom: 30px; }
+        .tab { padding-bottom: 12px; cursor: pointer; font-weight: 600; color: #64748b; font-size: 0.95rem; border-bottom: 3px solid transparent; transition: 0.3s; }
+        .tab:hover { color: #1e3a8a; }
+        .tab.active { color: #1e3a8a; border-bottom-color: #1e3a8a; }
+
+        /* BOXES - GREY BORDER + SHADOW */
+        .stat-card, .q-row { 
+            background: white; border: 1px solid var(--light-border); border-radius: 10px; 
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); margin-bottom: 20px;
         }
-        .stat-card { padding: 20px; text-align: center; }
-        .stat-val { display: block; font-size: 1.8rem; font-weight: 700; color: var(--primary-blue); }
+        .stat-card { padding: 25px; text-align: center; }
+        .stat-val { display: block; font-size: 2.2rem; font-weight: 700; color: #1e3a8a; margin-bottom: 5px; }
+        .stat-label { font-size: 0.8rem; font-weight: 700; color: black; text-transform: uppercase; }
 
-        /* QUESTION ROWS */
-        .q-row { padding: 30px; border-left: 8px solid #cbd5e1; transition: transform 0.2s; }
-        .q-row:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
-        
-        /* BORDER LOGIC */
+        /* QUESTION ROWS & STATUS BORDERS */
+        .q-row { padding: 30px; border-left: 8px solid #cbd5e1; }
         .status-correct { border-left-color: var(--correct-green) !important; }
         .status-incorrect { border-left-color: var(--wrong-red) !important; }
         .status-skipped { border-left-color: var(--skipped-blue) !important; }
 
-        .meta-badge { padding: 4px 10px; border-radius: 4px; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; margin-right: 8px; border: 1px solid #e2e8f0; }
-        .type-tag { background: #f1f5f9; color: #475569; }
-        .diff-tag { background: #fff7ed; color: #c2410c; }
+        .meta-badges { display: flex; gap: 10px; margin-bottom: 15px; }
+        .badge { padding: 5px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; border: 1px solid #e2e8f0; }
+        .type-badge { background: #f1f5f9; color: #475569; }
+        .diff-badge { background: #fff7ed; color: #c2410c; }
 
         .option-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
-        .opt { padding: 15px; border-radius: 10px; border: 1.5px solid var(--light-border); font-size: 0.95rem; }
+        .opt { padding: 15px; border-radius: 8px; border: 1.5px solid var(--light-border); }
         .opt-correct { border-color: var(--correct-green); background: #f0fdf4; }
         .opt-wrong { border-color: var(--wrong-red); background: #fef2f2; }
 
-        /* TAB SYSTEM */
-        .tabs-container { display: flex; gap: 30px; border-bottom: 2px solid var(--light-border); margin-bottom: 35px; }
-        .tab { padding: 12px 10px; cursor: pointer; font-weight: 600; color: #64748b; border-bottom: 3px solid transparent; transition: 0.3s; }
-        .tab:hover { color: var(--primary-blue); }
-        .tab.active { color: var(--primary-blue); border-bottom-color: var(--primary-blue); }
-
-        /* STEP-WISE SOLUTION */
-        .solution-box { display: none; margin-top: 20px; padding: 20px; background: #f8fafc; border-radius: 8px; border-left: 4px solid var(--correct-green); line-height: 1.8; color: #334155; }
+        .solution-box { display: none; margin-top: 20px; padding: 20px; background: #f8fafc; border-left: 4px solid var(--correct-green); white-space: pre-line; line-height: 1.8; }
         .q-row:hover .solution-box { display: block; }
 
-        #loadingOverlay { position: fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:1000; display:flex; align-items:center; justify-content:center; }
+        #loadingOverlay { position: fixed; inset: 0; background: white; z-index: 1000; display: flex; align-items: center; justify-content: center; font-weight: 700; }
         .hidden { display: none; }
     </style>
 </head>
 <body>
 
-<div id="loadingOverlay"><b>LOADING PERFORMANCE DATA...</b></div>
+<div id="loadingOverlay">RESTORING ANALYTICS...</div>
 
 <nav>
-    <div class="nav-brand">JEE PORTAL</div>
+    <div class="nav-brand">JEE Portal</div>
     <div class="nav-links-wrapper">
-        <a href="index.html" class="nav-link">Dashboard</a>
-        <a href="#" class="nav-link">Available Tests</a>
+        <a href="dashboard.html" class="nav-link">Dashboard</a>
+        <a href="available_tests.html" class="nav-link">Available Tests</a>
         <a href="performance.html" class="nav-link active-link">Performance</a>
     </div>
     <a href="#" onclick="logout()" class="logout-btn">Logout</a>
 </nav>
 
 <main>
-    <h1 id="testTitle" style="margin-bottom: 30px; color: var(--primary-blue);">Report</h1>
+    <div class="report-header">Report</div>
 
     <div class="tabs-container">
         <div id="tabCurrent" class="tab active" onclick="switchTab('current')">Current Analysis</div>
@@ -107,23 +106,18 @@
     </div>
 
     <section id="viewCurrent">
-        <div class="stats-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 30px;">
-            <div class="stat-card"><span class="stat-val" id="statScore">0</span><span>SCORE</span></div>
-            <div class="stat-card"><span class="stat-val" id="statAccuracy">0%</span><span>ACCURACY</span></div>
-            <div class="stat-card"><span class="stat-val" id="statAttempted">0</span><span>ATTEMPTED</span></div>
-            <div class="stat-card"><span class="stat-val" id="statWrong">0</span><span>INCORRECT</span></div>
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 40px;">
+            <div class="stat-card"><span class="stat-val" id="statScore">0</span><span class="stat-label">Score</span></div>
+            <div class="stat-card"><span class="stat-val" id="statAccuracy">0%</span><span class="stat-label">Accuracy</span></div>
+            <div class="stat-card"><span class="stat-val" id="statAttempted">0</span><span class="stat-label">Attempted</span></div>
+            <div class="stat-card"><span class="stat-val" id="statWrong">0</span><span class="stat-label">Incorrect</span></div>
         </div>
         <div id="reviewList"></div>
     </section>
 
     <section id="viewHistory" class="hidden">
-        <div class="history-card">
-            <table style="width: 100%; border-collapse: collapse; text-align: left;">
-                <thead style="background: #f8fafc;">
-                    <tr><th style="padding:15px;">Date</th><th style="padding:15px;">Accuracy</th><th style="padding:15px;">Status</th></tr>
-                </thead>
-                <tbody id="historyBody"></tbody>
-            </table>
+        <div class="stat-card">
+            <p>Historic data will appear here.</p>
         </div>
     </section>
 </main>
@@ -133,28 +127,27 @@
     const supabaseKey = 'sb_publishable_V-KT1zvp-73dqHHvmx3fNA_iHw53TCl'; 
     const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-    async function init() {
+    async function fetchData() {
         try {
             const tName = localStorage.getItem('currentTestName');
             const { data: { session } } = await supabaseClient.auth.getSession();
             if(!session) { window.location.href='login.html'; return; }
             const username = session.user.email.split('@')[0];
 
+            // Incremental Logic: Fetch questions and progress
             const [qRes, pRes] = await Promise.all([
                 supabaseClient.from('questions_table').select('*').eq('test_name', tName).single(),
                 supabaseClient.from('student_progress').select('*').eq('username', username).eq('subject', tName).order('created_at', {ascending: false})
             ]);
 
-            if (qRes.data && pRes.data) {
-                renderUI(qRes.data.question_data, pRes.data[0], tName);
-                renderHistory(pRes.data);
+            if (qRes.data && pRes.data && pRes.data.length > 0) {
+                renderContent(qRes.data.question_data, pRes.data[0]);
             }
             document.getElementById('loadingOverlay').style.display = 'none';
-        } catch (e) { console.error(e); }
+        } catch (e) { console.error("Error fetching data:", e); }
     }
 
-    function renderUI(questions, progress, tName) {
-        document.getElementById('testTitle').innerText = tName;
+    function renderContent(questions, progress) {
         let html = '';
         let stats = { correct: 0, attempted: 0 };
 
@@ -165,46 +158,39 @@
             const isSkipped = userAns === null || userAns === undefined;
 
             if(!isSkipped) { stats.attempted++; if(isCorrect) stats.correct++; }
-            const sClass = isSkipped ? 'status-skipped' : (isCorrect ? 'status-correct' : 'status-incorrect');
-            const steps = q.solution ? q.solution.split('\n').map(s => `<div>${s}</div>`).join('') : 'Solution not provided.';
+            const statusClass = isSkipped ? 'status-skipped' : (isCorrect ? 'status-correct' : 'status-incorrect');
 
             html += `
-            <div class="q-row ${sClass}">
-                <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
-                    <div>
-                        <span class="meta-badge type-tag">${q.type || 'MCQ'}</span>
-                        <span class="meta-badge diff-tag">${q.difficulty || 'Medium'}</span>
-                    </div>
-                    <span style="font-weight:800; color:var(--primary-blue); font-size:0.75rem;">Q${idx+1}</span>
+            <div class="q-row ${statusClass}">
+                <div class="meta-badges">
+                    <span class="badge type-badge">${q.type || 'MCQ'}</span>
+                    <span class="badge diff-badge">${q.difficulty || 'Medium'}</span>
                 </div>
-                <div style="margin-bottom:20px; font-weight:600; line-height:1.5;">${q.q}</div>
-                <div class="option-grid">${q.options.map((opt, i) => {
-                    let cls = 'opt';
-                    if(i === correctIdx) cls += ' opt-correct';
-                    if(!isSkipped && parseInt(userAns) === i && i !== correctIdx) cls += ' opt-wrong';
-                    return `<div class="${cls}"><b>${String.fromCharCode(65+i)}.</b> ${opt}</div>`;
-                }).join('')}</div>
-                <div class="solution-box"><div style="font-weight:700; color:var(--correct-green); margin-bottom:10px;">Step-wise Solution:</div>${steps}</div>
+                <div style="font-weight:600; font-size:1.1rem; margin-bottom:20px;">Q${idx+1}. ${q.q}</div>
+                <div class="option-grid">
+                    ${q.options.map((opt, i) => {
+                        let cls = 'opt';
+                        if(i === correctIdx) cls += ' opt-correct';
+                        if(!isSkipped && parseInt(userAns) === i && i !== correctIdx) cls += ' opt-wrong';
+                        return `<div class="${cls}"><b>${String.fromCharCode(65+i)}.</b> ${opt}</div>`;
+                    }).join('')}
+                </div>
+                <div class="solution-box">
+                    <div style="font-weight:700; color:var(--correct-green); margin-bottom:10px;">Step-wise Solution:</div>
+                    ${q.solution || 'No solution available for this question.'}
+                </div>
             </div>`;
         });
 
+        // Update Stats based on JEE Pattern (+4, -1)
         const score = (stats.correct * 4) - (stats.attempted - stats.correct);
         document.getElementById('statScore').innerText = score;
-        document.getElementById('statAccuracy').innerText = `${stats.attempted > 0 ? Math.round((stats.correct/stats.attempted)*100) : 0}%`;
+        document.getElementById('statAccuracy').innerText = stats.attempted > 0 ? Math.round((stats.correct/stats.attempted)*100) + '%' : '0%';
         document.getElementById('statAttempted').innerText = stats.attempted;
         document.getElementById('statWrong').innerText = stats.attempted - stats.correct;
         document.getElementById('reviewList').innerHTML = html;
+        
         if(window.MathJax) MathJax.typesetPromise();
-    }
-
-    function renderHistory(attempts) {
-        document.getElementById('historyBody').innerHTML = attempts.map(att => `
-            <tr style="border-bottom: 1px solid #f1f5f9;">
-                <td style="padding:15px;">${new Date(att.created_at).toLocaleDateString()}</td>
-                <td style="padding:15px; font-weight:700;">${att.accuracy}%</td>
-                <td style="padding:15px;"><span style="color:var(--correct-green); font-size:0.7rem; font-weight:700;">COMPLETED</span></td>
-            </tr>
-        `).join('');
     }
 
     function switchTab(type) {
@@ -216,7 +202,7 @@
 
     async function logout() { await supabaseClient.auth.signOut(); window.location.href = 'login.html'; }
 
-    init();
+    fetchData();
 </script>
 </body>
 </html>
