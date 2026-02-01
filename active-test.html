@@ -138,7 +138,7 @@
 <header>
     <h2 id="testTitle" style="color: var(--navy); font-weight: 700;">--</h2>
     <div class="header-right">
-        <div id="syncStatus">● Offline</div>
+        <div id="syncStatus">● Synced</div>
         <div id="timer">40:00</div>
     </div>
 </header>
@@ -184,64 +184,59 @@
     let currentIdx = 0;
     let userAnswers = [];
     let marked = [];
-    let timeLeft = 2400; 
+    let timeLeft = 2400; // 40 minutes
     let recordId = null; 
     const testName = localStorage.getItem('currentTestName');
 
     async function start() {
         try {
-            const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
-            if (authError || !user) {
-                console.error("Auth Error:", authError);
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            if (!user || !user.email) {
                 window.location.href = 'login.html';
                 return;
             }
 
-            if (!testName) {
-                document.getElementById('qText').innerText = "Error: No test selected.";
-                return;
-            }
+            const username = user.email.split('@')[0];
+            if (!testName) return;
 
-            const { data: qData, error: qError } = await supabaseClient.from('questions_table').select('*').eq('test_name', testName);
-            if (qError || !qData || qData.length === 0) {
-                document.getElementById('qText').innerText = "Error: Could not load questions.";
-                return;
-            }
+            const { data: qData } = await supabaseClient.from('questions_table').select('*').eq('test_name', testName);
+            if (!qData || qData.length === 0) return;
 
             questions = qData[0].question_data;
             document.getElementById('testTitle').innerText = testName;
 
-            // Database Entry Logic
+            // Check for existing record to RESUME
             const { data: existingRecords } = await supabaseClient
                 .from('student_progress')
                 .select('*')
-                .eq('student_id', user.id)
-                .eq('test_name', testName)
-                .is('accuracy', null);
+                .eq('username', username)
+                .eq('subject', testName);
 
             if (existingRecords && existingRecords.length > 0) {
                 const record = existingRecords[0];
                 recordId = record.id;
                 userAnswers = record.user_answers || new Array(questions.length).fill(null);
-                marked = record.marked_status || new Array(questions.length).fill(false);
+                marked = record.marked_for_review || new Array(questions.length).fill(false);
+                currentIdx = record.current_index || 0;
                 
+                // Calculate remaining time
                 const startAt = new Date(record.created_at).getTime();
                 const now = new Date().getTime();
                 const elapsed = Math.floor((now - startAt) / 1000);
                 timeLeft = Math.max(0, 2400 - elapsed);
             } else {
+                // Initial Row Insertion on Entry
                 userAnswers = new Array(questions.length).fill(null);
                 marked = new Array(questions.length).fill(false);
                 
                 const { data: newRec, error: insError } = await supabaseClient
                     .from('student_progress')
                     .insert([{
-                        student_id: user.id,
-                        username: user.email.split('@')[0],
-                        test_name: testName,
-                        score: `0/${questions.length}`,
+                        username: username,
+                        subject: testName,
+                        current_index: 0,
                         user_answers: userAnswers,
-                        marked_status: marked
+                        marked_for_review: marked
                     }])
                     .select();
                 
@@ -250,11 +245,8 @@
             }
 
             setupPalette(); render(); runTimer();
-            document.getElementById('syncStatus').innerText = "● Synced";
-            
         } catch (e) {
             console.error("Fatal Start Error:", e);
-            document.getElementById('qText').innerText = "Connection Error. Please refresh.";
         }
     }
 
@@ -267,7 +259,8 @@
         const { error } = await supabaseClient.from('student_progress')
             .update({
                 user_answers: userAnswers,
-                marked_status: marked
+                marked_for_review: marked,
+                current_index: currentIdx
             })
             .eq('id', recordId);
 
@@ -285,13 +278,12 @@
             c.className = 'p-circle';
             c.id = `pc-${i}`;
             c.innerText = i + 1;
-            c.onclick = () => { currentIdx = i; render(); };
+            c.onclick = () => { currentIdx = i; render(); autoSave(); };
             grid.appendChild(c);
         });
     }
 
     function render() {
-        if (!questions[currentIdx]) return;
         const q = questions[currentIdx];
         document.getElementById('qLabel').innerText = `QUESTION ${currentIdx + 1}`;
         document.getElementById('qText').innerText = q.q;
@@ -309,9 +301,14 @@
     function select(i) { userAnswers[currentIdx] = i; render(); autoSave(); }
     function clearAns() { userAnswers[currentIdx] = null; render(); autoSave(); }
     function markReview() { marked[currentIdx] = !marked[currentIdx]; render(); autoSave(); }
+    
     function changeQ(step) {
         let next = currentIdx + step;
-        if(next >= 0 && next < questions.length) { currentIdx = next; render(); }
+        if(next >= 0 && next < questions.length) { 
+            currentIdx = next; 
+            render(); 
+            autoSave(); 
+        }
     }
 
     function updatePaletteUI() {
@@ -338,21 +335,10 @@
 
     async function finalSubmit(auto = false) {
         if(!auto && !confirm("Finish test?")) return;
-        let correct = 0;
-        questions.forEach((q, i) => {
-            const cIdx = q.options.findIndex(o => o.trim() === q.correct.trim());
-            if(userAnswers[i] === cIdx) correct++;
-        });
-
+        
+        // Final Sync before leaving
         if (recordId) {
-            await supabaseClient.from('student_progress')
-                .update({
-                    score: `${correct}/${questions.length}`,
-                    user_answers: userAnswers,
-                    accuracy: Math.round((correct/questions.length)*100),
-                    marked_status: marked
-                })
-                .eq('id', recordId);
+            await autoSave();
         }
         window.location.href = 'performance.html';
     }
