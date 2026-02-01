@@ -3,88 +3,152 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JEE Portal | Active Test</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>JEE Portal | Premium Exam Engine</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] } };</script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <style>
-        :root { 
-            --primary-blue: #0b4a8f; 
-            --bg-light: #f1f5f9; 
-            --answered: #22c55e;
-            --marked: #8b5cf6;
-            --not-visited: #cbd5e1;
+        :root {
+            --glass: rgba(255, 255, 255, 0.8);
+            --glass-border: rgba(255, 255, 255, 0.3);
+            --primary: #0f172a;
+            --accent: #3b82f6;
+            --correct: #10b981;
+            --wrong: #ef4444;
+            --not-visited: #e2e8f0;
         }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg-light); height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
-        
-        /* Header */
-        header { background: #fff; padding: 15px 40px; border-bottom: 2px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; height: 70px; }
-        
-        /* Main Layout */
-        .test-wrapper { display: flex; flex: 1; overflow: hidden; }
-        
-        /* Left: Question Area */
-        .question-section { flex: 1; display: flex; flex-direction: column; background: white; border-right: 1px solid #e2e8f0; }
-        .q-header { padding: 15px 30px; border-bottom: 1px solid #f1f5f9; font-weight: 700; color: var(--primary-blue); }
-        .q-content { padding: 40px; overflow-y: auto; flex: 1; }
-        .option { display: block; padding: 15px 20px; border: 1px solid #e2e8f0; border-radius: 8px; margin-top: 12px; cursor: pointer; transition: 0.2s; }
-        .option:hover { background: #f8fafc; border-color: var(--primary-blue); }
-        .option.selected { background: #eff6ff; border-color: var(--primary-blue); font-weight: 600; }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            height: 100vh; display: flex; flex-direction: column; overflow: hidden;
+        }
 
-        /* Right: Sidebar Palette */
-        .palette-section { width: 320px; background: #fff; padding: 20px; display: flex; flex-direction: column; }
-        .palette-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; overflow-y: auto; }
-        .p-btn { height: 45px; border-radius: 4px; border: 1px solid #cbd5e1; background: #fff; cursor: pointer; font-weight: 600; display: flex; align-items: center; justify-content: center; }
-        .p-btn.active { border: 2px solid var(--primary-blue); }
-        .p-btn.answered { background: var(--answered); color: white; border-color: var(--answered); }
-        .p-btn.visited { background: #ef4444; color: white; border-color: #ef4444; }
+        /* Glassmorphic Header */
+        header {
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--glass-border);
+            padding: 15px 50px;
+            display: flex; justify-content: space-between; align-items: center;
+            z-index: 10;
+        }
 
-        /* Bottom: Nav Panel */
-        .nav-panel { height: 80px; background: #fff; border-top: 2px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; padding: 0 30px; }
-        .btn { padding: 10px 25px; border-radius: 4px; border: none; font-weight: 600; cursor: pointer; transition: 0.2s; }
-        .btn-save { background: var(--answered); color: white; }
-        .btn-clear { background: #f1f5f9; color: #475569; }
-        .btn-submit { background: var(--primary-blue); color: white; }
+        .test-container { display: flex; flex: 1; padding: 30px; gap: 30px; overflow: hidden; }
+
+        /* Question Card */
+        .question-card {
+            flex: 1;
+            background: var(--glass);
+            backdrop-filter: blur(16px);
+            border-radius: 24px;
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.05);
+            display: flex; flex-direction: column;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+        .q-body { padding: 40px; flex: 1; overflow-y: auto; }
+        
+        .option {
+            background: rgba(255,255,255,0.5);
+            border: 2px solid transparent;
+            border-radius: 12px;
+            padding: 18px 25px;
+            margin-top: 15px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex; align-items: center;
+        }
+        .option:hover { background: white; transform: translateX(5px); border-color: var(--accent); }
+        .option.selected { background: white; border-color: var(--accent); box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1); }
+
+        /* Circular Question Palette */
+        .palette-card {
+            width: 350px;
+            background: var(--glass);
+            backdrop-filter: blur(16px);
+            border-radius: 24px;
+            border: 1px solid var(--glass-border);
+            padding: 25px;
+            display: flex; flex-direction: column;
+        }
+
+        .palette-grid {
+            display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px;
+            margin-top: 20px;
+        }
+
+        .p-circle {
+            width: 45px; height: 45px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 600; font-size: 0.9rem;
+            cursor: pointer; transition: all 0.3s ease;
+            background: var(--not-visited);
+            color: #64748b; border: 2px solid transparent;
+        }
+        .p-circle:hover { transform: scale(1.1); }
+        .p-circle.active { border-color: var(--accent); color: var(--accent); background: white; }
+        .p-circle.answered { background: var(--correct); color: white; }
+        .p-circle.visited { background: var(--wrong); color: white; }
+
+        /* Bottom Controls */
+        .controls {
+            padding: 20px 40px;
+            background: rgba(255,255,255,0.4);
+            border-top: 1px solid var(--glass-border);
+            display: flex; justify-content: space-between;
+        }
+
+        .btn {
+            padding: 12px 28px; border-radius: 12px; border: none;
+            font-weight: 600; cursor: pointer; transition: all 0.3s;
+        }
+        .btn-prev { background: #cbd5e1; color: #475569; }
+        .btn-next { background: var(--primary); color: white; }
+        .btn-submit { background: #6366f1; color: white; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3); }
+        .btn:hover { opacity: 0.9; transform: translateY(-2px); }
+
+        #timer { font-family: monospace; font-size: 1.5rem; font-weight: 700; color: var(--primary); }
     </style>
 </head>
 <body>
 
 <header>
-    <div><h3 id="displayTestName">JEE Practice Test</h3></div>
-    <div style="text-align: right;">
-        <span id="timer" style="font-size: 1.2rem; font-weight: 800; color: #ef4444;">00:00:00</span>
-    </div>
+    <div><h2 id="testTitle" style="color: var(--primary); letter-spacing: -0.5px;">--</h2></div>
+    <div id="timer">00:00:00</div>
 </header>
 
-<div class="test-wrapper">
-    <div class="question-section">
-        <div class="q-header" id="qNumHeader">Question No. 1</div>
-        <div class="q-content" id="qContent">
-            <p>Loading your test, please wait...</p>
+<div class="test-container">
+    <div class="question-card">
+        <div class="q-body">
+            <div id="qNum" style="color: var(--accent); font-weight: 700; margin-bottom: 10px;">QUESTION 1</div>
+            <div id="qText" style="font-size: 1.3rem; line-height: 1.5; color: #1e293b; margin-bottom: 30px;">Loading...</div>
+            <div id="optionsList"></div>
         </div>
-        <div class="nav-panel">
-            <div>
-                <button class="btn btn-clear" onclick="clearResponse()">Clear Response</button>
-            </div>
-            <div>
-                <button class="btn btn-outline" style="margin-right:10px;" onclick="prevQuestion()">Previous</button>
-                <button class="btn btn-save" onclick="nextQuestion()">Save & Next</button>
-                <button class="btn btn-submit" style="margin-left: 20px; background: #d946ef;" onclick="submitTest()">Final Submit</button>
+        <div class="controls">
+            <button class="btn btn-prev" onclick="changeQuestion(-1)">Previous</button>
+            <div style="display:flex; gap: 15px;">
+                <button class="btn btn-next" onclick="changeQuestion(1)">Save & Next</button>
+                <button class="btn btn-submit" onclick="submitTest()">Final Submit</button>
             </div>
         </div>
     </div>
 
-    <div class="palette-section">
-        <h4 style="margin-bottom: 15px; color: #475569;">Question Palette</h4>
-        <div class="palette-grid" id="paletteGrid">
+    <div class="palette-card">
+        <h4 style="color: #475569; font-weight: 700;">Question Palette</h4>
+        <div class="palette-grid" id="paletteGrid"></div>
+        <div style="margin-top: auto; padding-top: 20px; font-size: 0.8rem; color: #64748b;">
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:5px;">
+                <div style="width:10px; height:10px; border-radius:50%; background:var(--correct)"></div> Answered
             </div>
-        <div style="margin-top: auto; border-top: 1px solid #e2e8f0; padding-top: 15px;">
-            <div style="font-size: 0.8rem; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                <span><span style="display:inline-block;width:12px;height:12px;background:#22c55e;"></span> Answered</span>
-                <span><span style="display:inline-block;width:12px;height:12px;background:#ef4444;"></span> Not Answered</span>
-                <span><span style="display:inline-block;width:12px;height:12px;background:#fff;border:1px solid #ccc;"></span> Not Visited</span>
+            <div style="display:flex; align-items:center; gap:8px;">
+                <div style="width:10px; height:10px; border-radius:50%; background:var(--wrong)"></div> Skipped
             </div>
         </div>
     </div>
@@ -99,78 +163,93 @@
     let currentIdx = 0;
     let userAnswers = [];
     let visited = [];
+    let timeRemaining = 3600; // 60 minutes
     const testName = localStorage.getItem('currentTestName');
 
-    async function loadTest() {
-        const { data, error } = await supabaseClient.from('questions_table').select('*').eq('test_name', testName).single();
+    // Timer Logic
+    function startTimer() {
+        const timerElement = document.getElementById('timer');
+        const interval = setInterval(() => {
+            if (timeRemaining <= 0) {
+                clearInterval(interval);
+                submitTest(true);
+            }
+            const h = Math.floor(timeRemaining / 3600);
+            const m = Math.floor((timeRemaining % 3600) / 60);
+            const s = timeRemaining % 60;
+            timerElement.innerText = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+            timeRemaining--;
+        }, 1000);
+    }
+
+    async function initTest() {
+        if(!testName) return window.location.href = 'dashboard.html';
+        document.getElementById('testTitle').innerText = testName;
+
+        const { data } = await supabaseClient.from('questions_table').select('*').eq('test_name', testName).single();
         if (data) {
             questions = data.question_data;
             userAnswers = new Array(questions.length).fill(null);
             visited = new Array(questions.length).fill(false);
-            initPalette();
-            renderQuestion();
+            
+            const grid = document.getElementById('paletteGrid');
+            questions.forEach((_, i) => {
+                const circle = document.createElement('div');
+                circle.className = 'p-circle';
+                circle.id = `circle-${i}`;
+                circle.innerText = i + 1;
+                circle.onclick = () => { currentIdx = i; render(); };
+                grid.appendChild(circle);
+            });
+            
+            render();
+            startTimer();
         }
     }
 
-    function initPalette() {
-        const grid = document.getElementById('paletteGrid');
-        grid.innerHTML = '';
-        questions.forEach((_, i) => {
-            const btn = document.createElement('button');
-            btn.className = 'p-btn';
-            btn.id = `pal-${i}`;
-            btn.innerText = i + 1;
-            btn.onclick = () => jumpTo(i);
-            grid.appendChild(btn);
-        });
-    }
-
-    function renderQuestion() {
+    function render() {
         visited[currentIdx] = true;
         const q = questions[currentIdx];
-        document.getElementById('qNumHeader').innerText = `Question No. ${currentIdx + 1}`;
-        document.getElementById('qContent').innerHTML = `
-            <div style="font-size: 1.25rem; line-height: 1.6; margin-bottom: 30px;">${q.q}</div>
-            <div id="options">
-                ${q.options.map((opt, i) => `
-                    <div class="option ${userAnswers[currentIdx] === i ? 'selected' : ''}" onclick="selectOption(${i})">
-                        <strong>${String.fromCharCode(65+i)}.</strong> ${opt}
-                    </div>
-                `).join('')}
+        document.getElementById('qNum').innerText = `QUESTION ${currentIdx + 1}`;
+        document.getElementById('qText').innerText = q.q;
+        
+        const list = document.getElementById('optionsList');
+        list.innerHTML = q.options.map((opt, i) => `
+            <div class="option ${userAnswers[currentIdx] === i ? 'selected' : ''}" onclick="select(${i})">
+                <b style="margin-right:15px; color:var(--accent)">${String.fromCharCode(65+i)}</b> ${opt}
             </div>
-        `;
-        updatePaletteUI();
+        `).join('');
+
+        updatePalette();
         if(window.MathJax) MathJax.typesetPromise();
     }
 
-    function selectOption(i) {
+    function select(i) {
         userAnswers[currentIdx] = i;
-        renderQuestion();
+        render();
     }
 
-    function clearResponse() {
-        userAnswers[currentIdx] = null;
-        renderQuestion();
-    }
-
-    function updatePaletteUI() {
+    function updatePalette() {
         questions.forEach((_, i) => {
-            const btn = document.getElementById(`pal-${i}`);
-            btn.classList.remove('active', 'answered', 'visited');
-            if (i === currentIdx) btn.classList.add('active');
-            if (userAnswers[i] !== null) btn.classList.add('answered');
-            else if (visited[i]) btn.classList.add('visited');
+            const el = document.getElementById(`circle-${i}`);
+            el.className = 'p-circle';
+            if (i === currentIdx) el.classList.add('active');
+            if (userAnswers[i] !== null) el.classList.add('answered');
+            else if (visited[i]) el.classList.add('visited');
         });
     }
 
-    function jumpTo(i) { currentIdx = i; renderQuestion(); }
-    function prevQuestion() { if(currentIdx > 0) { currentIdx--; renderQuestion(); } }
-    function nextQuestion() { 
-        if(currentIdx < questions.length - 1) { currentIdx++; renderQuestion(); } 
+    function changeQuestion(step) {
+        const next = currentIdx + step;
+        if (next >= 0 && next < questions.length) {
+            currentIdx = next;
+            render();
+        }
     }
 
-    async function submitTest() {
-        if(!confirm("Are you sure you want to finish the test?")) return;
+    async function submitTest(auto = false) {
+        if(!auto && !confirm("Confirm final submission?")) return;
+
         const { data: { user } } = await supabaseClient.auth.getUser();
         let correct = 0;
         questions.forEach((q, i) => {
@@ -178,7 +257,7 @@
             if(userAnswers[i] === cIdx) correct++;
         });
 
-        const { error } = await supabaseClient.from('student_progress').insert([{
+        await supabaseClient.from('student_progress').insert([{
             student_id: user.id,
             username: user.email.split('@')[0],
             test_name: testName,
@@ -187,11 +266,10 @@
             accuracy: Math.round((correct/questions.length)*100)
         }]);
 
-        if(!error) window.location.href = 'performance.html';
-        else alert("Submit failed: " + error.message);
+        window.location.href = 'performance.html';
     }
 
-    loadTest();
+    initTest();
 </script>
 </body>
 </html>
