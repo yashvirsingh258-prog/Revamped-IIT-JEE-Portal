@@ -100,9 +100,21 @@
         .footer-nav { padding: 0 40px; justify-content: space-between; }
         .legend-section { padding: 0 25px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.75rem; font-weight: 500; color: #64748b; }
 
-        .btn { padding: 12px 24px; border-radius: 12px; border: none; font-weight: 600; cursor: pointer; transition: all 0.3s; font-size: 0.85rem; display: flex; align-items: center; gap: 8px; }
+        /* UNIFIED HOVER EFFECTS FOR ALL BUTTONS */
+        .btn { 
+            padding: 12px 24px; border-radius: 12px; border: none; font-weight: 600; 
+            cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+            font-size: 0.85rem; display: flex; align-items: center; gap: 8px; 
+        }
         .btn-grey { background: var(--grey-btn); color: #475569; }
+        .btn-grey:hover { background: var(--grey-hover); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        
         .btn-finish { background: var(--navy); color: white; padding: 12px 35px; }
+        .btn-finish:hover { 
+            background: var(--navy-hover); 
+            transform: translateY(-2px); 
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.3); 
+        }
 
         #timer { font-size: 1.6rem; font-weight: 800; color: var(--navy); font-variant-numeric: tabular-nums; }
         
@@ -169,7 +181,7 @@
     let currentIdx = 0;
     let userAnswers = [];
     let marked = [];
-    let timeLeft = 2400; // Default 40 mins
+    let timeLeft = 2400; 
     let recordId = null; 
     const testName = localStorage.getItem('currentTestName');
 
@@ -193,7 +205,7 @@
             if (existingRecords && existingRecords.length > 0) {
                 const record = existingRecords[0];
                 
-                // NO RETAKE: Redirect if accuracy column is set
+                // NO RETAKE PROTECTION
                 if (record.accuracy !== null && record.accuracy !== undefined) {
                     alert("Test already completed. You cannot retake it.");
                     window.location.href = 'performance.html';
@@ -205,7 +217,6 @@
                 marked = record.marked_for_review || new Array(questions.length).fill(false);
                 currentIdx = record.current_index || 0;
                 
-                // Fixed Timer Calculation
                 const startAt = new Date(record.created_at).getTime();
                 const now = new Date().getTime();
                 const elapsed = isNaN(startAt) ? 0 : Math.floor((now - startAt) / 1000);
