@@ -7,7 +7,11 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         window.MathJax = {
-            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$']] },
+            tex: { 
+                inlineMath: [['$', '$'], ['\\(', '\\)']], 
+                displayMath: [['$$', '$$']],
+                processEscapes: true
+            },
             svg: { fontCache: 'global' }
         };
     </script>
@@ -18,6 +22,7 @@
             --primary-hover: #1e5ba0;
             --correct-green: #10b981;
             --wrong-red: #ef4444;
+            --skipped-grey: #64748b;
             --sidebar-width: 260px;
             --bg-light: #f8fafc;
         }
@@ -25,13 +30,11 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: var(--bg-light); display: flex; min-height: 100vh; }
         
-        /* Sidebar Navigation */
         nav { 
             width: var(--sidebar-width); background: var(--primary-blue); color: white; 
             position: fixed; height: 100vh; display: flex; flex-direction: column; padding: 40px 0; z-index: 1000;
         }
         .logo-area { padding: 0 30px; margin-bottom: 40px; }
-        .nav-links-group { flex-grow: 1; }
         .nav-link { 
             display: block; padding: 15px 30px; text-decoration: none; 
             color: rgba(255,255,255,0.7); font-size: 0.95rem; font-weight: 500; 
@@ -39,65 +42,76 @@
         }
         .nav-link:hover { color: white; background: rgba(255,255,255,0.1); border-left: 4px solid rgba(255,255,255,0.5); padding-left: 35px; }
         .active-link { color: white; background: rgba(255,255,255,0.15); border-left: 4px solid white; }
-        .logout-container { border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px; }
-        .logout-link { color: rgba(255,255,255,0.7); cursor: pointer; text-decoration: none; display: block; padding: 15px 30px; transition: 0.3s ease; }
-        .logout-link:hover { color: #fff; background: rgba(255,255,255,0.05); padding-left: 35px; }
-
-        /* Main Content */
+        
         main { margin-left: var(--sidebar-width); flex: 1; padding: 50px 70px; width: calc(100% - var(--sidebar-width)); }
 
-        /* Tab System */
         .tab-container { display: flex; gap: 20px; border-bottom: 2px solid #e2e8f0; margin-bottom: 30px; }
-        .tab-btn { 
-            padding: 12px 24px; border: none; background: none; cursor: pointer; 
-            font-weight: 600; color: #64748b; font-size: 1rem; border-bottom: 3px solid transparent; transition: 0.3s;
-        }
+        .tab-btn { padding: 12px 24px; border: none; background: none; cursor: pointer; font-weight: 600; color: #64748b; border-bottom: 3px solid transparent; }
         .tab-btn.active-tab { color: var(--primary-blue); border-bottom-color: var(--primary-blue); }
         .tab-content { display: none; }
         .tab-content.active-content { display: block; }
 
-        /* Stats & Cards */
-        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 40px; }
+        /* Stats */
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 25px; }
         .stat-card { background: white; padding: 25px; border-radius: 12px; border: 1px solid #e2e8f0; text-align: center; }
         .stat-val { display: block; font-size: 1.6rem; font-weight: 700; color: var(--primary-blue); }
-        .stat-label { font-size: 0.75rem; color: #64748b; font-weight: 600; text-transform: uppercase; margin-top: 5px; display: block; }
+        .stat-label { font-size: 0.75rem; color: #64748b; font-weight: 600; text-transform: uppercase; margin-top: 5px; }
 
-        /* Question Review */
+        /* Mastery Breakdown */
+        .topic-mastery-container { 
+            background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; 
+            padding: 20px; margin-bottom: 40px; display: flex; flex-wrap: wrap; gap: 12px; 
+        }
+        .topic-pill { 
+            padding: 8px 16px; border-radius: 8px; background: #f8fafc; border: 1px solid #e2e8f0;
+            font-size: 0.85rem; display: flex; align-items: center; gap: 8px; font-weight: 500;
+        }
+        .topic-pct { color: var(--primary-blue); font-weight: 800; }
+
+        /* Retake Button */
+        .retake-btn {
+            background: var(--primary-blue); color: white; border: none; padding: 10px 20px;
+            border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s;
+        }
+        .retake-btn:hover { background: var(--primary-hover); transform: translateY(-1px); }
+
+        /* Questions */
         .q-row { background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 35px; margin-bottom: 30px; position: relative; }
-        .option-review { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 25px; }
-        .opt { padding: 20px; border-radius: 10px; border: 2px solid #e2e8f0; background: white; display: flex; align-items: center; position: relative; min-height: 70px; }
+        .option-review { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 25px; }
+        .opt { padding: 18px; border-radius: 10px; border: 2px solid #e2e8f0; background: white; display: flex; align-items: center; position: relative; }
         .opt-correct { border-color: var(--correct-green) !important; background: #f0fdf4 !important; color: #065f46 !important; font-weight: 600; cursor: help; }
         .opt-user-wrong { border-color: var(--wrong-red) !important; background: #fef2f2 !important; color: #991b1b !important; }
 
-        /* History Table */
-        .history-table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0; }
-        .history-table th { background: #f1f5f9; padding: 15px; text-align: left; font-size: 0.85rem; color: #64748b; text-transform: uppercase; }
-        .history-table td { padding: 15px; border-bottom: 1px solid #f1f5f9; font-size: 0.95rem; color: #1e293b; }
-        .history-table tr:hover { background: #f8fafc; }
-
         .solution-box {
-            display: none; position: absolute; bottom: 110%; left: 0; width: 100%; min-width: 320px;
-            background: white; border: 2px solid var(--correct-green); padding: 25px; border-radius: 12px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.15); z-index: 100;
+            display: none; position: absolute; bottom: 105%; left: 0; width: 100%; min-width: 320px;
+            background: white; border: 2px solid var(--correct-green); padding: 20px; border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); z-index: 100;
         }
         .opt-correct:hover .solution-box { display: block; }
-        .step-row { display: block; margin-bottom: 10px; padding-left: 20px; position: relative; font-size: 0.95rem; line-height: 1.6; }
-        .step-row::before { content: "•"; position: absolute; left: 0; color: var(--correct-green); font-weight: 900; }
-        .badge { padding: 6px 14px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
+        .step-row { margin-bottom: 8px; padding-left: 15px; position: relative; font-size: 0.9rem; line-height: 1.5; color: #334155; }
+        .step-row::before { content: "•"; position: absolute; left: 0; color: var(--correct-green); }
+
+        .badge { padding: 5px 12px; border-radius: 6px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; }
         .bg-red { background: #fee2e2; color: #991b1b; }
         .bg-green { background: #dcfce7; color: #166534; }
+        .bg-grey { background: #f1f5f9; color: #475569; }
+        .topic-badge { background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; margin-left: 8px; }
+
+        .history-table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; }
+        .history-table th { background: #f1f5f9; padding: 15px; text-align: left; font-size: 0.8rem; color: #64748b; text-transform: uppercase; }
+        .history-table td { padding: 15px; border-bottom: 1px solid #f1f5f9; font-size: 0.9rem; }
     </style>
 </head>
 <body>
     <nav>
         <div class="logo-area"><h2>JEE Portal</h2></div>
         <div class="nav-links-group">
-            <a href="index.html" class="nav-link">Dashboard</a>
+            <a href="dashboard.html" class="nav-link">Dashboard</a>
             <a href="tests.html" class="nav-link">Available Tests</a>
             <a href="performance.html" class="nav-link active-link">Performance</a>
         </div>
-        <div class="logout-container">
-            <a href="#" onclick="handleLogout()" class="logout-link">Logout</a>
+        <div style="padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1);">
+            <a href="#" onclick="handleLogout()" class="nav-link">Logout</a>
         </div>
     </nav>
 
@@ -108,30 +122,27 @@
         </div>
 
         <div id="currentTab" class="tab-content active-content">
-            <h1 id="reportTitle" style="font-size: 1.8rem; margin-bottom: 30px;">Loading Analysis...</h1>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px;">
+                <h1 id="reportTitle" style="font-size: 1.8rem;">Loading Analysis...</h1>
+                <button class="retake-btn" onclick="retakeTest()">Retake Test</button>
+            </div>
+            
             <div class="stats-grid">
                 <div class="stat-card"><span class="stat-val" id="statScore">0/0</span><span class="stat-label">Total Score</span></div>
                 <div class="stat-card"><span class="stat-val" id="statAccuracy" style="color: #10b981;">0%</span><span class="stat-label">Accuracy</span></div>
                 <div class="stat-card"><span class="stat-val" id="statAttempted">0</span><span class="stat-label">Attempted</span></div>
                 <div class="stat-card"><span class="stat-val" id="statIncorrect" style="color: var(--wrong-red);">0</span><span class="stat-label">Wrong</span></div>
             </div>
+
+            <div id="topicMastery" class="topic-mastery-container" style="display:none;"></div>
             <div id="reviewList"></div>
         </div>
 
         <div id="historyTab" class="tab-content">
             <h1 style="font-size: 1.8rem; margin-bottom: 30px;">Your Progress Journey</h1>
             <table class="history-table">
-                <thead>
-                    <tr>
-                        <th>Test Name</th>
-                        <th>Score</th>
-                        <th>Accuracy</th>
-                        <th>Date</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody id="historyList">
-                    </tbody>
+                <thead><tr><th>Test Name</th><th>Score</th><th>Accuracy</th><th>Date</th><th>Action</th></tr></thead>
+                <tbody id="historyList"></tbody>
             </table>
         </div>
     </main>
@@ -144,7 +155,6 @@
         function switchTab(tab) {
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active-tab'));
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active-content'));
-            
             if(tab === 'current') {
                 document.querySelectorAll('.tab-btn')[0].classList.add('active-tab');
                 document.getElementById('currentTab').classList.add('active-content');
@@ -160,6 +170,11 @@
             window.location.href = 'login.html';
         }
 
+        async function retakeTest() {
+            const tName = localStorage.getItem('currentTestName');
+            if(tName) window.location.href = 'exam.html'; // Adjust this to your exam page filename
+        }
+
         async function loadPerformance() {
             const tName = localStorage.getItem('currentTestName');
             const { data: { session } } = await supabaseClient.auth.getSession();
@@ -173,26 +188,17 @@
 
         async function loadPastPerformances() {
             const { data: { session } } = await supabaseClient.auth.getSession();
-            const { data, error } = await supabaseClient
-                .from('student_progress')
-                .select('*')
-                .eq('student_id', session.user.id)
-                .order('created_at', { ascending: false });
-
+            const { data } = await supabaseClient.from('student_progress').select('*').eq('student_id', session.user.id).order('created_at', { ascending: false });
             const historyList = document.getElementById('historyList');
-            historyList.innerHTML = data.map(entry => {
-                const total = entry.user_answers.filter(a => a !== null).length;
-                // Note: This is a simplified calculation for the table list
-                return `
-                    <tr>
-                        <td style="font-weight:600;">${entry.test_name}</td>
-                        <td>${entry.score || 'N/A'}</td>
-                        <td style="color:#10b981; font-weight:600;">${entry.accuracy || '0'}%</td>
-                        <td style="color:#64748b;">${new Date(entry.created_at).toLocaleDateString()}</td>
-                        <td><button onclick="viewTest('${entry.test_name}')" style="color:var(--primary-blue); border:none; background:none; cursor:pointer; font-weight:700;">View Report</button></td>
-                    </tr>
-                `;
-            }).join('');
+            historyList.innerHTML = data.map(entry => `
+                <tr>
+                    <td style="font-weight:600;">${entry.test_name}</td>
+                    <td>${entry.score || '0'}</td>
+                    <td style="color:#10b981; font-weight:600;">${entry.accuracy || '0'}%</td>
+                    <td style="color:#64748b;">${new Date(entry.created_at).toLocaleDateString()}</td>
+                    <td><button onclick="viewTest('${entry.test_name}')" style="color:var(--primary-blue); border:none; background:none; cursor:pointer; font-weight:700;">View Report</button></td>
+                </tr>
+            `).join('');
         }
 
         function viewTest(testName) {
@@ -203,24 +209,38 @@
 
         function formatStepSolution(solText) {
             if (!solText) return "No step-wise explanation available.";
-            const steps = solText.split(/[\\/]+n|\n/g).filter(s => s.trim().length > 0);
-            return steps.map(step => `<div class="step-row">${step.trim()}</div>`).join('');
+            let steps = solText.split(/[\\/]+n|\n/g).filter(s => s.trim().length > 0);
+            return steps.map(step => {
+                let cleanStep = step.trim();
+                if (cleanStep.includes('^') && !cleanStep.includes('$')) {
+                    cleanStep = cleanStep.replace(/(\w+)\^(\w+)/g, '$$$1^{$2}$$');
+                }
+                return `<div class="step-row">${cleanStep}</div>`;
+            }).join('');
         }
 
         function renderReport(questions, attempt, testName) {
             document.getElementById('reportTitle').innerText = testName;
             let html = '';
             let correctCount = 0, attemptedCount = 0;
+            let topicStats = {};
 
             questions.forEach((q, idx) => {
                 const userAnsRaw = (attempt.user_answers && attempt.user_answers[idx] !== undefined) ? attempt.user_answers[idx] : null;
                 const correctText = q.correct; 
                 const correctIdx = q.options.findIndex(opt => opt.trim() === correctText.trim());
                 const userChoiceIdx = userAnsRaw !== null ? parseInt(userAnsRaw) : null;
+                const topicLabel = q.topic || "General";
+
+                if (!topicStats[topicLabel]) topicStats[topicLabel] = { correct: 0, total: 0 };
                 
                 if (userChoiceIdx !== null) {
                     attemptedCount++;
-                    if (userChoiceIdx === correctIdx) correctCount++;
+                    topicStats[topicLabel].total++;
+                    if (userChoiceIdx === correctIdx) {
+                        correctCount++;
+                        topicStats[topicLabel].correct++;
+                    }
                 }
 
                 const isCorrect = userChoiceIdx !== null && userChoiceIdx === correctIdx;
@@ -229,19 +249,22 @@
                 html += `
                 <div class="q-row">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                        <span style="font-weight:700; color:#64748b;">QUESTION ${idx+1}</span>
-                        <span class="badge ${isSkipped ? 'bg-gray' : (isCorrect ? 'bg-green' : 'bg-red')}">
+                        <div style="display:flex; align-items:center;">
+                            <span style="font-weight:700; color:#64748b; font-size:0.85rem;">Q${idx+1}</span>
+                            <span class="badge topic-badge">${topicLabel}</span>
+                        </div>
+                        <span class="badge ${isSkipped ? 'bg-grey' : (isCorrect ? 'bg-green' : 'bg-red')}">
                             ${isSkipped ? 'Skipped' : (isCorrect ? 'Correct' : 'Incorrect')}
                         </span>
                     </div>
-                    <div style="margin-bottom:25px; font-size:1.1rem; line-height:1.6;">${q.q}</div>
+                    <div style="margin-bottom:25px; font-size:1.05rem; line-height:1.6;">${q.q}</div>
                     <div class="option-review">
                         ${q.options.map((opt, i) => {
                             let cls = 'opt';
                             let solMarkup = '';
                             if (i === correctIdx) {
                                 cls += ' opt-correct';
-                                solMarkup = `<div class="solution-box"><b style="color:var(--correct-green); font-size:0.7rem; display:block; margin-bottom:10px;">SOLUTION</b>${formatStepSolution(q.solution)}</div>`;
+                                solMarkup = `<div class="solution-box"><b style="color:var(--correct-green); font-size:0.65rem; display:block; margin-bottom:8px;">EXPLANATION</b>${formatStepSolution(q.solution)}</div>`;
                             }
                             if (userChoiceIdx === i && i !== correctIdx) cls += ' opt-user-wrong';
                             return `<div class="${cls}"><span style="font-size:0.75rem; color:#94a3b8; margin-right:12px; font-weight:600;">${String.fromCharCode(65 + i)}.</span><div>${opt}</div>${solMarkup}</div>`;
@@ -250,12 +273,24 @@
                 </div>`;
             });
 
+            // Update Mastery Pills
+            const masteryContainer = document.getElementById('topicMastery');
+            let masteryHtml = '<span style="width:100%; font-size:0.7rem; color:#94a3b8; font-weight:800; text-transform:uppercase; margin-bottom:10px;">Performance by Topic</span>';
+            Object.keys(topicStats).forEach(topic => {
+                const s = topicStats[topic];
+                if(s.total > 0) {
+                    const pct = Math.round((s.correct / s.total) * 100);
+                    masteryHtml += `<div class="topic-pill">${topic}: <span class="topic-pct">${pct}%</span></div>`;
+                }
+            });
+            masteryContainer.innerHTML = masteryHtml;
+            masteryContainer.style.display = 'flex';
+
             document.getElementById('reviewList').innerHTML = html;
             document.getElementById('statScore').innerText = `${correctCount}/${questions.length}`;
             document.getElementById('statAttempted').innerText = attemptedCount;
             document.getElementById('statIncorrect').innerText = attemptedCount - correctCount;
-            const accuracy = attemptedCount > 0 ? Math.round((correctCount / attemptedCount) * 100) : 0;
-            document.getElementById('statAccuracy').innerText = `${accuracy}%`;
+            document.getElementById('statAccuracy').innerText = `${attemptedCount > 0 ? Math.round((correctCount / attemptedCount) * 100) : 0}%`;
 
             if(window.MathJax) MathJax.typesetPromise();
         }
