@@ -138,7 +138,7 @@
 <header>
     <h2 id="testTitle" style="color: var(--navy); font-weight: 700;">--</h2>
     <div class="header-right">
-        <div id="syncStatus">● Synced</div>
+        <div id="syncStatus">● Offline</div>
         <div id="timer">40:00</div>
     </div>
 </header>
@@ -184,27 +184,34 @@
     let currentIdx = 0;
     let userAnswers = [];
     let marked = [];
-    let timeLeft = 2400; // Locked at 40 mins
+    let timeLeft = 2400; 
     let recordId = null; 
     const testName = localStorage.getItem('currentTestName');
 
     async function start() {
-        const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
-        if (authError || !user || !user.email) {
-            window.location.href = 'login.html';
-            return;
-        }
+        try {
+            const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
+            if (authError || !user) {
+                console.error("Auth Error:", authError);
+                window.location.href = 'login.html';
+                return;
+            }
 
-        const username = user.email.split('@')[0];
-        if (!testName) return;
+            if (!testName) {
+                document.getElementById('qText').innerText = "Error: No test selected.";
+                return;
+            }
 
-        const { data: qData } = await supabaseClient.from('questions_table').select('*').eq('test_name', testName);
-        
-        if (qData && qData.length > 0) {
+            const { data: qData, error: qError } = await supabaseClient.from('questions_table').select('*').eq('test_name', testName);
+            if (qError || !qData || qData.length === 0) {
+                document.getElementById('qText').innerText = "Error: Could not load questions.";
+                return;
+            }
+
             questions = qData[0].question_data;
             document.getElementById('testTitle').innerText = testName;
 
-            // Secure Resume Logic
+            // Database Entry Logic
             const { data: existingRecords } = await supabaseClient
                 .from('student_progress')
                 .select('*')
@@ -225,21 +232,29 @@
             } else {
                 userAnswers = new Array(questions.length).fill(null);
                 marked = new Array(questions.length).fill(false);
-                const { data: newRec } = await supabaseClient
+                
+                const { data: newRec, error: insError } = await supabaseClient
                     .from('student_progress')
                     .insert([{
                         student_id: user.id,
-                        username: username,
+                        username: user.email.split('@')[0],
                         test_name: testName,
                         score: `0/${questions.length}`,
                         user_answers: userAnswers,
                         marked_status: marked
                     }])
                     .select();
-                recordId = newRec[0].id;
+                
+                if (insError) console.error("Insertion Failed:", insError);
+                else recordId = newRec[0].id;
             }
 
             setupPalette(); render(); runTimer();
+            document.getElementById('syncStatus').innerText = "● Synced";
+            
+        } catch (e) {
+            console.error("Fatal Start Error:", e);
+            document.getElementById('qText').innerText = "Connection Error. Please refresh.";
         }
     }
 
@@ -276,6 +291,7 @@
     }
 
     function render() {
+        if (!questions[currentIdx]) return;
         const q = questions[currentIdx];
         document.getElementById('qLabel').innerText = `QUESTION ${currentIdx + 1}`;
         document.getElementById('qText').innerText = q.q;
