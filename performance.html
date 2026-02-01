@@ -92,13 +92,23 @@
 
         function formatStepSolution(solText) {
             if (!solText) return "No explanation.";
-            // Split by literal \n or escaped \\n. Zero regex interference with math symbols.
+            // Fixed logic: Preserve math delimiters ($) and caret symbols (^) 
+            // by non-destructively splitting the step prefix from the math body.
             return solText.split(/\\n|\n/).map((line, i) => {
                 const clean = line.trim();
                 if(!clean) return '';
-                // Only wrap "Step X" in bold, leave the math content untouched
-                const body = clean.replace(/^Step\s*\d+\s*:?\s*/i, '');
-                return `<div style="margin-bottom:8px;"><b style="color:var(--primary-blue)">Step ${i+1}:</b> ${body}</div>`;
+                
+                let displayLine = clean;
+                if (/^Step\s*\d+/i.test(clean)) {
+                    const parts = clean.split(/:\s*(.*)/s);
+                    if (parts.length >= 2) {
+                        displayLine = `<b style="color:var(--primary-blue)">Step ${i+1}:</b> ${parts[1]}`;
+                    } else {
+                        const body = clean.replace(/^Step\s*\d+\s*/i, '');
+                        displayLine = `<b style="color:var(--primary-blue)">Step ${i+1}:</b> ${body}`;
+                    }
+                }
+                return `<div style="margin-bottom:8px;">${displayLine}</div>`;
             }).join('');
         }
 
@@ -143,7 +153,11 @@
             document.getElementById('statScore').innerText = `${correct}/${questions.length}`;
             document.getElementById('statAttempted').innerText = attempted;
             document.getElementById('statAccuracy').innerText = `${attempted > 0 ? Math.round((correct/attempted)*100) : 0}%`;
-            MathJax.typesetPromise();
+            
+            // Re-triggering MathJax to process the preserved math delimiters
+            if (window.MathJax && window.MathJax.typesetPromise) {
+                window.MathJax.typesetPromise();
+            }
         }
 
         async function loadPastPerformances() {
