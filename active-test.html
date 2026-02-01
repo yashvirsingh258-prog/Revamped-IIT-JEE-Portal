@@ -23,6 +23,12 @@
             --thin-line: #e2e8f0; 
         }
 
+        @keyframes pulse-blue {
+            0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
             font-family: 'Inter', sans-serif; 
@@ -41,11 +47,8 @@
         .main-layout { display: flex; flex: 1; padding: 25px; gap: 25px; overflow: hidden; align-items: stretch; }
 
         .test-engine {
-            flex: 1;
-            background: var(--glass);
-            backdrop-filter: blur(25px);
-            border-radius: 30px;
-            border: 1px solid var(--glass-border);
+            flex: 1; background: var(--glass); backdrop-filter: blur(25px);
+            border-radius: 30px; border: 1px solid var(--glass-border);
             display: flex; flex-direction: column;
         }
 
@@ -61,20 +64,15 @@
             margin-bottom: 12px; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             border: 2px solid transparent; display: flex; align-items: center; gap: 15px;
         }
-
-        /* RESTORED HOVER EFFECT */
         .option-sub-card:hover { 
-            transform: translateY(-3px); 
-            border-color: var(--grey-hover);
+            transform: translateY(-3px); border-color: var(--grey-hover);
             box-shadow: 0 10px 20px rgba(0,0,0,0.06);
         }
-        
         .option-sub-card.selected { border-color: var(--accent-blue); background: #f8faff; }
 
         .radio-btn {
             width: 20px; height: 20px; border: 2px solid #cbd5e1;
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            flex-shrink: 0;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
         }
         .selected .radio-btn { border-color: var(--accent-blue); }
         .radio-inner { width: 10px; height: 10px; border-radius: 50%; background: var(--accent-blue); display: none; }
@@ -87,31 +85,23 @@
         }
 
         .palette-header { padding: 30px 25px 15px 25px; }
-        
-        .palette-grid { 
-            padding: 0 25px; display: grid; grid-template-columns: repeat(5, 1fr); 
-            gap: 10px; flex: 1; overflow-y: auto; align-content: start;
-        }
+        .palette-grid { padding: 0 25px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; flex: 1; overflow-y: auto; align-content: start; }
 
         .footer-nav, .legend-section {
-            height: 90px;
-            border-top: 1px solid var(--thin-line);
-            display: flex;
-            align-items: center;
+            height: 90px; border-top: 1px solid var(--thin-line);
+            display: flex; align-items: center;
         }
 
         .footer-nav { padding: 0 40px; justify-content: space-between; }
-        .legend-section {
-            padding: 0 25px; display: grid; grid-template-columns: 1fr 1fr; 
-            gap: 8px; font-size: 0.75rem; font-weight: 500; color: #64748b;
-        }
+        .legend-section { padding: 0 25px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.75rem; font-weight: 500; color: #64748b; }
 
         .btn {
             padding: 12px 24px; border-radius: 12px; border: none;
-            font-weight: 600; cursor: pointer; transition: all 0.3s;
+            font-weight: 600; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             font-size: 0.85rem; display: flex; align-items: center; gap: 8px;
         }
         .btn-grey { background: var(--grey-btn); color: #475569; }
+        .btn-grey:hover { background: var(--grey-hover); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
         .btn-finish { background: var(--navy); color: white; padding: 12px 35px; }
         .btn-finish:hover { background: var(--navy-hover); transform: translateY(-2px); box-shadow: 0 8px 20px rgba(15, 23, 42, 0.3); }
 
@@ -120,11 +110,17 @@
         .p-circle {
             aspect-ratio: 1/1; border-radius: 50%; display: flex; align-items: center;
             justify-content: center; font-weight: 600; cursor: pointer; background: var(--grey-btn); color: #64748b;
-            font-size: 0.85rem;
+            font-size: 0.85rem; transition: all 0.2s ease; border: 2px solid transparent;
         }
-        .p-circle.active { border: 3px solid var(--accent-blue); background: white; color: var(--accent-blue); }
-        .p-circle.answered { background: var(--correct); color: white; }
-        .p-circle.marked { background: var(--purple); color: white; }
+        .p-circle:hover { border-color: var(--accent-blue); transform: scale(1.08); background: white; }
+        
+        /* Pulse for active question */
+        .p-circle.active { 
+            border: 3px solid var(--accent-blue); background: white; color: var(--accent-blue); 
+            transform: scale(1.05); animation: pulse-blue 2s infinite; 
+        }
+        .p-circle.answered { background: var(--correct); color: white; border-color: transparent; }
+        .p-circle.marked { background: var(--purple); color: white; border-color: transparent; }
     </style>
 </head>
 <body>
@@ -138,9 +134,7 @@
     <div class="test-engine">
         <div class="q-scroll-area">
             <p id="qLabel" style="color: var(--accent-blue); font-weight: 800; font-size: 0.7rem; margin-bottom: 12px; letter-spacing: 2px;">QUESTION 1</p>
-            <div class="question-sub-card">
-                <div id="qText" style="font-size: 1.35rem; color: #1e293b; line-height: 1.5; font-weight: 500;">Loading...</div>
-            </div>
+            <div class="question-sub-card"><div id="qText" style="font-size: 1.35rem; color: #1e293b; line-height: 1.5; font-weight: 500;">Loading...</div></div>
             <div id="optionsContainer"></div>
         </div>
         
@@ -156,11 +150,8 @@
     </div>
 
     <div class="palette-card">
-        <div class="palette-header">
-            <h3 style="font-size: 1.1rem; color: var(--navy); border-bottom: 2px solid #f1f5f9; padding-bottom: 12px; font-weight: 700;">Question Palette</h3>
-        </div>
+        <div class="palette-header"><h3 style="font-size: 1.1rem; color: var(--navy); border-bottom: 2px solid #f1f5f9; padding-bottom: 12px; font-weight: 700;">Question Palette</h3></div>
         <div class="palette-grid" id="paletteGrid"></div>
-        
         <div class="legend-section">
             <div style="display:flex; align-items:center; gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:var(--correct)"></span> Answered</div>
             <div style="display:flex; align-items:center; gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:var(--purple)"></span> Review</div>
@@ -183,19 +174,13 @@
 
     async function start() {
         if (!testName) return;
-        const { data, error } = await supabaseClient
-            .from('questions_table')
-            .select('*')
-            .eq('test_name', testName);
-
+        const { data } = await supabaseClient.from('questions_table').select('*').eq('test_name', testName);
         if (data && data.length > 0) {
             questions = data[0].question_data;
             userAnswers = new Array(questions.length).fill(null);
             marked = new Array(questions.length).fill(false);
             document.getElementById('testTitle').innerText = testName;
-            setupPalette();
-            render();
-            runTimer();
+            setupPalette(); render(); runTimer();
         }
     }
 
@@ -230,7 +215,6 @@
     function select(i) { userAnswers[currentIdx] = i; render(); }
     function clearAns() { userAnswers[currentIdx] = null; render(); }
     function markReview() { marked[currentIdx] = !marked[currentIdx]; render(); }
-
     function changeQ(step) {
         let next = currentIdx + step;
         if(next >= 0 && next < questions.length) { currentIdx = next; render(); }
@@ -259,7 +243,7 @@
     }
 
     async function finalSubmit(auto = false) {
-        if(!auto && !confirm("Submit test?")) return;
+        if(!auto && !confirm("Finish test?")) return;
         const { data: { user } } = await supabaseClient.auth.getUser();
         let correct = 0;
         questions.forEach((q, i) => {
@@ -267,12 +251,8 @@
             if(userAnswers[i] === cIdx) correct++;
         });
         await supabaseClient.from('student_progress').insert([{
-            student_id: user.id,
-            username: user.email.split('@')[0],
-            test_name: testName,
-            score: `${correct}/${questions.length}`,
-            user_answers: userAnswers,
-            accuracy: Math.round((correct/questions.length)*100)
+            student_id: user.id, username: user.email.split('@')[0], test_name: testName,
+            score: `${correct}/${questions.length}`, user_answers: userAnswers, accuracy: Math.round((correct/questions.length)*100)
         }]);
         window.location.href = 'performance.html';
     }
