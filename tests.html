@@ -34,7 +34,6 @@
         .test-card.completed { border-left: 5px solid #10b981; opacity: 1; pointer-events: auto; cursor: default; }
         .test-card.completed .launch-btn { background: #10b981 !important; cursor: not-allowed; pointer-events: none; }
 
-        /* Modern Hover-to-Review Style */
         .score-info { 
             display: none; 
             margin-bottom: 24px; 
@@ -58,7 +57,6 @@
             display: inline-block;
         }
         
-        /* The Hover Effect */
         .accuracy-pill:hover {
             background: #0b4a8f;
             color: white;
@@ -205,22 +203,24 @@
                             card.classList.remove('active');
                             btn.innerText = "Submitted";
 
-                            // --- FIXED SCORE CALCULATION LOGIC ---
+                            // Logic to calculate score from student_progress only
                             let correctCount = 0;
                             const totalQuestions = row.question_data ? row.question_data.length : 0;
-                            const submittedAnswers = userAttempt.confirmed_answered || [];
+                            const answers = userAttempt.confirmed_answered || [];
 
                             if (row.question_data) {
                                 row.question_data.forEach((q, index) => {
-                                    // Check if student's answer at this index matches the correct_option
-                                    if (submittedAnswers[index] !== null && 
-                                        submittedAnswers[index] !== undefined && 
-                                        String(submittedAnswers[index]) === String(q.correct_option)) {
-                                        correctCount++;
+                                    const userAnswer = answers[index];
+                                    const correctAnswer = q.correct_option;
+
+                                    // Check if student's answer at this index is not null and matches
+                                    if (userAnswer !== null && userAnswer !== undefined && userAnswer !== "") {
+                                        if (String(userAnswer).trim() === String(correctAnswer).trim()) {
+                                            correctCount++;
+                                        }
                                     }
                                 });
                             }
-                            // --------------------------------------
 
                             const percentage = totalQuestions > 0 ? Math.round((correctCount / totalQuestions) * 100) : 0;
 
