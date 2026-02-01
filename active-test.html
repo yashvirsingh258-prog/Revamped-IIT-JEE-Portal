@@ -19,6 +19,7 @@
             --correct: #10b981;
             --purple: #8b5cf6;
             --accent-blue: #3b82f6;
+            --thin-line: #e2e8f0; /* Soft grey with a blue hue */
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -108,8 +109,20 @@
         .footer-nav {
             padding: 25px 40px;
             background: rgba(255,255,255,0.4);
-            border-top: 1px solid var(--glass-border);
+            border-top: 1px solid var(--thin-line); /* Thin grey line with hue */
             display: flex; justify-content: space-between;
+        }
+
+        .legend-section {
+            margin-top: auto; 
+            padding-top: 30px; 
+            border-top: 1px solid var(--thin-line); /* Thin grey line for legends */
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 15px; 
+            font-size: 0.8rem; 
+            font-weight: 500; 
+            color: #64748b;
         }
 
         .btn {
@@ -165,7 +178,7 @@
         <h3 style="font-size: 1.2rem; color: var(--navy); border-bottom: 2px solid #f1f5f9; padding-bottom: 15px; font-weight: 700;">Question Palette</h3>
         <div class="palette-grid" id="paletteGrid"></div>
         
-        <div style="margin-top: auto; padding-top: 30px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; font-size: 0.8rem; font-weight: 500; color: #64748b;">
+        <div class="legend-section">
             <div style="display:flex; align-items:center; gap:8px;"><span style="width:12px;height:12px;border-radius:50%;background:var(--correct)"></span> Answered</div>
             <div style="display:flex; align-items:center; gap:8px;"><span style="width:12px;height:12px;border-radius:50%;background:var(--purple)"></span> Review</div>
             <div style="display:flex; align-items:center; gap:8px;"><span style="width:12px;height:12px;border-radius:50%;background:var(--grey-btn)"></span> Not Answered</div>
@@ -182,7 +195,7 @@
     let currentIdx = 0;
     let userAnswers = [];
     let marked = [];
-    let timeLeft = 2400; // Timer set to 40 minutes (40 * 60)
+    let timeLeft = 2400; // 40 minutes exactly
     const testName = localStorage.getItem('currentTestName');
 
     async function start() {
