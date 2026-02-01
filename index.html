@@ -5,16 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        // Use 'supabaseClient' to avoid naming conflict with the global library
         const supabaseUrl = 'https://ijxsnunkfhudwnkrwmzk.supabase.co';
         const supabaseKey = 'sb_publishable_V-KT1zvp-73dqHHvmx3fNA_iHw53TCl';
         const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-        // THE GUARD: Check if user is logged in immediately
         async function checkUser() {
             const { data: { session }, error } = await supabaseClient.auth.getSession();
             if (error || !session) {
-                // No active session found, kick back to login
                 window.location.href = 'login.html';
             }
         }
@@ -27,7 +24,6 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; display: flex; color: #1e293b; }
 
-        /* Sidebar Navigation */
         nav { width: 280px; background: #0b4a8f; color: white; padding: 60px 0; position: fixed; height: 100vh; z-index: 100; display: flex; flex-direction: column; }
         .logo-area { padding: 0 40px; margin-bottom: 60px; }
         .logo-area h2 { font-size: 1.2rem; letter-spacing: 4px; font-weight: 700; text-transform: uppercase; }
@@ -42,14 +38,12 @@
         .nav-link:hover { color: white; padding-left: 50px; }
         .active-link { color: white; background: rgba(255, 255, 255, 0.1); font-weight: 700; border-right: 4px solid #fff; }
 
-        /* Main Content */
         main { margin-left: 280px; flex: 1; padding: 80px 0; }
         .content-container { max-width: 1100px; margin: 0 auto; padding: 0 60px; }
 
         h1 { font-size: 2.6rem; font-weight: 300; letter-spacing: -1.5px; margin-bottom: 10px; }
         p.subtitle { color: #64748b; font-size: 1.1rem; margin-bottom: 45px; }
 
-        /* --- THE HERO WELCOME SECTION --- */
         .welcome-grid { display: grid; grid-template-columns: 1.8fr 1.2fr; gap: 30px; margin-bottom: 45px; }
         
         .hero-card { 
@@ -77,17 +71,20 @@
         }
         .btn-white:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
 
-        /* Rank/Stat Sidebar Card */
+        /* Modified Rank/Stat Sidebar Card for Subject Flipping */
         .rank-card { 
             background: white; border: 1px solid #e2e8f0; border-radius: 24px; padding: 40px;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
             text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+            cursor: pointer; transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            user-select: none;
         }
+        .rank-card:active { transform: scale(0.98); }
         .rank-card .val { font-size: 3.5rem; font-weight: 800; color: #0b4a8f; line-height: 1; }
-        .rank-card .lab { font-size: 0.8rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 15px; }
+        .rank-card .lab { font-size: 0.8rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px; }
+        .rank-card .sub-label { font-size: 0.8rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 2px; font-weight: 600; margin-bottom: 15px; }
         .rank-trend { font-size: 0.9rem; color: #10b981; margin-top: 15px; font-weight: 600; }
 
-        /* --- STAT BOXES --- */
         .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; }
         .stat-box { 
             background: white; border: 1px solid #e2e8f0; padding: 30px; border-radius: 20px; 
@@ -121,10 +118,11 @@
                     <a href="tests.html" class="btn-white">Continue Prep</a>
                 </div>
 
-                <div class="rank-card">
-                    <span class="lab">Global Rank</span>
-                    <span class="val">#412</span>
-                    <p class="rank-trend">↑ 12 positions this week</p>
+                <div class="rank-card" id="main-rank-card" onclick="rotateSubject()">
+                    <span class="lab">Global Percentile</span>
+                    <span class="sub-label" id="rank-subject">Maths</span>
+                    <span class="val" id="rank-val">98.2</span>
+                    <p class="rank-trend" id="rank-up">↑ 0.4% percentile up this week</p>
                 </div>
             </div>
 
@@ -146,7 +144,32 @@
     </main>
 
     <script>
-        // LOGOUT FUNCTION
+        // Subject Rotation Logic
+        let currentSubjectIndex = 0;
+        const subjects = ["Maths", "Physics", "Chemistry"];
+        
+        // Mock data mapping - Replace with DB values if needed
+        const subjectData = {
+            "Maths": { val: "98.2", trend: "0.4%" },
+            "Physics": { val: "95.8", trend: "1.2%" },
+            "Chemistry": { val: "92.1", trend: "0.8%" }
+        };
+
+        function rotateSubject() {
+            currentSubjectIndex = (currentSubjectIndex + 1) % subjects.length;
+            const sub = subjects[currentSubjectIndex];
+            
+            // UI Update with subject specifics
+            document.getElementById('rank-subject').innerText = sub;
+            document.getElementById('rank-val').innerText = subjectData[sub].val;
+            document.getElementById('rank-up').innerText = `↑ ${subjectData[sub].trend} percentile up this week`;
+            
+            // Visual feedback
+            const card = document.getElementById('main-rank-card');
+            card.style.transform = "rotateY(10deg)";
+            setTimeout(() => card.style.transform = "rotateY(0deg)", 150);
+        }
+
         async function handleLogout() {
             const { error } = await supabaseClient.auth.signOut();
             if (error) {
@@ -156,13 +179,10 @@
             }
         }
 
-        // FETCH USER DATA ON LOAD
         window.onload = async function() {
-            // 1. Get Session Info
             const { data: { user } } = await supabaseClient.auth.getUser();
             
             if (user) {
-                // Fetch the student's name from the 'students' table
                 const { data: studentData } = await supabaseClient
                     .from('students')
                     .select('full_name')
@@ -174,17 +194,22 @@
                 }
             }
 
-            // 2. Sync local test history
             const history = JSON.parse(localStorage.getItem('testHistory') || '[]');
             
             if (history.length > 0) {
-                const total = history.length;
-                const avg = Math.round(history.reduce((a, b) => a + b.score, 0) / total);
-                const latest = history[history.length - 1].subject;
+                const totalTests = history.length;
+                
+                // Aggregate Accuracy logic: Total Marks Obtained / Total Possible Marks
+                // Assuming each test in history has 'score' (marks) and 'totalMarks'
+                let totalObtained = history.reduce((sum, test) => sum + (test.score || 0), 0);
+                let totalPossible = history.reduce((sum, test) => sum + (test.totalMarks || 100), 0);
+                
+                const avgAccuracy = Math.round((totalObtained / totalPossible) * 100);
+                const topCat = history[history.length - 1].subject;
 
-                document.getElementById('dash-count').innerText = total;
-                document.getElementById('dash-avg').innerText = avg + "%";
-                document.getElementById('dash-top').innerText = latest.charAt(0).toUpperCase() + latest.slice(1);
+                document.getElementById('dash-count').innerText = totalTests;
+                document.getElementById('dash-avg').innerText = avgAccuracy + "%";
+                document.getElementById('dash-top').innerText = topCat.charAt(0).toUpperCase() + topCat.slice(1);
             }
         };
     </script>
