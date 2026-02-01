@@ -226,17 +226,38 @@
             loadPerformance();
         }
 
-        function formatStepSolution(solText) {
-            if (!solText) return "No step-wise explanation available.";
-            let steps = solText.split(/[\\/]+n|\n/g).filter(s => s.trim().length > 0);
-            return steps.map(step => {
-                let cleanStep = step.trim();
-                if (cleanStep.includes('^') && !cleanStep.includes('$')) {
-                    cleanStep = cleanStep.replace(/(\w+)\^(\w+)/g, '$$$1^{$2}$$');
-                }
-                return `<div class="step-row">${cleanStep}</div>`;
-            }).join('');
-        }
+            function formatStepSolution(solText) {
+                if (!solText) return "No step-wise explanation available.";
+                
+                // Splits by newline or escaped newline characters
+                let steps = solText.split(/[\\/]+n|\n/g).filter(s => s.trim().length > 0);
+                
+                return steps.map((step, index) => {
+                    let cleanStep = step.trim();
+                    
+                    // Handle basic LaTeX math conversion if delimiters are missing
+                    if (cleanStep.includes('^') && !cleanStep.includes('$')) {
+                        cleanStep = cleanStep.replace(/(\w+)\^(\w+)/g, '$$$1^{$2}$$');
+                    }
+    
+                    // Logic to bold ONLY the Step indicator
+                    // This checks if the line starts with "Step X" or just adds it if missing
+                    let stepLabel = `Step ${index + 1}:`;
+                    let remainingText = cleanStep;
+    
+                    // If the text already starts with "Step X", we separate it to control bolding
+                    const stepRegex = /^Step\s*\d+\s*:?\s*/i;
+                    if (stepRegex.test(cleanStep)) {
+                        remainingText = cleanStep.replace(stepRegex, '');
+                    }
+    
+                    return `
+                        <div class="step-row">
+                            <b style="color: var(--navy); font-weight: 700;">${stepLabel}</b> 
+                            <span style="font-weight: 400;">${remainingText}</span>
+                        </div>`;
+                }).join('');
+            }
 
         function renderReport(questions, attempt, testName) {
             document.getElementById('reportTitle').innerText = testName;
