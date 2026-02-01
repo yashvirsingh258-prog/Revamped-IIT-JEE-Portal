@@ -263,10 +263,12 @@
         document.getElementById('reportTitle').innerText = testName;
         let html = '';
         let correctCount = 0, attemptedCount = 0;
+        
+        // Initialize topicStats object
         let topicStats = {};
     
         questions.forEach((q, idx) => {
-            // 1. Precise data matching: Handle potential whitespace or type mismatches
+            // 1. Data Normalization
             const userAnsRaw = (attempt.user_answers && attempt.user_answers[idx] !== undefined) ? attempt.user_answers[idx] : null;
             const correctText = q.correct ? q.correct.trim() : ""; 
             const correctIdx = q.options.findIndex(opt => opt.trim() === correctText);
@@ -274,27 +276,27 @@
             
             const topicLabel = q.topic || "General";
     
-            // 2. Initialize Topic Stats: Track TOTAL questions in topic vs CORRECT
+            // 2. Initialize and Increment Topic Counters
             if (!topicStats[topicLabel]) {
                 topicStats[topicLabel] = { correct: 0, total_in_topic: 0 };
             }
             
-            // Every question in the list increments the topic denominator
+            // This counts every question that exists for this topic
             topicStats[topicLabel].total_in_topic++;
     
             const isCorrect = userChoiceIdx !== null && userChoiceIdx === correctIdx;
             const isSkipped = userChoiceIdx === null;
     
-            // 3. Update global and topic-specific success counters
             if (!isSkipped) {
                 attemptedCount++;
                 if (isCorrect) {
                     correctCount++;
+                    // Increment correct count for this specific topic
                     topicStats[topicLabel].correct++; 
                 }
             }
     
-            // 4. UI Generation (Keeping your exact structure)
+            // 3. UI Generation (Maintains your bold Step formatting)
             html += `
             <div class="q-row">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
@@ -315,7 +317,6 @@
                         let solMarkup = '';
                         if (i === correctIdx) {
                             cls += ' opt-correct';
-                            // formatStepSolution is called here - keeping your Step 1: bolding
                             solMarkup = `<div class="solution-box"><b style="color:var(--correct-green); font-size:0.65rem; display:block; margin-bottom:8px;">EXPLANATION</b>${formatStepSolution(q.solution)}</div>`;
                         }
                         if (userChoiceIdx === i && i !== correctIdx) cls += ' opt-user-wrong';
@@ -325,21 +326,21 @@
             </div>`;
         });
     
-        // 5. Render Topic Mastery Pills
+        // 4. Render Topic Mastery Pills with Correct Math
         const masteryContainer = document.getElementById('topicMastery');
         let masteryHtml = '<span style="width:100%; font-size:0.7rem; color:#94a3b8; font-weight:800; text-transform:uppercase; margin-bottom:10px;">Performance by Topic</span>';
         
         Object.keys(topicStats).forEach(topic => {
-            const s = topicStats[topic];
-            // Mastery Percentage = (Correct / Total Questions in Topic) * 100
-            const pct = s.total_in_topic > 0 ? Math.round((s.correct / s.total_in_topic) * 100) : 0;
-            masteryHtml += `<div class="topic-pill">${topic}: <span class="topic-pct">${pct}%</span></div>`;
+            const stats = topicStats[topic];
+            // Calculate percentage based on total questions existing in that topic
+            const percentage = Math.round((stats.correct / stats.total_in_topic) * 100);
+            masteryHtml += `<div class="topic-pill">${topic}: <span class="topic-pct">${percentage}%</span></div>`;
         });
         
         masteryContainer.innerHTML = masteryHtml;
         masteryContainer.style.display = 'flex';
     
-        // 6. Final Stats Update
+        // 5. Update Overall Stats
         document.getElementById('reviewList').innerHTML = html;
         document.getElementById('statScore').innerText = `${correctCount}/${questions.length}`;
         document.getElementById('statAttempted').innerText = attemptedCount;
