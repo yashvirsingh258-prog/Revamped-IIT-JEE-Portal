@@ -8,10 +8,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         window.MathJax = {
-            tex: { 
-                inlineMath: [['$', '$'], ['\\(', '\\)']], 
-                processEscapes: true 
-            },
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], processEscapes: true },
             svg: { fontCache: 'global' }
         };
     </script>
@@ -23,14 +20,13 @@
             --correct-green: #10b981;
             --wrong-red: #ef4444;
             --bg-light: #f8fafc;
-            --ai-blue: #eff6ff;
             --sidebar-width: 260px;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: var(--bg-light); display: flex; min-height: 100vh; }
         
-        /* Sidebar Navigation */
+        /* Navigation */
         nav { 
             width: var(--sidebar-width); background: var(--primary-blue); color: white; 
             position: fixed; height: 100vh; display: flex; flex-direction: column; padding: 40px 0; z-index: 1000;
@@ -38,59 +34,53 @@
         .logo-area { padding: 0 30px; margin-bottom: 40px; }
         .nav-link { 
             display: block; padding: 15px 30px; text-decoration: none; 
-            color: rgba(255,255,255,0.7); font-size: 0.95rem; font-weight: 500; 
-            transition: 0.3s; border-left: 4px solid transparent;
+            color: rgba(255,255,255,0.7); font-size: 0.95rem; transition: 0.3s; border-left: 4px solid transparent;
         }
         .nav-link:hover, .active-link { color: white; background: rgba(255,255,255,0.1); border-left: 4px solid white; }
 
         main { margin-left: var(--sidebar-width); flex: 1; padding: 40px 60px; }
 
-        /* AI Section */
+        /* AI Coach Card */
         .ai-card { 
-            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-            border: 1px solid #bae6fd; border-radius: 16px; padding: 25px; margin-bottom: 30px;
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            border: 1px solid #bfdbfe; border-radius: 16px; padding: 25px; margin-bottom: 30px;
         }
-        .ai-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; font-weight: 700; color: #0369a1; }
+        .ai-header { display: flex; align-items: center; gap: 10px; font-weight: 700; color: #1e40af; margin-bottom: 10px; }
 
-        /* Stats & Topic Mastery */
+        /* Stats Grid */
         .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 25px; }
         .stat-card { background: white; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; text-align: center; }
         .stat-val { display: block; font-size: 1.6rem; font-weight: 700; color: var(--primary-blue); }
         .stat-label { font-size: 0.7rem; color: #64748b; font-weight: 700; text-transform: uppercase; margin-top: 5px; }
 
-        .mastery-container { 
-            background: white; border: 1px solid #e2e8f0; border-radius: 12px; 
-            padding: 20px; margin-bottom: 30px; display: flex; flex-wrap: wrap; gap: 10px; 
-        }
-        .topic-pill { padding: 8px 16px; background: #f1f5f9; border-radius: 50px; font-size: 0.85rem; font-weight: 600; }
+        /* Mastery Breakdown */
+        .mastery-box { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-bottom: 30px; display: flex; flex-wrap: wrap; gap: 10px; }
+        .topic-pill { padding: 8px 16px; background: #f1f5f9; border-radius: 50px; font-size: 0.85rem; font-weight: 600; border: 1px solid #e2e8f0; }
 
-        /* Question Styles */
-        .q-row { background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 30px; margin-bottom: 25px; }
-        .q-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        
-        .badge { padding: 6px 12px; border-radius: 6px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; }
+        /* Question Cards */
+        .q-row { background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 30px; margin-bottom: 25px; position: relative; }
+        .badge { padding: 5px 12px; border-radius: 6px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; }
         .topic-tag { background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; margin-right: 8px; }
         
-        /* Difficulty Classes */
+        /* Difficulty Colors */
         .diff-easy { background: #dcfce7; color: #166534; }
         .diff-medium { background: #fef3c7; color: #92400e; }
         .diff-hard { background: #fee2e2; color: #991b1b; }
 
         .option-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
         .opt { padding: 18px; border-radius: 10px; border: 2px solid #e2e8f0; position: relative; transition: 0.2s; }
-        .opt-correct { border-color: var(--correct-green); background: #f0fdf4; font-weight: 600; }
+        .opt-correct { border-color: var(--correct-green); background: #f0fdf4; }
         .opt-wrong { border-color: var(--wrong-red); background: #fef2f2; }
 
-        .solution-popup {
+        .solution-box {
             display: none; position: absolute; bottom: 105%; left: 0; width: 100%; min-width: 320px;
             background: white; border: 2px solid var(--correct-green); padding: 20px; border-radius: 12px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1); z-index: 100;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); z-index: 100;
         }
-        .opt-correct:hover .solution-popup { display: block; }
-        .step-item { margin-bottom: 8px; font-size: 0.9rem; color: #334155; display: flex; gap: 10px; }
-
-        .btn-action { background: var(--primary-blue); color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: 0.2s; }
-        .btn-action:hover { background: var(--primary-hover); transform: translateY(-1px); }
+        .opt-correct:hover .solution-box { display: block; }
+        
+        .btn-retake { background: var(--primary-blue); color: white; padding: 12px 24px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; transition: 0.2s; }
+        .btn-retake:hover { background: var(--primary-hover); transform: translateY(-1px); }
     </style>
 </head>
 <body>
@@ -106,7 +96,7 @@
 <main>
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px;">
         <h1 id="testTitle" style="font-size: 1.8rem;">Performance Report</h1>
-        <button class="btn-action" onclick="window.location.href='exam.html'">Retake Test</button>
+        <button class="btn-retake" onclick="retakeTest()">Retake Test</button>
     </div>
 
     <div id="aiCoach" class="ai-card" style="display:none;">
@@ -121,8 +111,7 @@
         <div class="stat-card"><span class="stat-val" id="statWrong" style="color:var(--wrong-red)">--</span><span class="stat-label">Incorrect</span></div>
     </div>
 
-    <div id="masteryList" class="mastery-container" style="display:none;"></div>
-
+    <div id="masteryList" class="mastery-box" style="display:none;"></div>
     <div id="reviewList"></div>
 </main>
 
@@ -136,12 +125,23 @@
         window.location.href = 'login.html';
     }
 
-    // AI Logic (Simulation of Gemini response based on your metadata)
+    // RETAKE FUNCTIONALITY
+    function retakeTest() {
+        const tName = localStorage.getItem('currentTestName');
+        if (!tName) {
+            alert("No active test selected.");
+            window.location.href = 'dashboard.html';
+            return;
+        }
+        if (confirm(`Start a new attempt for ${tName}?`)) {
+            // Keep the test name in storage and redirect
+            window.location.href = 'active_test.html';
+        }
+    }
+
     function triggerAICoach(topicStats) {
         const aiBox = document.getElementById('aiCoach');
         const aiText = document.getElementById('aiText');
-        
-        // Find weakest topic with at least one question
         const weakOnes = Object.keys(topicStats)
             .filter(t => topicStats[t].total > 0)
             .sort((a,b) => (topicStats[a].correct/topicStats[a].total) - (topicStats[b].correct/topicStats[b].total));
@@ -150,18 +150,16 @@
             const worst = weakOnes[0];
             const acc = Math.round((topicStats[worst].correct / topicStats[worst].total) * 100);
             aiBox.style.display = 'block';
-            
-            // This is where you'll eventually call the real Gemini API
-            aiText.innerHTML = `You're doing well, but <b>${worst}</b> (Accuracy: ${acc}%) seems to be your primary bottleneck. I suggest revisiting the fundamental derivations in this area before attempting more hard-level questions. Strength in other topics suggests you're ready for this shift!`;
+            aiText.innerHTML = `Great effort. I noticed <b>${worst}</b> is your weakest area today (${acc}% accuracy). Try focused practice on this topic specifically to boost your overall percentile. Your logic in other sections is solid!`;
         }
     }
 
     function formatSolution(solText) {
-        if(!solText) return "No step-wise explanation found.";
-        return solText.split(/[\\/]+n|\n/g).map(step => {
-            let s = step.trim();
-            if(s.includes('^') && !s.includes('$')) s = s.replace(/(\w+)\^(\w+)/g, '$$$1^{$2}$$');
-            return `<div class="step-item"><span>•</span><div>${s}</div></div>`;
+        if(!solText) return "No solution provided.";
+        return solText.split(/[\\/]+n|\n/g).map(s => {
+            let clean = s.trim();
+            if(clean.includes('^') && !clean.includes('$')) clean = clean.replace(/(\w+)\^(\w+)/g, '$$$1^{$2}$$');
+            return `<div style="margin-bottom:8px; font-size:0.9rem;">• ${clean}</div>`;
         }).join('');
     }
 
@@ -188,7 +186,6 @@
             const diff = q.difficulty || "Medium";
 
             if(!stats.topics[topic]) stats.topics[topic] = { correct: 0, total: 0 };
-
             if(userAns !== null) {
                 stats.attempted++;
                 stats.topics[topic].total++;
@@ -203,9 +200,8 @@
 
             html += `
             <div class="q-row">
-                <div class="q-meta">
+                <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
                     <div>
-                        <span style="font-weight:700; color:#64748b; margin-right:10px;">Q${idx+1}</span>
                         <span class="badge topic-tag">${topic}</span>
                         <span class="badge diff-${diff.toLowerCase()}">${diff}</span>
                     </div>
@@ -219,35 +215,27 @@
                         let cls = 'opt';
                         if(i === correctIdx) cls += ' opt-correct';
                         if(parseInt(userAns) === i && i !== correctIdx) cls += ' opt-wrong';
-                        
-                        return `
-                        <div class="${cls}">
-                            <span style="font-size:0.75rem; color:#94a3b8; margin-right:8px; font-weight:700;">${String.fromCharCode(65+i)}</span>
+                        return `<div class="${cls}">
+                            <span style="font-weight:700; color:#94a3b8; margin-right:8px;">${String.fromCharCode(65+i)}</span>
                             ${opt}
-                            ${i === correctIdx ? `<div class="solution-popup"><b style="color:var(--correct-green); display:block; margin-bottom:10px; font-size:0.7rem;">DETAILED SOLUTION</b>${formatSolution(q.solution)}</div>` : ''}
+                            ${i === correctIdx ? `<div class="solution-box"><b style="color:var(--correct-green); font-size:0.7rem;">SOLUTION</b><br>${formatSolution(q.solution)}</div>` : ''}
                         </div>`;
                     }).join('')}
                 </div>
             </div>`;
         });
 
-        // Update Overview Stats
         document.getElementById('statScore').innerText = `${stats.correct}/${questions.length}`;
+        document.getElementById('statAccuracy').innerText = `${stats.attempted > 0 ? Math.round((stats.correct/stats.attempted)*100) : 0}%`;
         document.getElementById('statAttempted').innerText = stats.attempted;
         document.getElementById('statWrong').innerText = stats.attempted - stats.correct;
-        document.getElementById('statAccuracy').innerText = `${stats.attempted > 0 ? Math.round((stats.correct/stats.attempted)*100) : 0}%`;
 
-        // Update Mastery Pills
         const mList = document.getElementById('masteryList');
-        mList.innerHTML = Object.keys(stats.topics).map(t => {
-            const acc = stats.topics[t].total > 0 ? Math.round((stats.topics[t].correct/stats.topics[t].total)*100) : 0;
-            return `<div class="topic-pill">${t}: <span style="color:var(--primary-blue)">${acc}%</span></div>`;
-        }).join('');
+        mList.innerHTML = Object.keys(stats.topics).map(t => `<div class="topic-pill">${t}: ${Math.round((stats.topics[t].correct/stats.topics[t].total)*100)}%</div>`).join('');
         mList.style.display = 'flex';
 
         document.getElementById('reviewList').innerHTML = html;
         triggerAICoach(stats.topics);
-
         if(window.MathJax) MathJax.typesetPromise();
     }
 
