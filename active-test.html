@@ -2,207 +2,168 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>JEE Portal | Exam Mode</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JEE Portal | Active Test</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         window.MathJax = {
-            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$']] },
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], processEscapes: true },
             svg: { fontCache: 'global' }
         };
     </script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { background: #f1f5f9; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-        header { background: #0b4a8f; color: white; padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; }
-        #timer { background: #e11d48; padding: 8px 18px; border-radius: 6px; font-weight: 700; font-family: monospace; font-size: 1.2rem; }
-        .container { flex: 1; display: flex; overflow: hidden; }
-        .question-section { flex: 1; background: white; padding: 50px; overflow-y: auto; display: flex; flex-direction: column; }
-        .q-card { max-width: 900px; margin: 0 auto; width: 100%; display: flex; flex-direction: column; height: 100%; }
-        .q-text { font-size: 1.35rem; line-height: 1.7; color: #1e293b; margin-bottom: 40px; }
-        .option-box { display: block; padding: 18px; border: 2px solid #e2e8f0; border-radius: 12px; margin-bottom: 15px; cursor: pointer; transition: 0.2s; }
-        .option-box:hover { border-color: #cbd5e1; background: #f8fafc; }
-        .footer-actions { margin-top: auto; padding: 30px 0; border-top: 1px solid #e2e8f0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
-        .btn { height: 50px; border-radius: 10px; font-weight: 600; border: 1px solid #e2e8f0; cursor: pointer; transition: 0.2s; font-size: 0.95rem; display: flex; align-items: center; justify-content: center; background: #f1f5f9; color: #475569; }
-        .btn-review:hover { background: #8b5cf6; color: white; }
-        .btn-clear:hover { background: #fee2e2; color: #991b1b; }
-        .sidebar { width: 350px; background: #f8fafc; border-left: 1px solid #e2e8f0; padding: 30px; display: flex; flex-direction: column; }
-        .palette-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 30px; }
-        .p-circle { width: 45px; height: 45px; border-radius: 50%; background: white; border: 1px solid #cbd5e1; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer; transition: 0.2s; }
-        .p-circle:hover { transform: scale(1.1); border-color: #0b4a8f; }
-        .p-circle.current { border: 3px solid #0b4a8f; background: #eff6ff; }
-        .p-circle.answered { background: #10b981 !important; color: white !important; border: none; }
-        .p-circle.review { background: #8b5cf6 !important; color: white !important; border: none; }
-        .legend-area { margin-top: 20px; padding-top: 20px; border-top: 1px solid #e2e8f0; }
-        .legend-item { display: flex; align-items: center; margin-bottom: 10px; font-size: 0.85rem; color: #64748b; }
-        .legend-dot { width: 14px; height: 14px; border-radius: 50%; margin-right: 12px; border: 1px solid #cbd5e1; }
-        .btn-submit { background: #0b4a8f; color: white; width: 100%; padding: 18px; border-radius: 12px; border: none; font-weight: 700; margin-top: auto; cursor: pointer; }
+        :root { --primary-blue: #0b4a8f; --bg-light: #f8fafc; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg-light); margin: 0; display: flex; flex-direction: column; min-height: 100vh; }
+        header { background: white; padding: 20px 60px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+        .container { max-width: 900px; margin: 40px auto; padding: 0 20px; flex: 1; }
+        .question-card { background: white; padding: 40px; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .option { display: block; padding: 15px; border: 2px solid #e2e8f0; border-radius: 10px; margin-top: 10px; cursor: pointer; transition: 0.2s; }
+        .option:hover { border-color: var(--primary-blue); background: #f0f7ff; }
+        .option.selected { border-color: var(--primary-blue); background: #e0efff; font-weight: 600; }
+        .nav-btns { margin-top: 30px; display: flex; justify-content: space-between; }
+        .btn { padding: 12px 25px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; }
+        .btn-primary { background: var(--primary-blue); color: white; }
+        .btn-outline { background: white; border: 1px solid #cbd5e1; }
     </style>
 </head>
 <body>
 
 <header>
-    <div id="testLabel" style="font-weight:700;">JEE EXAM</div>
-    <div id="timer">Loading...</div>
+    <h2 id="displayTestName">JEE Test Session</h2>
+    <div id="timer" style="font-weight: 700; color: #ef4444; font-size: 1.2rem;">00:00</div>
 </header>
 
 <div class="container">
-    <main class="question-section">
-        <div class="q-card">
-            <div style="color:#64748b; font-weight:700; margin-bottom:15px; font-size:0.8rem;">QUESTION #<span id="qIdx">1</span></div>
-            <div id="qContent" class="q-text">Loading...</div>
-            <div class="footer-actions">
-                <button class="btn" onclick="nav(-1)">« Previous</button>
-                <button class="btn btn-review" onclick="setStatus('review')">Mark for Review</button>
-                <button class="btn btn-clear" onclick="setStatus('clear')">Clear</button>
-                <button class="btn" onclick="nav(1)">Next »</button>
-            </div>
-        </div>
-    </main>
-    <aside class="sidebar">
-        <div class="palette-grid" id="pGrid"></div>
-        <div class="legend-area">
-            <div class="legend-item"><div class="legend-dot" style="background:#10b981;"></div> Answered</div>
-            <div class="legend-item"><div class="legend-dot" style="background:#8b5cf6;"></div> Review</div>
-            <div class="legend-item"><div class="legend-dot" style="background:white;"></div> Unvisited</div>
-        </div>
-        <button class="btn-submit" id="subBtn" onclick="finalSubmit()">Final Submit</button>
-    </aside>
+    <div class="question-card" id="qContainer">
+        <p>Loading questions...</p>
+    </div>
+
+    <div class="nav-btns">
+        <button class="btn btn-outline" onclick="prevQuestion()">Previous</button>
+        <button class="btn btn-primary" id="nextBtn" onclick="nextQuestion()">Next</button>
+    </div>
 </div>
 
 <script>
     const supabaseUrl = 'https://ijxsnunkfhudwnkrwmzk.supabase.co';
-    const supabaseKey = 'sb_publishable_V-KT1zvp-73dqHHvmx3fNA_iHw53TCl';
+    const supabaseKey = 'sb_publishable_V-KT1zvp-73dqHHvmx3fNA_iHw53TCl'; 
     const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-    let questions = [], current = 0, timeLeft = 2400;
-    let answers = {}, markedReview = [], confirmedAnswered = [];
-    let currentUser = null;
+    let questions = [];
+    let currentIdx = 0;
+    let userAnswers = [];
+    const testName = localStorage.getItem('currentTestName');
 
-    async function init() {
-        const tName = localStorage.getItem('currentTestName');
-        
-        // 1. Auth Guard & Re-take Guard
-        const { data: { session } } = await supabaseClient.auth.getSession();
-        if (!session) {
-            window.location.href = 'login.html';
+    async function loadTest() {
+        if (!testName) {
+            alert("No test selected!");
+            window.location.href = 'dashboard.html';
             return;
         }
-        currentUser = session.user;
+        document.getElementById('displayTestName').innerText = testName;
 
-        // Check if this user already submitted this test
-        const { data: existingProgress } = await supabaseClient
-            .from('student_progress')
-            .select('id')
-            .eq('student_id', currentUser.id)
-            .eq('test_name', tName)
+        const { data, error } = await supabaseClient
+            .from('questions_table')
+            .select('*')
+            .eq('test_name', testName)
             .single();
 
-        if (existingProgress) {
-            alert("You have already submitted this test.");
-            window.location.href = 'index.html';
-            return;
-        }
-
-        // 2. Load Questions
-        const { data } = await supabaseClient.from('questions_table').select('*').eq('test_name', tName).single();
         if (data) {
             questions = data.question_data;
-            document.getElementById('testLabel').innerText = data.test_name;
-            renderPalette();
-            loadQuestion(0);
-            startTimer();
+            userAnswers = new Array(questions.length).fill(null);
+            renderQuestion();
         } else {
-            alert("Test data not found.");
-            window.location.href = 'tests.html';
+            console.error("Error loading test:", error);
         }
     }
 
-    function renderPalette() {
-        document.getElementById('pGrid').innerHTML = questions.map((_, i) => 
-            `<div id="p-${i}" class="p-circle" onclick="loadQuestion(${i})">${i+1}</div>`).join('');
-    }
-
-    function loadQuestion(idx) {
-        current = idx;
-        const q = questions[idx];
-        document.getElementById('qIdx').innerText = idx + 1;
-        const saved = answers[current];
-        let h = `<div>${q.q}</div><div style="margin-top:30px;">`;
-        q.options.forEach((opt, i) => {
-            h += `<label class="option-box"><input type="radio" name="opt" value="${i}" onchange="selectOpt(${i})" ${saved == i ? 'checked' : ''}> ${opt}</label>`;
-        });
-        document.getElementById('qContent').innerHTML = h;
-        document.querySelectorAll('.p-circle').forEach(c => c.classList.remove('current'));
-        document.getElementById(`p-${idx}`).classList.add('current');
+    function renderQuestion() {
+        const q = questions[currentIdx];
+        const container = document.getElementById('qContainer');
+        
+        container.innerHTML = `
+            <div style="color: #64748b; font-weight: 700; margin-bottom: 10px;">Question ${currentIdx + 1} of ${questions.length}</div>
+            <div style="font-size: 1.2rem; line-height: 1.6; margin-bottom: 25px;">${q.q}</div>
+            <div id="optionsList">
+                ${q.options.map((opt, i) => `
+                    <div class="option ${userAnswers[currentIdx] === i ? 'selected' : ''}" onclick="selectOption(${i})">
+                        <strong>${String.fromCharCode(65+i)}.</strong> ${opt}
+                    </div>
+                `).join('')}
+            </div>
+        `;
+        
+        document.getElementById('nextBtn').innerText = currentIdx === questions.length - 1 ? "Submit Test" : "Next";
         if(window.MathJax) MathJax.typesetPromise();
     }
 
-    function selectOpt(val) {
-        answers[current] = val;
-        if (!confirmedAnswered.includes(current)) confirmedAnswered.push(current);
-        updatePalette();
+    function selectOption(idx) {
+        userAnswers[currentIdx] = idx;
+        renderQuestion();
     }
 
-    function setStatus(type) {
-        if (type === 'clear') {
-            delete answers[current];
-            confirmedAnswered = confirmedAnswered.filter(i => i !== current);
-            markedReview = markedReview.filter(i => i !== current);
-            document.getElementsByName('opt').forEach(r => r.checked = false);
+    function nextQuestion() {
+        if (currentIdx < questions.length - 1) {
+            currentIdx++;
+            renderQuestion();
         } else {
-            if (!markedReview.includes(current)) markedReview.push(current);
+            submitTest();
         }
-        updatePalette();
     }
 
-    function updatePalette() {
-        const c = document.getElementById(`p-${current}`);
-        if (!c) return;
-        c.classList.remove('answered', 'review');
-        if (markedReview.includes(current)) c.classList.add('review');
-        else if (confirmedAnswered.includes(current)) c.classList.add('answered');
+    function prevQuestion() {
+        if (currentIdx > 0) {
+            currentIdx--;
+            renderQuestion();
+        }
     }
 
-    function nav(d) { let n = current + d; if (n >= 0 && n < questions.length) loadQuestion(n); }
+    async function submitTest() {
+        if (!confirm("Are you sure you want to submit?")) return;
 
-    function startTimer() {
-        const timerInterval = setInterval(() => {
-            timeLeft--;
-            let m = Math.floor(timeLeft/60), s = timeLeft%60;
-            document.getElementById('timer').innerText = `${m}:${s<10?'0':''}${s}`;
-            if(timeLeft <= 0) {
-                clearInterval(timerInterval);
-                finalSubmit();
-            }
-        }, 1000);
-    }
+        // 1. Get Current User and set Username
+        const { data: { user } } = await supabaseClient.auth.getUser();
+        if (!user) {
+            alert("Session expired. Please log in again.");
+            return;
+        }
+        
+        const username = user.email.split('@')[0]; // Fallback username from email
 
-    async function finalSubmit() {
-        const tName = localStorage.getItem('currentTestName');
-        const sub = document.getElementById('testLabel').innerText;
-
-        // Use 'student_id' (user.id) to link properly with your Auth system
-        const { error } = await supabaseClient.from('student_progress').insert({
-            student_id: currentUser.id,
-            test_name: tName,
-            subject: sub,
-            user_answers: answers,
-            confirmed_answered: confirmedAnswered,
-            marked_for_review: markedReview,
-            time_left: timeLeft,
-            is_finished: true
+        // 2. Calculate Score
+        let correctCount = 0;
+        questions.forEach((q, idx) => {
+            const correctIdx = q.options.findIndex(o => o.trim() === q.correct.trim());
+            if (userAnswers[idx] === correctIdx) correctCount++;
         });
 
+        const scoreStr = `${correctCount}/${questions.length}`;
+        const accuracy = Math.round((correctCount / questions.length) * 100);
+
+        // 3. Save to student_progress
+        const { error } = await supabaseClient
+            .from('student_progress')
+            .insert([{
+                student_id: user.id,
+                username: username, // FIX: Username is no longer null
+                test_name: testName,
+                score: scoreStr,
+                user_answers: userAnswers,
+                accuracy: accuracy,
+                created_at: new Date()
+            }]);
+
         if (error) {
-            alert("Submission Error: " + error.message);
+            alert("Error saving results: " + error.message);
         } else {
             alert("Test submitted successfully!");
             window.location.href = 'performance.html';
         }
     }
 
-    init();
+    loadTest();
 </script>
 </body>
 </html>
