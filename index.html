@@ -169,7 +169,7 @@
             setTimeout(() => {
                 currentSubjectIndex = (currentSubjectIndex + 1) % subjects.length;
                 const sub = subjects[currentSubjectIndex];
-                const data = realSubjectData[sub] || { val: "- -", trend: "0.0%" };
+                const data = realSubjectData[sub] || { val: "--", trend: "0.0%" };
                 
                 document.getElementById('rank-subject').innerText = sub;
                 document.getElementById('rank-val').innerText = data.val;
