@@ -45,10 +45,6 @@
         .history-table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; }
         .history-table th { background: #f1f5f9; padding: 15px; text-align: left; font-size: 0.8rem; color: #64748b; text-transform: uppercase; }
         .history-table td { padding: 15px; border-bottom: 1px solid #f1f5f9; font-size: 0.9rem; }
-
-        /* DIAGNOSTIC STYLES */
-        .diag-overlay { background: #1a1a1a; color: #00ff00; font-family: monospace; font-size: 11px; padding: 10px; border-radius: 5px; margin-top: 10px; border-left: 4px solid #f39c12; }
-        .diag-key { color: #f39c12; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -96,28 +92,14 @@
 
         function formatStepSolution(solText) {
             if (!solText) return "No explanation.";
-            
-            // --- DIAGNOSTIC START ---
-            const rawTrace = solText;
-            // ------------------------
-
-            const formatted = solText.split(/\\n|\n/).map((line, i) => {
+            // Split by literal \n or escaped \\n. Zero regex interference with math symbols.
+            return solText.split(/\\n|\n/).map((line, i) => {
                 const clean = line.trim();
                 if(!clean) return '';
-                // Preserving characters: Replace prefix only, keep rest
+                // Only wrap "Step X" in bold, leave the math content untouched
                 const body = clean.replace(/^Step\s*\d+\s*:?\s*/i, '');
                 return `<div style="margin-bottom:8px;"><b style="color:var(--primary-blue)">Step ${i+1}:</b> ${body}</div>`;
             }).join('');
-
-            // Diagnostic block to be displayed in UI
-            const diagBlock = `
-                <div class="diag-overlay">
-                    <div class="diag-key">[DIAGNOSTIC TRACE]</div>
-                    <div><span style="color:#fff">FETCHED RAW:</span> ${rawTrace.replace(/</g, "&lt;")}</div>
-                </div>
-            `;
-
-            return formatted + diagBlock;
         }
 
         async function loadPerformance() {
@@ -130,44 +112,39 @@
             if (qRes.data && pRes.data[0]) renderReport(qRes.data.question_data, pRes.data[0], qRes.data.test_name);
         }
 
-function renderReport(questions, attempt, testName) {
-    document.getElementById('reportTitle').innerText = testName;
-    let html = '';
-    
-    questions.forEach((q, idx) => {
-        const uAns = attempt.user_answers?.[idx];
-        const cIdx = q.options.findIndex(o => o.trim() === q.correct.trim());
-        const isCorrect = uAns !== undefined && parseInt(uAns) === cIdx;
+        function renderReport(questions, attempt, testName) {
+            document.getElementById('reportTitle').innerText = testName;
+            let html = '', correct = 0, attempted = 0;
+            questions.forEach((q, idx) => {
+                const uAns = attempt.user_answers?.[idx];
+                const cIdx = q.options.findIndex(o => o.trim() === q.correct.trim());
+                const isCorrect = uAns !== undefined && parseInt(uAns) === cIdx;
+                if(uAns !== undefined) attempted++;
+                if(isCorrect) correct++;
 
-        html += `
-        <div class="q-row">
-            <div class="q-header"><b>Q${idx+1}</b></div>
-            <div class="question-text">${q.q}</div>
-            <div class="option-review">
-                ${q.options.map((opt, i) => {
-                    let cls = 'opt';
-                    let sol = '';
-                    if(i === cIdx) { 
-                        cls += ' opt-correct'; 
-                        // FIX: We wrap the solution in a 'math-container' class
-                        sol = `<div class="solution-box">
-                                 <div class="math-container"><b>Solution:</b><br>${q.solution}</div>
-                               </div>`; 
-                    }
-                    if(parseInt(uAns) === i && i !== cIdx) cls += ' opt-user-wrong';
-                    return `<div class="${cls}">${opt}${sol}</div>`;
-                }).join('')}
-            </div>
-        </div>`;
-    });
-
-    document.getElementById('reviewList').innerHTML = html;
-
-    // THE CRITICAL STEP: Tells MathJax to look at the NEWLY added HTML
-    if (window.MathJax && MathJax.typesetPromise) {
-        MathJax.typesetPromise([document.getElementById('reviewList')]).catch((err) => console.log(err));
-    }
-}
+                html += `<div class="q-row">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
+                        <span style="font-weight:700">Q${idx+1}</span>
+                        <span class="badge ${uAns === undefined ? 'bg-grey' : (isCorrect ? 'bg-green' : 'bg-red')}">${uAns === undefined ? 'Skipped' : (isCorrect ? 'Correct' : 'Incorrect')}</span>
+                    </div>
+                    <div>${q.q}</div>
+                    <div class="option-review">
+                        ${q.options.map((opt, i) => {
+                            let cls = 'opt';
+                            let sol = '';
+                            if(i === cIdx) { cls += ' opt-correct'; sol = `<div class="solution-box"><b>EXPLANATION</b><br>${formatStepSolution(q.solution)}</div>`; }
+                            if(parseInt(uAns) === i && i !== cIdx) cls += ' opt-user-wrong';
+                            return `<div class="${cls}"><span style="margin-right:10px; opacity:0.5">${String.fromCharCode(65+i)}.</span>${opt}${sol}</div>`;
+                        }).join('')}
+                    </div>
+                </div>`;
+            });
+            document.getElementById('reviewList').innerHTML = html;
+            document.getElementById('statScore').innerText = `${correct}/${questions.length}`;
+            document.getElementById('statAttempted').innerText = attempted;
+            document.getElementById('statAccuracy').innerText = `${attempted > 0 ? Math.round((correct/attempted)*100) : 0}%`;
+            MathJax.typesetPromise();
+        }
 
         async function loadPastPerformances() {
             const { data: { session } } = await supabaseClient.auth.getSession();
