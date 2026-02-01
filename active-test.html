@@ -187,20 +187,29 @@
             questions = qData[0].question_data;
             document.getElementById('testTitle').innerText = testName;
 
-            const { data: existingRecords } = await supabaseClient.from('student_progress').select('*').eq('username', username).eq('subject', testName);
+            const { data: existingRecords } = await supabaseClient.from('student_progress').select('*').eq('username', username).eq('test_name', testName);
 
             if (existingRecords && existingRecords.length > 0) {
                 const record = existingRecords[0];
-                if (record.accuracy !== null) { window.location.href = 'performance.html'; return; }
+                if (record.is_finished === true) { window.location.href = 'performance.html'; return; }
                 recordId = record.id;
                 userAnswers = record.user_answers || new Array(questions.length).fill(null);
                 marked = record.marked_for_review || new Array(questions.length).fill(false);
                 currentIdx = record.current_index || 0;
-                const startAt = new Date(record.created_at).getTime();
+                const startAt = new Date(record.updated_at).getTime();
                 timeLeft = Math.max(0, 2400 - Math.floor((new Date().getTime() - startAt) / 1000));
             } else {
                 userAnswers = new Array(questions.length).fill(null); marked = new Array(questions.length).fill(false);
-                const { data: newRec } = await supabaseClient.from('student_progress').insert([{ username: username, subject: testName, current_index: 0, user_answers: userAnswers, marked_for_review: marked }]).select();
+                const { data: newRec } = await supabaseClient.from('student_progress').insert([{ 
+                    student_id: user.id,
+                    username: username, 
+                    subject: testName, 
+                    test_name: testName,
+                    current_index: 0, 
+                    user_answers: userAnswers, 
+                    marked_for_review: marked,
+                    is_finished: false
+                }]).select();
                 if (newRec) recordId = newRec[0].id;
             }
             setupPalette(); render(); runTimer();
@@ -212,7 +221,12 @@
     async function autoSave() {
         if (!recordId) return;
         document.getElementById('syncStatus').innerText = "● Syncing...";
-        await supabaseClient.from('student_progress').update({ user_answers: userAnswers, marked_for_review: marked, current_index: currentIdx }).eq('id', recordId);
+        await supabaseClient.from('student_progress').update({ 
+            user_answers: userAnswers, 
+            marked_for_review: marked, 
+            current_index: currentIdx,
+            updated_at: new Date()
+        }).eq('id', recordId);
         document.getElementById('syncStatus').innerText = "● Synced";
     }
 
@@ -276,7 +290,15 @@
             if(userAnswers[i] === cIdx) correct++;
         });
         const acc = Math.round((correct / questions.length) * 100);
-        if (recordId) await supabaseClient.from('student_progress').update({ accuracy: acc, user_answers: userAnswers }).eq('id', recordId);
+        if (recordId) {
+            await supabaseClient.from('student_progress').update({ 
+                accuracy: acc, 
+                user_answers: userAnswers,
+                is_finished: true,
+                score: correct,
+                updated_at: new Date()
+            }).eq('id', recordId);
+        }
         window.location.href = 'performance.html';
     }
 
