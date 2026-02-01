@@ -24,6 +24,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: var(--bg-light); display: flex; min-height: 100vh; }
         
+        /* --- SIDEBAR STYLE --- */
         nav { 
             width: 280px; background: var(--primary-blue); color: white; padding: 60px 0; 
             position: fixed; height: 100vh; z-index: 100; display: flex; flex-direction: column; 
@@ -43,6 +44,7 @@
             color: white !important; 
             background: var(--active-strip) !important; 
             font-weight: 700; 
+            border-right: none !important; 
             padding-left: 40px; 
         }
         
@@ -162,11 +164,12 @@
 
         function formatStepSolution(solText) {
             if (!solText) return "No explanation available.";
-            // This cleans out carrots and splits by step markers
-            let steps = solText.split(/\\n|\n/g).filter(s => s.trim().length > 0);
+            // Split strictly by literal newline characters
+            let steps = solText.split(/\\n|\n/).filter(s => s.trim().length > 0);
             return steps.map((step, index) => {
-                let cleanStep = step.trim().replace(/^Step\s*\d+\s*:?\s*/i, '');
-                return `<div style="margin-bottom:8px;"><b style="color:var(--primary-blue); font-weight:700;">Step ${index + 1}:</b> <span style="font-weight:400;">${cleanStep}</span></div>`;
+                // Keep all symbols like ^. Only strip the Step marker.
+                let bodyText = step.trim().replace(/^Step\s*\d+\s*:?\s*/i, '');
+                return `<div style="margin-bottom:10px;"><b style="color:var(--primary-blue); font-weight:700;">Step ${index + 1}:</b> <span style="font-weight:400;">${bodyText}</span></div>`;
             }).join('');
         }
 
@@ -204,7 +207,7 @@
                             let solMarkup = '';
                             if (i === correctIdx) {
                                 cls += ' opt-correct';
-                                solMarkup = `<div class="solution-box"><b style="font-weight:700;">EXPLANATION</b><br>${formatStepSolution(q.solution)}</div>`;
+                                solMarkup = `<div class="solution-box"><b style="font-weight:700; display:block; border-bottom:1px solid #eee; margin-bottom:10px; padding-bottom:5px;">EXPLANATION</b>${formatStepSolution(q.solution)}</div>`;
                             }
                             if (userChoiceIdx === i && i !== correctIdx) cls += ' opt-user-wrong';
                             return `<div class="${cls}"><span style="margin-right:10px; opacity:0.5;">${String.fromCharCode(65 + i)}.</span>${opt}${solMarkup}</div>`;
