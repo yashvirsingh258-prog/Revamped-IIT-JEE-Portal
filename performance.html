@@ -24,7 +24,6 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: var(--bg-light); display: flex; min-height: 100vh; }
         
-        /* --- SIDEBAR STYLE --- */
         nav { 
             width: 280px; background: var(--primary-blue); color: white; padding: 60px 0; 
             position: fixed; height: 100vh; z-index: 100; display: flex; flex-direction: column; 
@@ -40,18 +39,15 @@
         }
         .nav-link:hover { color: white; padding-left: 50px; }
         
-        /* The horizontal strip for the active page */
         .active-link { 
             color: white !important; 
             background: var(--active-strip) !important; 
             font-weight: 700; 
-            border-right: none !important; 
             padding-left: 40px; 
         }
         
         main { margin-left: 280px; flex: 1; padding: 50px 70px; }
 
-        /* Tabs & Stats */
         .tab-container { display: flex; gap: 20px; border-bottom: 2px solid #e2e8f0; margin-bottom: 30px; }
         .tab-btn { padding: 12px 24px; border: none; background: none; cursor: pointer; font-weight: 600; color: #64748b; border-bottom: 3px solid transparent; }
         .tab-btn.active-tab { color: var(--primary-blue); border-bottom-color: var(--primary-blue); }
@@ -63,12 +59,10 @@
         .stat-val { display: block; font-size: 1.6rem; font-weight: 700; color: var(--primary-blue); }
         .stat-label { font-size: 0.75rem; color: #64748b; font-weight: 600; text-transform: uppercase; margin-top: 5px; }
 
-        /* Question Rows */
         .q-row { background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 35px; margin-bottom: 30px; position: relative; }
         .option-review { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 25px; }
         .opt { padding: 18px; border-radius: 10px; border: 2px solid #e2e8f0; background: white; display: flex; align-items: center; position: relative; }
         
-        /* Correct/Incorrect Borders */
         .opt-correct { border-color: var(--correct-green) !important; background: #f0fdf4 !important; color: #065f46 !important; font-weight: 600; }
         .opt-user-wrong { border-color: var(--wrong-red) !important; background: #fef2f2 !important; color: #991b1b !important; }
 
@@ -168,7 +162,8 @@
 
         function formatStepSolution(solText) {
             if (!solText) return "No explanation available.";
-            let steps = solText.split(/[\\/]+n|\n/g).filter(s => s.trim().length > 0);
+            // This cleans out carrots and splits by step markers
+            let steps = solText.split(/\\n|\n/g).filter(s => s.trim().length > 0);
             return steps.map((step, index) => {
                 let cleanStep = step.trim().replace(/^Step\s*\d+\s*:?\s*/i, '');
                 return `<div style="margin-bottom:8px;"><b style="color:var(--primary-blue); font-weight:700;">Step ${index + 1}:</b> <span style="font-weight:400;">${cleanStep}</span></div>`;
