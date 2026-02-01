@@ -23,16 +23,24 @@
             --thin-line: #e2e8f0; 
         }
 
+        /* Loading Screen Styles */
+        #loadingOverlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at top left, #e0e7ff, #f8fafc);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            z-index: 9999; transition: opacity 0.5s ease;
+        }
+        .spinner {
+            width: 50px; height: 50px; border: 5px solid var(--grey-hover);
+            border-top: 5px solid var(--accent-blue); border-radius: 50%;
+            animation: spin 1s linear infinite; margin-bottom: 20px;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
         @keyframes pulse-blue {
             0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
             70% { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
             100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
-        }
-
-        @keyframes sync-flash {
-            0% { color: #94a3b8; }
-            50% { color: var(--correct); transform: scale(1.1); }
-            100% { color: #94a3b8; }
         }
 
         @keyframes slideInRight {
@@ -62,7 +70,6 @@
 
         .header-right { display: flex; align-items: center; gap: 25px; }
         #syncStatus { font-size: 0.7rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; }
-        #syncStatus.saving { animation: sync-flash 0.6s ease; }
 
         .main-layout { display: flex; flex: 1; padding: 25px; gap: 25px; overflow: hidden; align-items: stretch; }
 
@@ -87,11 +94,6 @@
         .option-sub-card:hover { transform: translateY(-3px); border-color: var(--grey-hover); box-shadow: 0 10px 20px rgba(0,0,0,0.06); }
         .option-sub-card.selected { border-color: var(--accent-blue); background: #f8faff; }
 
-        .radio-btn { width: 20px; height: 20px; border: 2px solid #cbd5e1; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-        .selected .radio-btn { border-color: var(--accent-blue); }
-        .radio-inner { width: 10px; height: 10px; border-radius: 50%; background: var(--accent-blue); display: none; }
-        .selected .radio-inner { display: block; }
-
         .palette-card { width: 350px; background: var(--glass); backdrop-filter: blur(25px); border-radius: 30px; border: 1px solid var(--glass-border); display: flex; flex-direction: column; }
         .palette-header { padding: 30px 25px 15px 25px; }
         .palette-grid { padding: 10px 25px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; flex: 1; overflow-y: auto; align-content: start; }
@@ -100,7 +102,6 @@
         .footer-nav { padding: 0 40px; justify-content: space-between; }
         .legend-section { padding: 0 25px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.75rem; font-weight: 500; color: #64748b; }
 
-        /* UNIFIED HOVER EFFECTS FOR ALL BUTTONS */
         .btn { 
             padding: 12px 24px; border-radius: 12px; border: none; font-weight: 600; 
             cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
@@ -110,11 +111,7 @@
         .btn-grey:hover { background: var(--grey-hover); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
         
         .btn-finish { background: var(--navy); color: white; padding: 12px 35px; }
-        .btn-finish:hover { 
-            background: var(--navy-hover); 
-            transform: translateY(-2px); 
-            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.3); 
-        }
+        .btn-finish:hover { background: var(--navy-hover); transform: translateY(-2px); box-shadow: 0 8px 20px rgba(15, 23, 42, 0.3); }
 
         #timer { font-size: 1.6rem; font-weight: 800; color: var(--navy); font-variant-numeric: tabular-nums; }
         
@@ -132,6 +129,11 @@
 </head>
 <body>
 
+<div id="loadingOverlay">
+    <div class="spinner"></div>
+    <p style="font-weight: 600; color: var(--navy); letter-spacing: 1px;">PREPARING TEST ENVIRONMENT...</p>
+</div>
+
 <header>
     <h2 id="testTitle" style="color: var(--navy); font-weight: 700;">--</h2>
     <div class="header-right">
@@ -145,7 +147,7 @@
         <div class="q-scroll-area" id="questionArea">
             <p id="qLabel" style="color: var(--accent-blue); font-weight: 800; font-size: 0.7rem; margin-bottom: 12px; letter-spacing: 2px;">QUESTION 1</p>
             <div class="question-sub-card">
-                <div id="qText" style="font-size: 1.35rem; color: #1e293b; line-height: 1.5; font-weight: 500;">Establishing Secure Connection...</div>
+                <div id="qText" style="font-size: 1.35rem; color: #1e293b; line-height: 1.5; font-weight: 500;">...</div>
             </div>
             <div id="optionsContainer"></div>
         </div>
@@ -181,7 +183,7 @@
     let currentIdx = 0;
     let userAnswers = [];
     let marked = [];
-    let timeLeft = 2400; 
+    let timeLeft = 2400; // 40m
     let recordId = null; 
     const testName = localStorage.getItem('currentTestName');
 
@@ -191,11 +193,13 @@
             if (!user) { window.location.href = 'login.html'; return; }
             const username = user.email.split('@')[0];
 
+            // 1. Fetch Questions
             const { data: qData } = await supabaseClient.from('questions_table').select('*').eq('test_name', testName);
-            if (!qData || qData.length === 0) return;
+            if (!qData || qData.length === 0) { alert("Test questions not found."); return; }
             questions = qData[0].question_data;
             document.getElementById('testTitle').innerText = testName;
 
+            // 2. Check Progress / No Retake
             const { data: existingRecords } = await supabaseClient
                 .from('student_progress')
                 .select('*')
@@ -204,23 +208,16 @@
 
             if (existingRecords && existingRecords.length > 0) {
                 const record = existingRecords[0];
-                
-                // NO RETAKE PROTECTION
                 if (record.accuracy !== null && record.accuracy !== undefined) {
-                    alert("Test already completed. You cannot retake it.");
                     window.location.href = 'performance.html';
                     return;
                 }
-
                 recordId = record.id;
                 userAnswers = record.user_answers || new Array(questions.length).fill(null);
                 marked = record.marked_for_review || new Array(questions.length).fill(false);
                 currentIdx = record.current_index || 0;
-                
                 const startAt = new Date(record.created_at).getTime();
-                const now = new Date().getTime();
-                const elapsed = isNaN(startAt) ? 0 : Math.floor((now - startAt) / 1000);
-                timeLeft = Math.max(0, 2400 - elapsed);
+                timeLeft = Math.max(0, 2400 - Math.floor((new Date().getTime() - startAt) / 1000));
             } else {
                 userAnswers = new Array(questions.length).fill(null);
                 marked = new Array(questions.length).fill(false);
@@ -229,24 +226,29 @@
                     user_answers: userAnswers, marked_for_review: marked
                 }]).select();
                 if (newRec) recordId = newRec[0].id;
-                timeLeft = 2400;
             }
-            setupPalette(); render(); runTimer();
-        } catch (e) { console.error(e); }
+
+            // 3. Setup UI and HIDE LOADING OVERLAY
+            setupPalette(); 
+            render(); 
+            runTimer();
+            document.getElementById('loadingOverlay').style.opacity = '0';
+            setTimeout(() => { document.getElementById('loadingOverlay').style.display = 'none'; }, 500);
+
+        } catch (e) { 
+            console.error(e);
+            alert("Connection error. Please refresh.");
+        }
     }
 
     async function autoSave() {
         if (!recordId) return;
         const statusEl = document.getElementById('syncStatus');
-        statusEl.classList.add('saving');
         statusEl.innerText = "● Syncing...";
         await supabaseClient.from('student_progress')
             .update({ user_answers: userAnswers, marked_for_review: marked, current_index: currentIdx })
             .eq('id', recordId);
-        setTimeout(() => {
-            statusEl.classList.remove('saving');
-            statusEl.innerText = "● Synced";
-        }, 600);
+        statusEl.innerText = "● Synced";
     }
 
     function setupPalette() {
@@ -275,7 +277,6 @@
         document.getElementById('qText').innerText = q.q;
         document.getElementById('optionsContainer').innerHTML = q.options.map((opt, i) => `
             <div class="option-sub-card ${userAnswers[currentIdx] === i ? 'selected' : ''}" onclick="select(${i})">
-                <div class="radio-btn"><div class="radio-inner"></div></div>
                 <span style="font-weight:700; color:var(--accent-blue); min-width: 20px;">${String.fromCharCode(65+i)}.</span> 
                 <span style="color: #334155; font-weight: 500;">${opt}</span>
             </div>
@@ -309,12 +310,7 @@
     function runTimer() {
         const el = document.getElementById('timer');
         const itv = setInterval(() => {
-            if(timeLeft <= 0) { 
-                clearInterval(itv); 
-                el.innerText = "00:00";
-                finalSubmit(true); 
-                return;
-            }
+            if(timeLeft <= 0) { clearInterval(itv); finalSubmit(true); return; }
             let m = Math.floor(timeLeft / 60);
             let s = timeLeft % 60;
             el.innerText = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
@@ -324,14 +320,12 @@
 
     async function finalSubmit(auto = false) {
         if(!auto && !confirm("Finish test?")) return;
-        
         let correct = 0;
         questions.forEach((q, i) => {
             const cIdx = q.options.findIndex(o => o.trim() === q.correct.trim());
             if(userAnswers[i] === cIdx) correct++;
         });
         const acc = Math.round((correct / questions.length) * 100);
-
         if (recordId) {
             await supabaseClient.from('student_progress')
                 .update({ accuracy: acc, user_answers: userAnswers, current_index: currentIdx })
