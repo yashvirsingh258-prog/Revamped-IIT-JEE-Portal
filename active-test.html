@@ -51,102 +51,69 @@
         .q-scroll-area { padding: 40px; flex: 1; overflow-y: auto; }
 
         .question-sub-card {
-            background: white;
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
-            margin-bottom: 25px;
+            background: white; padding: 30px; border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03); margin-bottom: 25px;
         }
 
         .option-sub-card {
-            background: white;
-            padding: 20px 25px;
-            border-radius: 15px;
-            margin-bottom: 12px;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border: 2px solid transparent;
-            display: flex; align-items: center;
+            background: white; padding: 20px 25px; border-radius: 15px;
+            margin-bottom: 12px; cursor: pointer; transition: all 0.3s;
+            border: 2px solid transparent; display: flex; align-items: center; gap: 15px;
         }
-        .option-sub-card:hover { 
-            transform: translateY(-3px); 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
-            border-color: var(--grey-hover);
+        .option-sub-card:hover { transform: translateY(-2px); border-color: var(--grey-hover); }
+        .option-sub-card.selected { border-color: var(--accent-blue); background: #f8faff; }
+
+        /* Custom Radio Styling */
+        .radio-btn {
+            width: 20px; height: 20px; border: 2px solid #cbd5e1;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; transition: all 0.2s;
         }
-        .option-sub-card.selected { 
-            border-color: var(--accent-blue); 
-            background: #f8faff;
-        }
+        .selected .radio-btn { border-color: var(--accent-blue); }
+        .radio-inner { width: 10px; height: 10px; border-radius: 50%; background: var(--accent-blue); display: none; }
+        .selected .radio-inner { display: block; }
 
         .palette-card {
-            width: 380px;
-            background: var(--glass);
-            backdrop-filter: blur(25px);
-            border-radius: 30px;
-            border: 1px solid var(--glass-border);
-            padding: 30px;
-            display: flex; flex-direction: column;
+            width: 380px; background: var(--glass); backdrop-filter: blur(25px);
+            border-radius: 30px; border: 1px solid var(--glass-border);
+            padding: 0; display: flex; flex-direction: column;
         }
 
-        .palette-grid {
-            display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px;
-            margin-top: 25px;
-            overflow-y: auto;
-        }
+        .palette-header { padding: 30px 30px 15px 30px; }
+        .palette-grid { padding: 0 30px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; flex: 1; overflow-y: auto; }
 
-        .p-circle {
-            width: 50px; height: 50px;
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-weight: 600; cursor: pointer;
-            background: var(--grey-btn); color: #64748b;
-            transition: all 0.3s ease; border: 2px solid transparent;
-        }
-        .p-circle:hover { transform: scale(1.1); filter: brightness(0.9); }
-        .p-circle.active { border-color: var(--accent-blue); background: white; border-width: 3px; }
-        .p-circle.answered { background: var(--correct); color: white; }
-        .p-circle.marked { background: var(--purple); color: white; }
-
-        /* Unified Alignment Styling */
+        /* Strict Alignment for Lines */
         .footer-nav, .legend-section {
-            height: 100px; /* Fixed height for symmetry */
+            height: 90px;
+            border-top: 1px solid var(--thin-line);
             display: flex;
             align-items: center;
-            border-top: 1px solid var(--thin-line);
         }
 
-        .footer-nav {
-            padding: 0 40px;
-            background: rgba(255,255,255,0.4);
-            justify-content: space-between;
-            border-bottom-left-radius: 30px;
-            border-bottom-right-radius: 30px;
-        }
-
+        .footer-nav { padding: 0 40px; justify-content: space-between; }
         .legend-section {
-            padding: 0;
-            display: grid; 
-            grid-template-columns: 1fr 1fr; 
-            gap: 10px; 
-            font-size: 0.8rem; 
-            font-weight: 500; 
-            color: #64748b;
+            padding: 0 30px; display: grid; grid-template-columns: 1fr 1fr; 
+            gap: 10px; font-size: 0.8rem; font-weight: 500; color: #64748b;
         }
 
         .btn {
             padding: 12px 24px; border-radius: 12px; border: none;
             font-weight: 600; cursor: pointer; transition: all 0.3s;
-            font-size: 0.85rem;
-            display: flex; align-items: center; gap: 8px;
+            font-size: 0.85rem; display: flex; align-items: center; gap: 8px;
         }
         .btn-grey { background: var(--grey-btn); color: #475569; }
-        .btn-grey:hover { background: var(--grey-hover); transform: translateY(-2px); }
-        
         .btn-finish { background: var(--navy); color: white; padding: 12px 35px; }
-        .btn-finish:hover { background: var(--navy-hover); transform: translateY(-3px); box-shadow: 0 8px 20px rgba(15, 23, 42, 0.3); }
+        .btn-finish:hover { background: var(--navy-hover); transform: translateY(-2px); box-shadow: 0 8px 20px rgba(15, 23, 42, 0.3); }
 
-        /* Timer in Navy */
         #timer { font-size: 1.6rem; font-weight: 800; color: var(--navy); font-variant-numeric: tabular-nums; }
+        
+        .p-circle {
+            width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center;
+            justify-content: center; font-weight: 600; cursor: pointer; background: var(--grey-btn); color: #64748b;
+        }
+        .p-circle.active { border: 3px solid var(--accent-blue); background: white; color: var(--accent-blue); }
+        .p-circle.answered { background: var(--correct); color: white; }
+        .p-circle.marked { background: var(--purple); color: white; }
     </style>
 </head>
 <body>
@@ -161,7 +128,7 @@
         <div class="q-scroll-area">
             <p id="qLabel" style="color: var(--accent-blue); font-weight: 800; font-size: 0.75rem; margin-bottom: 12px; letter-spacing: 2px;">QUESTION 1</p>
             <div class="question-sub-card">
-                <div id="qText" style="font-size: 1.35rem; color: #1e293b; line-height: 1.5; font-weight: 500;">Loading...</div>
+                <div id="qText" style="font-size: 1.35rem; color: #1e293b; line-height: 1.5;">Loading...</div>
             </div>
             <div id="optionsContainer"></div>
         </div>
@@ -178,7 +145,9 @@
     </div>
 
     <div class="palette-card">
-        <h3 style="font-size: 1.2rem; color: var(--navy); border-bottom: 2px solid #f1f5f9; padding-bottom: 15px; font-weight: 700;">Question Palette</h3>
+        <div class="palette-header">
+            <h3 style="font-size: 1.2rem; color: var(--navy); border-bottom: 2px solid #f1f5f9; padding-bottom: 15px; font-weight: 700;">Question Palette</h3>
+        </div>
         <div class="palette-grid" id="paletteGrid"></div>
         
         <div class="legend-section">
@@ -198,7 +167,7 @@
     let currentIdx = 0;
     let userAnswers = [];
     let marked = [];
-    let timeLeft = 2400; // Updated to 40 Minutes
+    let timeLeft = 2400; // 40 minutes exactly
     const testName = localStorage.getItem('currentTestName');
 
     async function start() {
@@ -230,12 +199,15 @@
         const q = questions[currentIdx];
         document.getElementById('qLabel').innerText = `QUESTION ${currentIdx + 1}`;
         document.getElementById('qText').innerText = q.q;
+        
         document.getElementById('optionsContainer').innerHTML = q.options.map((opt, i) => `
             <div class="option-sub-card ${userAnswers[currentIdx] === i ? 'selected' : ''}" onclick="select(${i})">
-                <span style="font-weight:800; margin-right:20px; color:var(--accent-blue);">${String.fromCharCode(65+i)}</span> 
-                <span>${opt}</span>
+                <div class="radio-btn"><div class="radio-inner"></div></div>
+                <span style="font-weight:700; color:var(--accent-blue); min-width: 20px;">${String.fromCharCode(65+i)}.</span> 
+                <span style="color: #334155;">${opt}</span>
             </div>
         `).join('');
+
         updatePaletteUI();
         if(window.MathJax) MathJax.typesetPromise();
     }
@@ -289,6 +261,7 @@
         }]);
         window.location.href = 'performance.html';
     }
+
     start();
 </script>
 </body>
