@@ -36,7 +36,7 @@
         .opt { padding: 18px; border-radius: 10px; border: 2px solid #e2e8f0; background: white; display: flex; align-items: center; position: relative; }
         .opt-correct { border-color: var(--correct-green) !important; background: #f0fdf4 !important; color: #065f46 !important; }
         .opt-user-wrong { border-color: var(--wrong-red) !important; background: #fef2f2 !important; color: #991b1b !important; }
-        .solution-box { display: none; position: absolute; bottom: 105%; left: 0; width: 100%; min-width: 450px; background: white; border: 2px solid var(--correct-green); padding: 20px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); z-index: 100; color: #333; }
+        .solution-box { display: none; position: absolute; bottom: 105%; left: 0; width: 100%; min-width: 350px; background: white; border: 2px solid var(--correct-green); padding: 20px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); z-index: 100; color: #333; }
         .opt-correct:hover .solution-box { display: block; }
         .badge { padding: 5px 12px; border-radius: 6px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; }
         .bg-red { background: #fee2e2; color: #991b1b; }
@@ -46,9 +46,9 @@
         .history-table th { background: #f1f5f9; padding: 15px; text-align: left; font-size: 0.8rem; color: #64748b; text-transform: uppercase; }
         .history-table td { padding: 15px; border-bottom: 1px solid #f1f5f9; font-size: 0.9rem; }
 
-        /* DIAGNOSTIC STYLES */
-        .diag-container { margin-top: 15px; border-top: 2px dashed #ccc; padding-top: 10px; font-family: monospace; font-size: 11px; color: #d63031; background: #fff5f5; padding: 10px; border-radius: 8px; }
-        .diag-label { font-weight: bold; color: #2d3436; }
+        /* DIAGNOSTIC CSS */
+        .diag-box { margin-top: 15px; padding: 10px; background: #2d3436; color: #00ff00; font-family: monospace; font-size: 11px; border-radius: 5px; border-left: 4px solid #fab1a0; }
+        .diag-title { color: #fab1a0; font-weight: bold; margin-bottom: 5px; display: block; }
     </style>
 </head>
 <body>
@@ -94,29 +94,31 @@
             else { document.querySelectorAll('.tab-btn')[1].classList.add('active-tab'); document.getElementById('historyTab').classList.add('active-content'); loadPastPerformances(); }
         }
 
-        // DIAGNOSTIC VERSION: Prints raw vs cleaned output
         function formatStepSolution(solText) {
             if (!solText) return "No explanation.";
-            
-            let diagRaw = solText;
-            let diagCleaned = "";
 
-            const steps = solText.split(/\\n|\n/).map((line, i) => {
+            // --- DIAGNOSTIC BLOCK ---
+            const rawTrace = solText; 
+            // ------------------------
+
+            const lines = solText.split(/\\n|\n/);
+            const formatted = lines.map((line, i) => {
                 const clean = line.trim();
                 if(!clean) return '';
+                // Non-destructive: We keep the math part ($...$) exactly as is
                 const body = clean.replace(/^Step\s*\d+\s*:?\s*/i, '');
-                diagCleaned += `[Step ${i+1} Body]: ${body} | `;
                 return `<div style="margin-bottom:8px;"><b style="color:var(--primary-blue)">Step ${i+1}:</b> ${body}</div>`;
             }).join('');
 
-            const diagnostics = `
-                <div class="diag-container">
-                    <div><span class="diag-label">DB_RAW:</span> ${diagRaw.replace(/$/g, '<span>$</span>')}</div>
-                    <div style="margin-top:5px;"><span class="diag-label">FINAL_BODY:</span> ${diagCleaned}</div>
+            // Diagnostic Output attached to the bottom of the box
+            const diagOutput = `
+                <div class="diag-box">
+                    <span class="diag-title">[DIAGNOSTIC TRACE]</span>
+                    <b>DB_INPUT:</b> ${rawTrace.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
                 </div>
             `;
 
-            return steps + diagnostics;
+            return formatted + diagOutput;
         }
 
         async function loadPerformance() {
@@ -149,7 +151,10 @@
                         ${q.options.map((opt, i) => {
                             let cls = 'opt';
                             let sol = '';
-                            if(i === cIdx) { cls += ' opt-correct'; sol = `<div class="solution-box"><b>EXPLANATION</b><br>${formatStepSolution(q.solution)}</div>`; }
+                            if(i === cIdx) { 
+                                cls += ' opt-correct'; 
+                                sol = `<div class="solution-box"><b>EXPLANATION</b><br>${formatStepSolution(q.solution)}</div>`; 
+                            }
                             if(parseInt(uAns) === i && i !== cIdx) cls += ' opt-user-wrong';
                             return `<div class="${cls}"><span style="margin-right:10px; opacity:0.5">${String.fromCharCode(65+i)}.</span>${opt}${sol}</div>`;
                         }).join('')}
@@ -161,7 +166,7 @@
             document.getElementById('statAttempted').innerText = attempted;
             document.getElementById('statAccuracy').innerText = `${attempted > 0 ? Math.round((correct/attempted)*100) : 0}%`;
             
-            // MATHJAX TRIGGER
+            // Critical: Re-run MathJax after DOM injection
             if (window.MathJax && MathJax.typesetPromise) {
                 MathJax.typesetPromise();
             }
