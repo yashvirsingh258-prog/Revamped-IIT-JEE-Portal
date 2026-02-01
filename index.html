@@ -72,18 +72,26 @@
         .btn-white:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
 
         /* Modified Rank/Stat Sidebar Card for Subject Flipping */
+        /* Modified Rank Card: No hover, snappy transition only */
         .rank-card { 
             background: white; border: 1px solid #e2e8f0; border-radius: 24px; padding: 40px;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
             text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.02);
-            cursor: pointer; transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
             user-select: none;
+            transition: opacity 0.15s ease, transform 0.15s ease; /* Split second timing */
         }
-        .rank-card:active { transform: scale(0.98); }
-        .rank-card .val { font-size: 3.5rem; font-weight: 800; color: #0b4a8f; line-height: 1; }
-        .rank-card .lab { font-size: 0.8rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px; }
-        .rank-card .sub-label { font-size: 0.8rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 2px; font-weight: 600; margin-bottom: 15px; }
-        .rank-trend { font-size: 0.9rem; color: #10b981; margin-top: 15px; font-weight: 600; }
+        
+        /* The "Snap" effect when clicking */
+        .card-updating {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+
+.rank-card .val { font-size: 3.5rem; font-weight: 800; color: #0b4a8f; line-height: 1; }
+.rank-card .lab { font-size: 0.8rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px; }
+.rank-card .sub-label { font-size: 0.8rem; color: #0b4a8f; text-transform: uppercase; letter-spacing: 2px; font-weight: 700; margin-bottom: 15px; }
+.rank-trend { font-size: 0.9rem; color: #10b981; margin-top: 15px; font-weight: 600; }
 
         .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; }
         .stat-box { 
@@ -155,19 +163,25 @@
             "Chemistry": { val: "92.1", trend: "0.8%" }
         };
 
-        function rotateSubject() {
-            currentSubjectIndex = (currentSubjectIndex + 1) % subjects.length;
-            const sub = subjects[currentSubjectIndex];
-            
-            // UI Update with subject specifics
-            document.getElementById('rank-subject').innerText = sub;
-            document.getElementById('rank-val').innerText = subjectData[sub].val;
-            document.getElementById('rank-up').innerText = `↑ ${subjectData[sub].trend} percentile up this week`;
-            
-            // Visual feedback
+       function rotateSubject() {
             const card = document.getElementById('main-rank-card');
-            card.style.transform = "rotateY(10deg)";
-            setTimeout(() => card.style.transform = "rotateY(0deg)", 150);
+            
+            // 1. Start the transition (fade out/scale down)
+            card.classList.add('card-updating');
+        
+            // 2. Wait 150ms to swap data mid-transition
+            setTimeout(() => {
+                currentSubjectIndex = (currentSubjectIndex + 1) % subjects.length;
+                const sub = subjects[currentSubjectIndex];
+                
+                // Update Content
+                document.getElementById('rank-subject').innerText = sub;
+                document.getElementById('rank-val').innerText = subjectData[sub].val;
+                document.getElementById('rank-up').innerText = `↑ ${subjectData[sub].trend} percentile up this week`;
+                
+                // 3. End transition (fade back in)
+                card.classList.remove('card-updating');
+            }, 150); 
         }
 
         async function handleLogout() {
