@@ -7,7 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] } };
+        window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$']] } };
     </script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <style>
@@ -19,59 +19,61 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: var(--bg-light); display: flex; min-height: 100vh; }
         
-        /* Sidebar - Strict Warning: No Color Changes */
-        nav { width: var(--sidebar-width); background: var(--primary-blue); color: white; position: fixed; height: 100vh; padding: 40px 0; z-index: 10; }
+        /* SIDEBAR - STRICT NO CHANGE ZONE */
+        nav { width: var(--sidebar-width); background: var(--primary-blue); color: white; position: fixed; height: 100vh; padding: 40px 0; z-index: 100; }
         .nav-link { display: block; padding: 15px 30px; text-decoration: none; color: rgba(255,255,255,0.7); border-left: 4px solid transparent; transition: 0.3s; }
         .nav-link:hover { background: rgba(255,255,255,0.1); color: white; }
         .active-link { color: white; background: rgba(255,255,255,0.15); border-left: 4px solid white; }
 
         main { margin-left: var(--sidebar-width); flex: 1; padding: 40px 60px; width: calc(100% - var(--sidebar-width)); }
 
-        /* Gemini AI Section Styling */
-        .gemini-card {
-            background: white; border-radius: 16px; border: 1px solid var(--light-border);
-            padding: 25px; margin-bottom: 30px; position: relative; overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-        }
-        .gemini-card::before {
-            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px;
-            background: var(--gemini-gradient);
-        }
-        .gemini-header { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; }
-        .gemini-sparkle { color: #4285f4; font-size: 1.2rem; }
-        .gemini-title { font-weight: 700; background: var(--gemini-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-
-        /* General Box Styling */
-        .stat-card, .q-row, .history-card { 
-            background: white; border: 1px solid var(--light-border); border-radius: 12px; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 20px;
-        }
-        .stat-card { padding: 20px; text-align: center; }
-        .stat-val { display: block; font-size: 1.6rem; font-weight: 700; color: var(--primary-blue); }
-
-        /* Tabs and Borders */
+        /* TAB SYSTEM */
         .tabs-container { display: flex; gap: 20px; border-bottom: 2px solid var(--light-border); margin-bottom: 30px; }
         .tab { padding: 12px 24px; cursor: pointer; font-weight: 600; color: #64748b; transition: 0.3s; border-bottom: 3px solid transparent; }
         .tab:hover { color: var(--primary-blue); background: #f1f5f9; }
         .tab.active { color: var(--primary-blue); border-bottom-color: var(--primary-blue); }
 
-        .q-row { padding: 30px; border-left: 6px solid #cbd5e1; transition: 0.3s; }
+        /* GEMINI CARD */
+        .gemini-card {
+            background: white; border-radius: 16px; border: 1px solid var(--light-border);
+            padding: 25px; margin-bottom: 30px; position: relative; overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        .gemini-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: var(--gemini-gradient); }
+        .gemini-title { font-weight: 800; background: var(--gemini-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 0.9rem; letter-spacing: 1px; }
+
+        /* BOX STYLING */
+        .stat-card, .q-row { background: white; border: 1px solid var(--light-border); border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .stat-card { padding: 20px; text-align: center; }
+        .stat-val { display: block; font-size: 1.6rem; font-weight: 700; color: var(--primary-blue); }
+
+        /* QUESTION ROWS & BORDERS */
+        .q-row { padding: 30px; border-left: 8px solid #cbd5e1; transition: 0.3s ease; }
         .status-correct { border-left-color: var(--correct-green) !important; }
         .status-incorrect { border-left-color: var(--wrong-red) !important; }
         .status-skipped { border-left-color: var(--skipped-blue) !important; }
 
-        .solution-box { display: none; margin-top: 20px; padding: 20px; background: #f8fafc; border-left: 4px solid var(--correct-green); }
+        /* BADGES */
+        .meta-badge { padding: 4px 10px; border-radius: 4px; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; margin-right: 8px; border: 1px solid #e2e8f0; }
+        .type-badge { background: #f1f5f9; color: #475569; }
+        .diff-badge { background: #fff7ed; color: #c2410c; }
+
+        .option-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+        .opt { padding: 15px; border-radius: 10px; border: 1.5px solid var(--light-border); font-size: 0.95rem; }
+        .opt-correct { border-color: var(--correct-green); background: #f0fdf4; }
+        .opt-wrong { border-color: var(--wrong-red); background: #fef2f2; }
+
+        /* SOLUTION HOVER */
+        .solution-box { display: none; margin-top: 20px; padding: 20px; background: #f8fafc; border-radius: 8px; border-left: 4px solid var(--correct-green); line-height: 1.8; color: #334155; }
         .q-row:hover .solution-box { display: block; }
 
-        .meta-badge { padding: 4px 10px; border-radius: 4px; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; margin-right: 8px; border: 1px solid #e2e8f0; }
-        
         #loadingOverlay { position: fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:999; display:flex; align-items:center; justify-content:center; }
         .hidden { display: none; }
     </style>
 </head>
 <body>
 
-<div id="loadingOverlay"><b>GENERATING PERFORMANCE REPORT...</b></div>
+<div id="loadingOverlay"><b>SYNCING DASHBOARD...</b></div>
 
 <nav>
     <div style="padding: 0 30px; margin-bottom: 40px;"><h2>JEE Portal</h2></div>
@@ -96,23 +98,18 @@
         </div>
 
         <div class="gemini-card">
-            <div class="gemini-header">
-                <span class="gemini-sparkle">✦</span>
-                <span class="gemini-title">GEMINI AI INSIGHTS</span>
-            </div>
-            <div id="aiAnalysisText" style="font-size: 0.95rem; line-height: 1.6; color: #334155;">
-                Analyzing your conceptual patterns...
-            </div>
+            <div class="gemini-title">✦ GEMINI AI ANALYSIS</div>
+            <div id="aiAnalysisText" style="margin-top:10px; font-size:0.95rem; line-height:1.6;">Analyzing performance patterns...</div>
         </div>
 
         <div id="reviewList"></div>
     </div>
 
     <div id="viewHistory" class="hidden">
-        <div class="history-card">
-            <table style="width: 100%; border-collapse: collapse; text-align: left;">
-                <thead style="background: #f8fafc;">
-                    <tr><th style="padding:15px;">Date</th><th style="padding:15px;">Score</th><th style="padding:15px;">Accuracy</th></tr>
+        <div class="stat-card" style="text-align:left;">
+            <table style="width:100%; border-collapse:collapse;">
+                <thead style="background:#f8fafc; border-bottom:1px solid #eee;">
+                    <tr><th style="padding:15px;">Attempt Date</th><th style="padding:15px;">Accuracy</th><th style="padding:15px;">Action</th></tr>
                 </thead>
                 <tbody id="historyBody"></tbody>
             </table>
@@ -125,29 +122,28 @@
     const supabaseKey = 'sb_publishable_V-KT1zvp-73dqHHvmx3fNA_iHw53TCl'; 
     const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-    async function loadData() {
+    async function init() {
         try {
             const tName = localStorage.getItem('currentTestName');
             const { data: { session } } = await supabaseClient.auth.getSession();
-            if(!session) return;
+            if(!session) { window.location.href='login.html'; return; }
             const username = session.user.email.split('@')[0];
 
-            const [qRes, pHistory] = await Promise.all([
+            const [qRes, pRes] = await Promise.all([
                 supabaseClient.from('questions_table').select('*').eq('test_name', tName).single(),
-                supabaseClient.from('student_progress').select('*').eq('username', username).eq('subject', tName).order('created_at', { ascending: false })
+                supabaseClient.from('student_progress').select('*').eq('username', username).eq('subject', tName).order('created_at', {ascending: false})
             ]);
 
-            if (qRes.data && pHistory.data) {
-                renderCurrent(qRes.data.question_data, pHistory.data[0], tName);
-                renderHistory(pHistory.data);
-                generateAIInsights(qRes.data.question_data, pHistory.data[0]);
+            if (qRes.data && pRes.data && pRes.data.length > 0) {
+                renderUI(qRes.data.question_data, pRes.data[0], tName);
+                renderHistory(pRes.data);
             }
             document.getElementById('loadingOverlay').style.display = 'none';
-        } catch (err) { console.error(err); }
+        } catch (e) { console.error(e); }
     }
 
-    function renderCurrent(questions, progress, testName) {
-        document.getElementById('testTitle').innerText = testName;
+    function renderUI(questions, progress, tName) {
+        document.getElementById('testTitle').innerText = tName;
         let html = '';
         let stats = { correct: 0, attempted: 0 };
 
@@ -158,51 +154,60 @@
             const isSkipped = userAns === null || userAns === undefined;
 
             if(!isSkipped) { stats.attempted++; if(isCorrect) stats.correct++; }
-            const statusClass = isSkipped ? 'status-skipped' : (isCorrect ? 'status-correct' : 'status-incorrect');
+            const sClass = isSkipped ? 'status-skipped' : (isCorrect ? 'status-correct' : 'status-incorrect');
+            
+            // Fixed Solution Steps Rendering
+            const steps = q.solution ? q.solution.split('\n').map(s => `<div>${s}</div>`).join('') : 'No solution steps provided.';
 
             html += `
-            <div class="q-row ${statusClass}">
-                <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-                    <div><span class="meta-badge">${q.type || 'MCQ'}</span><span class="meta-badge" style="color:#c2410c;">${q.difficulty || 'Medium'}</span></div>
-                    <span style="font-weight:800; color:var(--primary-blue)">Q${idx+1}</span>
+            <div class="q-row ${sClass}">
+                <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
+                    <div>
+                        <span class="meta-badge type-badge">${q.type || 'Single Choice'}</span>
+                        <span class="meta-badge diff-badge">${q.difficulty || 'Medium'}</span>
+                    </div>
+                    <span style="font-weight:800; color:var(--primary-blue); font-size:0.8rem;">QUESTION ${idx+1}</span>
                 </div>
-                <div style="margin-bottom:15px; font-weight:500;">${q.q}</div>
-                <div class="option-grid">${q.options.map((opt, i) => {
-                    let cls = 'opt';
-                    if(i === correctIdx) cls += ' opt-correct';
-                    if(!isSkipped && parseInt(userAns) === i && i !== correctIdx) cls += ' opt-wrong';
-                    return `<div class="${cls}"><b>${String.fromCharCode(65+i)}.</b> ${opt}</div>`;
-                }).join('')}</div>
-                <div class="solution-box"><div style="font-weight:700; color:var(--correct-green); margin-bottom:10px;">Solution Steps:</div>${q.solution || 'No solution available.'}</div>
+                <div style="margin-bottom:20px; font-weight:600; font-size:1.05rem;">${q.q}</div>
+                <div class="option-grid">
+                    ${q.options.map((opt, i) => {
+                        let cls = 'opt';
+                        if(i === correctIdx) cls += ' opt-correct';
+                        if(!isSkipped && parseInt(userAns) === i && i !== correctIdx) cls += ' opt-wrong';
+                        return `<div class="${cls}"><b>${String.fromCharCode(65+i)}.</b> ${opt}</div>`;
+                    }).join('')}
+                </div>
+                <div class="solution-box">
+                    <div style="font-weight:700; color:var(--correct-green); margin-bottom:10px;">Step-wise Explanation:</div>
+                    ${steps}
+                </div>
             </div>`;
         });
 
-        document.getElementById('statScore').innerText = (stats.correct * 4) - (stats.attempted - stats.correct);
-        document.getElementById('statAccuracy').innerText = `${stats.attempted > 0 ? Math.round((stats.correct/stats.attempted)*100) : 0}%`;
+        // Update Stats
+        const finalScore = (stats.correct * 4) - (stats.attempted - stats.correct);
+        const accuracy = stats.attempted > 0 ? Math.round((stats.correct/stats.attempted)*100) : 0;
+        
+        document.getElementById('statScore').innerText = finalScore;
+        document.getElementById('statAccuracy').innerText = accuracy + '%';
         document.getElementById('statAttempted').innerText = stats.attempted;
         document.getElementById('statWrong').innerText = stats.attempted - stats.correct;
         document.getElementById('reviewList').innerHTML = html;
+
+        // Gemini Insight Logic
+        let verdict = accuracy > 80 ? "Excellent mastery. Focus on speed now." : accuracy > 50 ? "Good progress. Revise incorrect topics." : "Conceptual gaps found. Re-read the chapters.";
+        document.getElementById('aiAnalysisText').innerHTML = `<b>Verdict:</b> ${verdict} <br><b>Recommendation:</b> Focus on ${stats.attempted - stats.correct} incorrect questions.`;
+
         if(window.MathJax) MathJax.typesetPromise();
-    }
-
-    function generateAIInsights(questions, progress) {
-        const accuracy = parseInt(document.getElementById('statAccuracy').innerText);
-        const incorrect = parseInt(document.getElementById('statWrong').innerText);
-        let verdict = "";
-
-        if (accuracy >= 90) verdict = "Excellent conceptual mastery. Focus on reducing time per question to gain a competitive edge.";
-        else if (accuracy >= 70) verdict = "Strong performance. Most errors seem to be minor calculation slips. Review the incorrect questions carefully.";
-        else verdict = "Fundamental gaps identified. Focus on core concepts before attempting the next mock test.";
-
-        document.getElementById('aiAnalysisText').innerHTML = `
-            <p><b>Mastery Verdict:</b> ${verdict}</p>
-            <p style="margin-top:10px;"><b>Action Item:</b> You missed ${incorrect} questions. Based on your pattern, I recommend re-solving the incorrect items without looking at the solutions first.</p>
-        `;
     }
 
     function renderHistory(attempts) {
         document.getElementById('historyBody').innerHTML = attempts.map(att => `
-            <tr><td style="padding:15px;">${new Date(att.created_at).toLocaleDateString()}</td><td style="padding:15px; font-weight:700;">${att.accuracy}%</td><td style="padding:15px;">Completed</td></tr>
+            <tr style="border-bottom:1px solid #f1f5f9;">
+                <td style="padding:15px;">${new Date(att.created_at).toLocaleDateString()}</td>
+                <td style="padding:15px; font-weight:700;">${att.accuracy}%</td>
+                <td style="padding:15px;"><button class="nav-link" style="color:var(--primary-blue); border:none; background:none; cursor:pointer; padding:0;">View</button></td>
+            </tr>
         `).join('');
     }
 
@@ -213,7 +218,7 @@
         document.getElementById('viewHistory').classList.toggle('hidden', type !== 'history');
     }
 
-    loadData();
+    init();
 </script>
 </body>
 </html>
