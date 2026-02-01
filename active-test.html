@@ -3,149 +3,177 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JEE Portal | Premium Exam Engine</title>
+    <title>JEE Portal | Elite Exam Interface</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] } };</script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <style>
         :root {
-            --glass: rgba(255, 255, 255, 0.75);
-            --glass-border: rgba(255, 255, 255, 0.4);
-            --navy: #0b1e3b;
-            --navy-hover: #152e52;
-            --grey-btn: #e5e7eb;
-            --grey-hover: #d1d5db;
+            --glass: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.5);
+            --navy: #0f172a;
+            --navy-hover: #1e293b;
+            --grey-btn: #f1f5f9;
+            --grey-hover: #e2e8f0;
             --correct: #10b981;
-            --warning: #ef4444;
-            --purple: #a855f7;
+            --warning: #f43f5e;
+            --purple: #8b5cf6;
+            --accent-blue: #3b82f6;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
             font-family: 'Inter', sans-serif; 
-            background: linear-gradient(135deg, #e0e7ff 0%, #f1f5f9 100%);
+            background: radial-gradient(circle at top left, #e0e7ff, #f8fafc);
             height: 100vh; display: flex; flex-direction: column; overflow: hidden;
         }
 
         header {
             background: var(--glass);
-            backdrop-filter: blur(15px);
+            backdrop-filter: blur(20px);
             border-bottom: 1px solid var(--glass-border);
             padding: 15px 50px;
             display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03);
+            z-index: 10;
         }
 
         .main-layout { display: flex; flex: 1; padding: 25px; gap: 25px; overflow: hidden; }
 
-        .q-card {
+        .test-engine {
             flex: 1;
             background: var(--glass);
-            backdrop-filter: blur(20px);
-            border-radius: 24px;
+            backdrop-filter: blur(25px);
+            border-radius: 30px;
             border: 1px solid var(--glass-border);
             display: flex; flex-direction: column;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.04);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.05);
         }
 
-        .q-body { padding: 40px; flex: 1; overflow-y: auto; }
+        .q-scroll-area { padding: 40px; flex: 1; overflow-y: auto; }
 
-        .option {
-            background: rgba(255,255,255,0.4);
-            border: 2px solid transparent;
-            border-radius: 12px;
-            padding: 18px 25px;
-            margin-top: 12px;
+        .question-sub-card {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+            margin-bottom: 25px;
+            border: 1px solid rgba(0,0,0,0.02);
+        }
+
+        .option-sub-card {
+            background: white;
+            padding: 20px 25px;
+            border-radius: 15px;
+            margin-bottom: 12px;
             cursor: pointer;
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid transparent;
+            display: flex; align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
         }
-        .option:hover { background: white; transform: translateX(8px); border-color: #94a3b8; }
-        .option.selected { background: white; border-color: #3b82f6; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.15); }
+        .option-sub-card:hover { 
+            transform: translateY(-3px) scale(1.01); 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+            border-color: var(--grey-hover);
+        }
+        .option-sub-card.selected { 
+            border-color: var(--accent-blue); 
+            background: #f8faff;
+            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.1);
+        }
 
         .palette-card {
-            width: 360px;
+            width: 380px;
             background: var(--glass);
-            backdrop-filter: blur(20px);
-            border-radius: 24px;
+            backdrop-filter: blur(25px);
+            border-radius: 30px;
             border: 1px solid var(--glass-border);
-            padding: 25px;
+            padding: 30px;
             display: flex; flex-direction: column;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.05);
         }
 
         .palette-grid {
-            display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px;
-            margin-top: 20px;
+            display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px;
+            margin-top: 25px;
         }
 
         .p-circle {
-            width: 48px; height: 48px;
+            width: 50px; height: 50px;
             border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
             font-weight: 600; cursor: pointer;
-            background: var(--grey-btn); color: #4b5563;
-            transition: all 0.2s ease; border: 2px solid transparent;
+            background: var(--grey-btn); color: #64748b;
+            transition: all 0.3s ease; border: 2px solid transparent;
         }
-        .p-circle:hover { transform: scale(1.15); filter: brightness(0.95); }
-        .p-circle.active { border-color: #3b82f6; background: white; border-width: 3px; }
-        .p-circle.answered { background: var(--correct); color: white; }
-        .p-circle.visited { background: var(--warning); color: white; }
-        .p-circle.marked { background: var(--purple); color: white; }
+        .p-circle:hover { transform: scale(1.1); filter: brightness(0.9); }
+        .p-circle.active { border-color: var(--accent-blue); background: white; border-width: 3px; color: var(--accent-blue); }
+        .p-circle.answered { background: var(--correct); color: white; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); }
+        .p-circle.visited { background: var(--warning); color: white; box-shadow: 0 4px 12px rgba(244, 63, 94, 0.3); }
+        .p-circle.marked { background: var(--purple); color: white; box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3); }
 
         .footer-nav {
-            padding: 20px 40px;
-            background: rgba(255,255,255,0.3);
+            padding: 25px 40px;
+            background: rgba(255,255,255,0.4);
             border-top: 1px solid var(--glass-border);
-            display: flex; justify-content: space-between;
+            display: flex; justify-content: space-between; align-items: center;
         }
 
         .btn {
-            padding: 12px 24px; border-radius: 10px; border: none;
-            font-weight: 600; cursor: pointer; transition: all 0.2s;
-            font-size: 0.85rem;
+            padding: 14px 28px; border-radius: 14px; border: none;
+            font-weight: 600; cursor: pointer; transition: all 0.3s;
+            font-size: 0.9rem;
         }
-        .btn-grey { background: var(--grey-btn); color: #374151; }
-        .btn-grey:hover { background: var(--grey-hover); transform: translateY(-2px); }
+        .btn-grey { background: var(--grey-btn); color: #475569; }
+        .btn-grey:hover { background: var(--grey-hover); transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
         
-        .btn-finish { background: var(--navy); color: white; padding: 12px 35px; }
-        .btn-finish:hover { background: var(--navy-hover); box-shadow: 0 8px 20px rgba(11, 30, 59, 0.4); transform: translateY(-2px); }
+        .btn-finish { background: var(--navy); color: white; padding: 14px 40px; }
+        .btn-finish:hover { background: var(--navy-hover); transform: translateY(-3px); box-shadow: 0 10px 25px rgba(15, 23, 42, 0.3); }
 
-        #timer { font-size: 1.4rem; font-weight: 700; color: var(--navy); }
+        #timer { font-size: 1.6rem; font-weight: 800; color: var(--navy); font-variant-numeric: tabular-nums; }
     </style>
 </head>
 <body>
 
 <header>
-    <h2 id="testTitle" style="color: var(--navy);">--</h2>
-    <div id="timer">00:00</div>
+    <h2 id="testTitle" style="color: var(--navy); font-weight: 800; letter-spacing: -1px;">--</h2>
+    <div id="timer">40:00</div>
 </header>
 
 <div class="main-layout">
-    <div class="q-card">
-        <div class="q-body">
-            <p id="qLabel" style="color: #6366f1; font-weight: 700; font-size: 0.8rem; margin-bottom: 10px; letter-spacing: 1px;">QUESTION 1</p>
-            <div id="qText" style="font-size: 1.35rem; color: #1e293b; margin-bottom: 30px; line-height: 1.6;">Loading...</div>
+    <div class="test-engine">
+        <div class="q-scroll-area">
+            <p id="qLabel" style="color: var(--accent-blue); font-weight: 800; font-size: 0.75rem; margin-bottom: 12px; letter-spacing: 2px;">QUESTION 1</p>
+            
+            <div class="question-sub-card">
+                <div id="qText" style="font-size: 1.4rem; color: #1e293b; line-height: 1.5; font-weight: 500;">Loading...</div>
+            </div>
+
             <div id="optionsContainer"></div>
         </div>
         
         <div class="footer-nav">
-            <div style="display:flex; gap:10px;">
+            <div style="display:flex; gap:12px;">
                 <button class="btn btn-grey" onclick="changeQ(-1)">Previous</button>
                 <button class="btn btn-grey" onclick="clearAns()">Clear</button>
                 <button class="btn btn-grey" onclick="markReview()">Review</button>
-                <button class="btn btn-grey" style="background:#3b82f6; color:white;" onclick="changeQ(1)">Next</button>
+                <button class="btn btn-grey" style="background:var(--accent-blue); color:white;" onclick="changeQ(1)">Next</button>
             </div>
             <button class="btn btn-finish" onclick="finalSubmit()">Finish Test</button>
         </div>
     </div>
 
     <div class="palette-card">
-        <h3 style="font-size: 1.1rem; color: var(--navy); border-bottom: 1px solid #e2e8f0; padding-bottom: 10px;">Question Palette</h3>
+        <h3 style="font-size: 1.2rem; color: var(--navy); border-bottom: 2px solid #f1f5f9; padding-bottom: 15px; font-weight: 700;">Question Palette</h3>
         <div class="palette-grid" id="paletteGrid"></div>
-        <div style="margin-top: auto; padding-top: 20px; font-size: 0.75rem; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-            <div style="display:flex; align-items:center; gap:6px;"><span style="width:10px;height:10px;border-radius:50%;background:var(--correct)"></span> Answered</div>
-            <div style="display:flex; align-items:center; gap:6px;"><span style="width:10px;height:10px;border-radius:50%;background:var(--purple)"></span> Review</div>
-            <div style="display:flex; align-items:center; gap:6px;"><span style="width:10px;height:10px;border-radius:50%;background:var(--warning)"></span> Skipped</div>
-            <div style="display:flex; align-items:center; gap:6px;"><span style="width:10px;height:10px;border-radius:50%;background:var(--grey-btn)"></span> Not Visited</div>
+        
+        <div style="margin-top: auto; padding-top: 30px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; font-size: 0.8rem; font-weight: 500; color: #64748b;">
+            <div style="display:flex; align-items:center; gap:8px;"><span style="width:12px;height:12px;border-radius:50%;background:var(--correct)"></span> Answered</div>
+            <div style="display:flex; align-items:center; gap:8px;"><span style="width:12px;height:12px;border-radius:50%;background:var(--purple)"></span> Review</div>
+            <div style="display:flex; align-items:center; gap:8px;"><span style="width:12px;height:12px;border-radius:50%;background:var(--warning)"></span> Skipped</div>
+            <div style="display:flex; align-items:center; gap:8px;"><span style="width:12px;height:12px;border-radius:50%;background:var(--grey-btn)"></span> Not Visited</div>
         </div>
     </div>
 </div>
@@ -160,7 +188,7 @@
     let userAnswers = [];
     let visited = [];
     let marked = [];
-    let timeLeft = 3600;
+    let timeLeft = 2400; // Timer set to 40 minutes (40 * 60)
     const testName = localStorage.getItem('currentTestName');
 
     async function start() {
@@ -170,7 +198,6 @@
             userAnswers = new Array(questions.length).fill(null);
             visited = new Array(questions.length).fill(false);
             marked = new Array(questions.length).fill(false);
-            
             document.getElementById('testTitle').innerText = testName;
             setupPalette();
             render();
@@ -197,8 +224,9 @@
         document.getElementById('qText').innerText = q.q;
         
         document.getElementById('optionsContainer').innerHTML = q.options.map((opt, i) => `
-            <div class="option ${userAnswers[currentIdx] === i ? 'selected' : ''}" onclick="select(${i})">
-                <span style="font-weight:700; margin-right:15px; color:#3b82f6; font-size:0.9rem;">${String.fromCharCode(65+i)}</span> ${opt}
+            <div class="option-sub-card ${userAnswers[currentIdx] === i ? 'selected' : ''}" onclick="select(${i})">
+                <span style="font-weight:800; margin-right:20px; color:var(--accent-blue); width: 25px;">${String.fromCharCode(65+i)}</span> 
+                <span style="font-weight: 500; color: #334155;">${opt}</span>
             </div>
         `).join('');
 
