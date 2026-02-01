@@ -35,7 +35,6 @@
             100% { color: #94a3b8; }
         }
 
-        /* Slide Animations */
         @keyframes slideInRight {
             from { transform: translateX(30px); opacity: 0; }
             to { transform: translateX(0); opacity: 1; }
@@ -107,7 +106,14 @@
 
         #timer { font-size: 1.6rem; font-weight: 800; color: var(--navy); }
         
-        .p-circle { aspect-ratio: 1/1; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer; background: var(--grey-btn); color: #64748b; font-size: 0.85rem; transition: all 0.2s ease; border: 2px solid transparent; margin: 2px; }
+        /* RESTORED HOVER & PIXEL SPACING */
+        .p-circle { 
+            aspect-ratio: 1/1; border-radius: 50%; display: flex; align-items: center; 
+            justify-content: center; font-weight: 600; cursor: pointer; background: var(--grey-btn); 
+            color: #64748b; font-size: 0.85rem; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+            border: 2px solid transparent; margin: 3px; 
+        }
+        .p-circle:hover { border-color: var(--accent-blue); transform: scale(1.15); background: white; box-shadow: 0 5px 15px rgba(0,0,0,0.08); }
         .p-circle.active { border: 3px solid var(--accent-blue); background: white; color: var(--accent-blue); transform: scale(1.05); animation: pulse-blue 2s infinite; }
         .p-circle.answered { background: var(--correct); color: white; border-color: transparent; }
         .p-circle.marked { background: var(--purple); color: white; border-color: transparent; }
@@ -164,7 +170,7 @@
     let currentIdx = 0;
     let userAnswers = [];
     let marked = [];
-    let timeLeft = 2400; // Locked to 40 mins
+    let timeLeft = 2400; 
     let recordId = null; 
     const testName = localStorage.getItem('currentTestName');
 
@@ -183,7 +189,7 @@
                 .from('student_progress')
                 .select('*')
                 .eq('username', username)
-                .eq('subject', testName); // Matching your specific column
+                .eq('subject', testName);
 
             if (existingRecords && existingRecords.length > 0) {
                 const record = existingRecords[0];
@@ -235,13 +241,8 @@
     function render(animationClass = '') {
         const q = questions[currentIdx];
         const area = document.getElementById('questionArea');
-        
-        // Apply Animation
         area.classList.remove('slide-right', 'slide-left');
-        if(animationClass) {
-            void area.offsetWidth; // Trigger reflow
-            area.classList.add(animationClass);
-        }
+        if(animationClass) { void area.offsetWidth; area.classList.add(animationClass); }
 
         document.getElementById('qLabel').innerText = `QUESTION ${currentIdx + 1}`;
         document.getElementById('qText').innerText = q.q;
@@ -259,14 +260,11 @@
     function select(i) { userAnswers[currentIdx] = i; render(); autoSave(); }
     function clearAns() { userAnswers[currentIdx] = null; render(); autoSave(); }
     function markReview() { marked[currentIdx] = !marked[currentIdx]; render(); autoSave(); }
-    
     function changeQ(step) {
         let next = currentIdx + step;
         if(next >= 0 && next < questions.length) { 
             const anim = step > 0 ? 'slide-right' : 'slide-left';
-            currentIdx = next; 
-            render(anim); 
-            autoSave(); 
+            currentIdx = next; render(anim); autoSave(); 
         }
     }
 
