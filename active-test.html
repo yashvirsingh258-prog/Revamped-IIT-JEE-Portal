@@ -219,6 +219,7 @@
                 const startAt = new Date(record.updated_at).getTime();
                 timeLeft = Math.max(0, 2400 - Math.floor((new Date().getTime() - startAt) / 1000));
             } else {
+                window.alert("Bhonsdi")
                 userAnswers = new Array(questions.length).fill(null); 
                 marked = new Array(questions.length).fill(false);
                 const { data: newRec } = await supabaseClient.from('student_progress').insert([{ 
