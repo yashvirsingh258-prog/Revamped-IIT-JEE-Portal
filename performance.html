@@ -53,27 +53,38 @@
         .bg-green { background: #c6f6d5; color: #22543d; }
         .bg-red { background: #fed7d7; color: #822727; }
 
-        /* EQUAL SPACING FILTER LOGIC */
+        /* FIXED GRID FILTER LOGIC */
         .filter-container { 
             display: flex; 
-            justify-content: space-between; 
             align-items: flex-end; 
             margin-bottom: 40px; 
             padding: 5px 0; 
             border-bottom: 1px solid #e2e8f0; 
+            gap: 40px; /* Consistent gap between all units */
         }
         .filter-item { display: flex; flex-direction: column; gap: 4px; }
         .filter-item label { font-size: 10px; text-transform: uppercase; font-weight: 700; color: #94a3b8; letter-spacing: 0.8px; }
         
-        /* Fixed width for dropdowns to ensure even visual distribution */
-        .filter-item:not(.search-grow) { flex: 0 0 160px; }
-        .search-grow { flex: 1; margin-right: 40px; }
+        /* Fixed width for all three dropdown groups to ensure vertical alignment */
+        .dropdown-group { width: 180px; flex-shrink: 0; }
+        .search-grow { flex: 1; }
         
-        .modern-input, .modern-select { border: none; background: transparent; color: #1e293b; font-size: 13px; outline: none; padding: 8px 0; transition: 0.2s; }
-        .modern-input { width: 100%; }
+        .modern-input, .modern-select { 
+            border: none; 
+            background: transparent; 
+            color: #1e293b; 
+            font-size: 13px; 
+            outline: none; 
+            padding: 8px 0; 
+            transition: 0.2s; 
+            width: 100%;
+        }
         .modern-input:focus { color: var(--primary-blue); }
-        .modern-select { cursor: pointer; font-weight: 600; width: 100%; }
+        .modern-select { cursor: pointer; font-weight: 600; appearance: none; }
         .modern-select:hover { color: var(--primary-blue); }
+        
+        /* Container for custom chevron positioning if needed, or standard select behavior */
+        .select-wrapper { position: relative; width: 100%; }
     </style>
 </head>
 <body>
@@ -103,13 +114,13 @@
                     <label>Search Analysis</label>
                     <input type="text" id="searchInput" placeholder="Find keyword..." class="modern-input">
                 </div>
-                <div class="filter-item">
+                <div class="filter-item dropdown-group">
                     <label>Topic</label>
                     <select id="topicFilter" class="modern-select">
                         <option value="all">All Topics</option>
                     </select>
                 </div>
-                <div class="filter-item">
+                <div class="filter-item dropdown-group">
                     <label>Status</label>
                     <select id="statusFilter" class="modern-select">
                         <option value="all">All Questions</option>
@@ -118,7 +129,7 @@
                         <option value="skipped">Skipped</option>
                     </select>
                 </div>
-                <div class="filter-item">
+                <div class="filter-item dropdown-group">
                     <label>Difficulty</label>
                     <select id="diffFilter" class="modern-select">
                         <option value="all">All Levels</option>
