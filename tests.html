@@ -154,31 +154,42 @@
             btn.innerText = "Initializing...";
 
             try {
+                // Check if test is already finished based on your schema 'is_finished'
                 const { data: latestStatus } = await supabaseClient
                     .from('student_progress')
-                    .select('is_submitted')
+                    .select('is_finished')
                     .eq('student_id', user.id)
                     .eq('test_name', testName)
                     .maybeSingle();
 
                 if (latestStatus) {
-                    const statusText = latestStatus.is_submitted ? "Submitted" : "In Progress";
+                    const statusText = latestStatus.is_finished ? "Submitted" : "In Progress";
                     alert(`This test is already ${statusText}.`);
                     window.location.reload();
                     return;
                 }
 
+                // Satisfying your unique constraint (username, subject, test_name)
                 const { error } = await supabaseClient.from('student_progress').upsert({
                     student_id: user.id,
+                    username: user.email, 
                     test_name: testName,
-                    subject: testName,
-                    is_submitted: false
+                    subject: subject.charAt(0).toUpperCase() + subject.slice(1),
+                    current_index: 0,
+                    time_left: 40, 
+                    user_answers: {},
+                    confirmed_answered: {},
+                    marked_for_review: {},
+                    is_finished: false
                 });
 
                 if (!error) {
                     localStorage.setItem('currentTestName', testName);
                     window.location.href = 'active-test.html';
-                } else { throw error; }
+                } else { 
+                    console.error("Upsert Error:", error);
+                    throw error; 
+                }
 
             } catch (err) {
                 alert("System error. Please refresh.");
@@ -190,14 +201,12 @@
         async function syncWithDB() {
             const user = await checkAuth();
             
-            // Order by ID descending to get the latest record first
             const [qRes, pRes] = await Promise.all([
                 supabaseClient.from('questions_table').select('*').order('id', { ascending: false }),
                 supabaseClient.from('student_progress').select('*').eq('student_id', user.id)
             ]);
 
             if (qRes.data) {
-                // Pick only the single latest record for each subject
                 const latestTestsMap = qRes.data.reduce((acc, current) => {
                     const sub = current.subject.toLowerCase();
                     if (!acc[sub]) acc[sub] = current;
@@ -210,15 +219,15 @@
                     const btn = document.getElementById(`btn-${sub}`);
                     const testData = latestTestsMap[sub];
 
-                    // 1. STRICTURE: If no testData, keep it greyed out (default CSS state)
                     if (testData) {
                         nameDisplay.innerText = testData.test_name;
                         activeTestNames[sub] = testData.test_name;
                         
+                        // Check progress using is_finished from your schema
                         const attempt = pRes.data ? pRes.data.find(p => p.test_name === testData.test_name) : null;
 
                         if (attempt) {
-                            if (attempt.is_submitted) {
+                            if (attempt.is_finished) {
                                 card.classList.add('completed');
                                 card.classList.remove('active', 'in-progress');
                                 btn.innerText = "Submitted";
@@ -234,21 +243,18 @@
                                 document.getElementById(`val-${sub}`).innerText = `${correctCount}/${questions.length}`;
                                 document.getElementById(`pct-${sub}`).innerText = `${Math.round((correctCount / (questions.length || 1)) * 100)}%`;
                             } else {
-                                // STATUS: IN PROGRESS (Greyed out)
                                 card.classList.add('in-progress');
                                 card.classList.remove('active', 'completed');
                                 btn.innerText = "In Progress";
                                 card.onclick = null;
                             }
                         } else {
-                            // STATUS: AVAILABLE (Blue Border / Clickable)
                             card.classList.add('active');
                             card.classList.remove('in-progress', 'completed');
                             btn.innerText = "Start Test";
                             card.onclick = () => startTest(testData.test_name, sub, `card-${sub}`);
                         }
                     } else {
-                        // NO RECORD FOUND: Keep card greyed out, name blank
                         nameDisplay.innerText = "";
                         btn.innerText = "No Test Available";
                     }
