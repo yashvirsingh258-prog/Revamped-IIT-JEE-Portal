@@ -308,6 +308,7 @@
             if(userAnswers[i] === cIdx) correct++;
         });
         const acc = Math.round((correct / questions.length) * 100);
+        window.alert(recordId)
         if (recordId) {
             await supabaseClient.from('student_progress').update({ 
                 accuracy: acc, user_answers: userAnswers, is_finished: true, score: correct, updated_at: new Date()
