@@ -205,7 +205,7 @@
             document.getElementById('testTitle').innerText = testName;
             window.alert(testName)
             const { data: existingRecords } = await supabaseClient.from('student_progress').select('*').eq('username', username).eq('test_name', testName).eq('subject', subjectName);
-
+            window.alert(existingRecords.length)
             if (existingRecords && existingRecords.length > 0) {
                 const record = existingRecords[0];
                 if (record.is_finished === true) { window.location.href = 'performance.html'; return; }
