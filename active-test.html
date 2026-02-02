@@ -189,8 +189,6 @@
     let questions = []; let currentIdx = 0; let userAnswers = []; let marked = []; let timeLeft = 2400; let recordId = null; 
     const testName = localStorage.getItem('currentTestName');
     const subjectName = localStorage.getItem('currentSubjectName');
-    window.alert(subjectName)
-    window.alert(testName)
 
     async function start() {
         try {
@@ -198,11 +196,14 @@
             if (!user) { window.location.href = 'login.html'; return; }
             const username = user.email;
 
+            window.alert(subjectName)
+            window.alert(testName)
+            window.alert(username)
             const { data: qData } = await supabaseClient.from('questions_table').select('*').eq('test_name', testName).eq('subject', subjectName); // Double filtering for accuracy;
             if (!qData || qData.length === 0) return;
             questions = qData[0].question_data;
             document.getElementById('testTitle').innerText = testName;
-
+            window.alert(testName)
             const { data: existingRecords } = await supabaseClient.from('student_progress').select('*').eq('username', username).eq('test_name', testName).eq('subject', subjectName);
 
             if (existingRecords && existingRecords.length > 0) {
