@@ -15,7 +15,7 @@
             --glass-border: rgba(255, 255, 255, 0.5);
             --navy: #0f172a;
             --navy-hover: #1e293b;
-            --grey-btn: #f1f5f9; /* LIGHT GREY */
+            --grey-btn: #f1f5f9; /* Base Light Grey */
             --grey-hover: #e2e8f0;
             --correct: #10b981;
             --purple: #8b5cf6;
@@ -23,149 +23,301 @@
             --thin-line: #e2e8f0; 
         }
 
-        /* Animations */
+        #loadingOverlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at top left, #e0e7ff, #f8fafc);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            z-index: 9999; transition: opacity 0.5s ease;
+        }
+        .spinner {
+            width: 40px; height: 40px; border: 4px solid var(--grey-hover);
+            border-top: 4px solid var(--accent-blue); border-radius: 50%;
+            animation: spin 0.8s linear infinite; margin-bottom: 20px;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
         @keyframes pulse-blue {
             0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
             70% { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
             100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
         }
 
+        @keyframes slideInRight { from { transform: translateX(30px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes slideInLeft { from { transform: translateX(-30px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        .slide-right { animation: slideInRight 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        .slide-left { animation: slideInLeft 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', sans-serif; 
             background: radial-gradient(circle at top left, #e0e7ff, #f8fafc);
             height: 100vh; display: flex; flex-direction: column; overflow: hidden;
         }
 
-        /* Layout Styles */
         header {
             background: var(--glass); backdrop-filter: blur(20px);
             border-bottom: 1px solid var(--glass-border);
             padding: 15px 50px; display: flex; justify-content: space-between; align-items: center;
         }
-        .main-layout { display: flex; flex: 1; padding: 25px; gap: 25px; overflow: hidden; }
-        .test-engine { flex: 1; background: var(--glass); border-radius: 30px; border: 1px solid var(--glass-border); display: flex; flex-direction: column; overflow: hidden; }
-        .palette-card { width: 350px; background: var(--glass); border-radius: 30px; border: 1px solid var(--glass-border); display: flex; flex-direction: column; }
-        .palette-grid { padding: 20px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; overflow-y: auto; }
 
-        /* CIRCLE LOGIC FIXED HERE */
+        .header-right { display: flex; align-items: center; gap: 25px; }
+        #syncStatus { font-size: 0.7rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; }
+
+        .main-layout { display: flex; flex: 1; padding: 25px; gap: 25px; overflow: hidden; align-items: stretch; }
+
+        .test-engine {
+            flex: 1; background: var(--glass); backdrop-filter: blur(25px);
+            border-radius: 30px; border: 1px solid var(--glass-border);
+            display: flex; flex-direction: column; overflow: hidden;
+        }
+
+        .q-scroll-area { padding: 50px 40px 40px 40px; flex: 1; overflow-y: auto; overflow-x: hidden; }
+
+        .question-sub-card {
+            background: white; padding: 30px; border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03); margin-bottom: 25px;
+        }
+
+        .option-sub-card {
+            background: white; padding: 20px 25px; border-radius: 15px;
+            margin-bottom: 12px; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid transparent; display: flex; align-items: center; gap: 15px;
+        }
+        .option-sub-card:hover { transform: translateY(-3px); border-color: var(--grey-hover); box-shadow: 0 10px 20px rgba(0,0,0,0.06); }
+        .option-sub-card.selected { border-color: var(--accent-blue); background: #f8faff; }
+
+        .radio-btn { width: 20px; height: 20px; border: 2px solid #cbd5e1; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: border-color 0.2s; }
+        .selected .radio-btn { border-color: var(--accent-blue); }
+        .radio-inner { width: 10px; height: 10px; border-radius: 50%; background: var(--accent-blue); display: none; }
+        .selected .radio-inner { display: block; }
+
+        .palette-card { width: 350px; background: var(--glass); backdrop-filter: blur(25px); border-radius: 30px; border: 1px solid var(--glass-border); display: flex; flex-direction: column; }
+        .palette-header { padding: 30px 25px 15px 25px; }
+        .palette-grid { padding: 10px 25px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; flex: 1; overflow-y: auto; align-content: start; }
+
+        .footer-nav, .legend-section { height: 90px; border-top: 1px solid var(--thin-line); display: flex; align-items: center; }
+        .footer-nav { padding: 0 40px; justify-content: space-between; }
+        .legend-section { padding: 0 25px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.75rem; font-weight: 500; color: #64748b; }
+
+        .btn { 
+            padding: 12px 24px; border-radius: 12px; border: none; font-weight: 600; 
+            cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+            font-size: 0.85rem; display: flex; align-items: center; gap: 8px; 
+        }
+        .btn-grey { background: var(--grey-btn); color: #475569; }
+        .btn-grey:hover { background: var(--grey-hover); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .btn-finish { background: var(--navy); color: white; padding: 12px 35px; }
+        .btn-finish:hover { background: var(--navy-hover); transform: translateY(-2px); box-shadow: 0 8px 20px rgba(15, 23, 42, 0.3); }
+
+        #timer { font-size: 1.6rem; font-weight: 800; color: var(--navy); font-variant-numeric: tabular-nums; }
+        
+        /* THE PALETTE CIRCLE FIXES */
         .p-circle { 
-            aspect-ratio: 1/1; 
-            border-radius: 50%; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            font-weight: 600; 
-            cursor: pointer; 
-            background: var(--grey-btn); /* Default Light Grey */
+            aspect-ratio: 1/1; border-radius: 50%; display: flex; align-items: center; justify-content: center; 
+            font-weight: 600; cursor: pointer; 
+            background: var(--grey-btn); /* Default Light Grey background */
             color: #64748b; 
             font-size: 0.85rem; 
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
             border: 2px solid transparent; 
             margin: 3px; 
         }
-
-        /* Hover: Blue Border appearing on top of the grey */
+        
+        /* Rule: Hover shows blue border, background can go white to pop */
         .p-circle:hover { 
             border-color: var(--accent-blue); 
             transform: scale(1.15); 
             background: white; 
             box-shadow: 0 5px 15px rgba(0,0,0,0.08); 
         }
-
-        /* Active Question: Light Grey background with Blue Border */
+        
+        /* Rule: Active Current Question shows pulsating blue border, background stays light grey */
         .p-circle.active { 
             border: 3px solid var(--accent-blue) !important; 
             background: var(--grey-btn); 
             color: var(--accent-blue); 
             animation: pulse-blue 2s infinite; 
-            transform: scale(1.1);
+            transform: scale(1.05);
         }
 
-        /* Answered/Marked: Only these classes change the background color */
+        /* Rule: Status colors only apply on top of the grey */
         .p-circle.answered { background: var(--correct) !important; color: white; border-color: transparent; }
         .p-circle.marked { background: var(--purple) !important; color: white; border-color: transparent; }
-
-        /* Existing Styles... */
-        .btn { padding: 12px 24px; border-radius: 12px; font-weight: 600; cursor: pointer; border: none; }
-        .btn-finish { background: var(--navy); color: white; }
     </style>
 </head>
 <body>
 
+<div id="loadingOverlay">
+    <div class="spinner"></div>
+    <p style="font-weight: 600; color: var(--navy); letter-spacing: 1px;">SYNCING SECURE CONNECTION...</p>
+</div>
+
 <header>
-    <h2 id="testTitle">Loading Test...</h2>
-    <div id="timer">00:00</div>
+    <h2 id="testTitle" style="color: var(--navy); font-weight: 700;">--</h2>
+    <div class="header-right">
+        <div id="syncStatus">● Synced</div>
+        <div id="timer">40:00</div>
+    </div>
 </header>
 
 <div class="main-layout">
     <div class="test-engine">
-        <div id="questionArea" class="q-scroll-area">
+        <div class="q-scroll-area" id="questionArea">
+            <p id="qLabel" style="color: var(--accent-blue); font-weight: 800; font-size: 0.7rem; margin-bottom: 12px; letter-spacing: 2px;">QUESTION 1</p>
+            <div class="question-sub-card"><div id="qText" style="font-size: 1.35rem; color: #1e293b; line-height: 1.5; font-weight: 500;">...</div></div>
+            <div id="optionsContainer"></div>
+        </div>
+        <div class="footer-nav">
+            <div style="display:flex; gap:10px;">
+                <button class="btn btn-grey" onclick="changeQ(-1)">&larr; Previous</button>
+                <button class="btn btn-grey" onclick="clearAns()">Clear</button>
+                <button class="btn btn-grey" onclick="markReview()">Review</button>
+                <button class="btn btn-grey" onclick="changeQ(1)">Next &rarr;</button>
             </div>
-        <footer class="footer-nav">
-            <button class="btn btn-grey" onclick="markForReview()">Mark for Review</button>
-            <button class="btn btn-grey" onclick="clearResponse()">Clear</button>
-            <button class="btn btn-finish" onclick="saveAndNext()">Save & Next</button>
-        </footer>
+            <button class="btn btn-finish" onclick="finalSubmit()">Finish Test</button>
+        </div>
     </div>
-
     <div class="palette-card">
-        <div class="palette-header"><h3>Question Palette</h3></div>
-        <div id="paletteGrid" class="palette-grid"></div>
+        <div class="palette-header"><h3 style="font-size: 1.1rem; color: var(--navy); border-bottom: 2px solid #f1f5f9; padding-bottom: 12px; font-weight: 700;">Question Palette</h3></div>
+        <div class="palette-grid" id="paletteGrid"></div>
+        <div class="legend-section">
+            <div style="display:flex; align-items:center; gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:var(--correct)"></span> Answered</div>
+            <div style="display:flex; align-items:center; gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:var(--purple)"></span> Review</div>
+            <div style="display:flex; align-items:center; gap:8px;"><span style="width:8px;height:8px;border-radius:50%;background:var(--grey-btn)"></span> Unanswered</div>
+        </div>
     </div>
 </div>
 
 <script>
-    // Logic updated to handle the grey background priority
-    let questions = [];
-    let currentIdx = 0;
-    let userAnswers = {};
-    let marked = {};
+    const supabaseUrl = 'https://ijxsnunkfhudwnkrwmzk.supabase.co';
+    const supabaseKey = 'sb_publishable_V-KT1zvp-73dqHHvmx3fNA_iHw53TCl'; 
+    const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-    function updatePaletteUI() {
+    let questions = []; let currentIdx = 0; let userAnswers = []; let marked = []; let timeLeft = 2400; let recordId = null; 
+    const testName = localStorage.getItem('currentTestName');
+
+    async function start() {
+        try {
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            if (!user) { window.location.href = 'login.html'; return; }
+            const username = user.email; // Search by full email
+
+            const { data: qData } = await supabaseClient.from('questions_table').select('*').eq('test_name', testName);
+            if (!qData || qData.length === 0) return;
+            questions = qData[0].question_data;
+            document.getElementById('testTitle').innerText = testName;
+
+            const { data: existingRecords } = await supabaseClient.from('student_progress').select('*').eq('username', username).eq('test_name', testName);
+
+            if (existingRecords && existingRecords.length > 0) {
+                const record = existingRecords[0];
+                if (record.is_finished === true) { window.location.href = 'performance.html'; return; }
+                recordId = record.id;
+                userAnswers = record.user_answers || new Array(questions.length).fill(null);
+                marked = record.marked_for_review || new Array(questions.length).fill(false);
+                currentIdx = record.current_index || 0;
+                
+                const startAt = new Date(record.updated_at).getTime();
+                timeLeft = Math.max(0, 2400 - Math.floor((new Date().getTime() - startAt) / 1000));
+            } else {
+                alert("Session not found. Please restart the test from the selection page.");
+                window.location.href = 'tests.html';
+                return;
+            }
+            
+            setupPalette(); render(); runTimer();
+            document.getElementById('loadingOverlay').style.opacity = '0';
+            setTimeout(() => { document.getElementById('loadingOverlay').style.display = 'none'; }, 500);
+        } catch (e) { alert("Session Expired or Connection Failed."); }
+    }
+
+    async function autoSave() {
+        if (!recordId) return;
+        document.getElementById('syncStatus').innerText = "● Syncing...";
+        await supabaseClient.from('student_progress').update({ 
+            user_answers: userAnswers, 
+            marked_for_review: marked, 
+            current_index: currentIdx,
+            updated_at: new Date()
+        }).eq('id', recordId);
+        document.getElementById('syncStatus').innerText = "● Synced";
+    }
+
+    function setupPalette() {
+        const grid = document.getElementById('paletteGrid'); grid.innerHTML = '';
         questions.forEach((_, i) => {
-            const el = document.getElementById(`pc-${i}`);
-            if(!el) return;
-
-            // Reset to base state (removes old colors)
-            el.className = 'p-circle'; 
-
-            // Priority Logic:
-            // 1. Current Question (Active) gets the Blue Border
-            if(i === currentIdx) {
-                el.classList.add('active');
-            }
-
-            // 2. State-based colors
-            if(marked[i]) {
-                el.classList.add('marked');
-            } else if(userAnswers[i] !== undefined && userAnswers[i] !== null) {
-                el.classList.add('answered');
-            }
-            // If neither, it stays purely 'p-circle' which is light grey.
+            const c = document.createElement('div'); c.className = 'p-circle'; c.id = `pc-${i}`; c.innerText = i + 1;
+            c.onclick = () => { const dir = i > currentIdx ? 'slide-right' : 'slide-left'; currentIdx = i; render(dir); autoSave(); };
+            grid.appendChild(c);
         });
     }
 
-    // Initialize palette
-    function initPalette(count) {
-        const grid = document.getElementById('paletteGrid');
-        grid.innerHTML = '';
-        for(let i=0; i<count; i++) {
-            const div = document.createElement('div');
-            div.id = `pc-${i}`;
-            div.className = 'p-circle';
-            div.innerText = i + 1;
-            div.onclick = () => jumpToQuestion(i);
-            grid.appendChild(div);
-        }
-        updatePaletteUI();
+    function render(anim = '') {
+        const q = questions[currentIdx]; const area = document.getElementById('questionArea');
+        area.classList.remove('slide-right', 'slide-left');
+        if(anim) { void area.offsetWidth; area.classList.add(anim); }
+        document.getElementById('qLabel').innerText = `QUESTION ${currentIdx + 1}`;
+        document.getElementById('qText').innerText = q.q;
+        document.getElementById('optionsContainer').innerHTML = q.options.map((opt, i) => `
+            <div class="option-sub-card ${userAnswers[currentIdx] === i ? 'selected' : ''}" onclick="select(${i})">
+                <div class="radio-btn"><div class="radio-inner"></div></div>
+                <span style="font-weight:700; color:var(--accent-blue); min-width: 20px;">${String.fromCharCode(65+i)}.</span> 
+                <span style="color: #334155; font-weight: 500;">${opt}</span>
+            </div>
+        `).join('');
+        updatePaletteUI(); if(window.MathJax) MathJax.typesetPromise();
     }
 
-    // Dummy navigation to test UI
-    function jumpToQuestion(idx) {
-        currentIdx = idx;
-        updatePaletteUI();
+    function select(i) { userAnswers[currentIdx] = i; render(); autoSave(); }
+    function clearAns() { userAnswers[currentIdx] = null; render(); autoSave(); }
+    function markReview() { marked[currentIdx] = !marked[currentIdx]; render(); autoSave(); }
+    function changeQ(step) {
+        let next = currentIdx + step;
+        if(next >= 0 && next < questions.length) { const anim = step > 0 ? 'slide-right' : 'slide-left'; currentIdx = next; render(anim); autoSave(); }
     }
+
+    function updatePaletteUI() {
+        questions.forEach((_, i) => {
+            const el = document.getElementById(`pc-${i}`); if(!el) return;
+            el.className = 'p-circle';
+            // Order: Reset -> Active (Border) -> Mark (Purple) -> Answer (Green)
+            if(i === currentIdx) el.classList.add('active');
+            if(marked[i]) el.classList.add('marked'); 
+            else if(userAnswers[i] !== null) el.classList.add('answered');
+        });
+    }
+
+    function runTimer() {
+        const el = document.getElementById('timer');
+        const itv = setInterval(() => {
+            if(timeLeft <= 0) { clearInterval(itv); finalSubmit(true); return; }
+            let m = Math.floor(timeLeft / 60); let s = timeLeft % 60;
+            el.innerText = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+            timeLeft--;
+        }, 1000);
+    }
+
+    async function finalSubmit(auto = false) {
+        if(!auto && !confirm("Finish test?")) return;
+        let correct = 0;
+        questions.forEach((q, i) => {
+            const cIdx = q.options.findIndex(o => o.trim() === q.correct.trim());
+            if(userAnswers[i] === cIdx) correct++;
+        });
+        const acc = Math.round((correct / questions.length) * 100);
+        if (recordId) {
+            await supabaseClient.from('student_progress').update({ 
+                accuracy: acc, 
+                user_answers: userAnswers,
+                is_finished: true,
+                score: correct,
+                updated_at: new Date()
+            }).eq('id', recordId);
+        }
+        window.location.href = 'performance.html';
+    }
+
+    start();
 </script>
 </body>
 </html>
