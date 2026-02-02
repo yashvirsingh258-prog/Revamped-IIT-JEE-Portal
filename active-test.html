@@ -291,7 +291,6 @@
         });
     }
 
-    let timeLeft = 40 * 60;
     
     function runTimer() {
         const el = document.getElementById('timer');
@@ -300,15 +299,7 @@
             let m = Math.floor(timeLeft / 60); let s = timeLeft % 60;
             el.innerText = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
             timeLeft--;
-            updateTimerText(el);
         }, 1000);
-    }
-
-    // Helper to keep the interval clean
-    function updateTimerText(el) {
-        let m = Math.floor(timeLeft / 60); 
-        let s = timeLeft % 60;
-        el.innerText = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
     }
 
     async function finalSubmit() {
