@@ -262,10 +262,16 @@
                             });
                             document.getElementById(`val-${sub}`).innerText = `${correct}/${questions.length}`;
                             document.getElementById(`pct-${sub}`).innerText = `${Math.round((correct/questions.length)*100)}%`;
+                        } else if (progress?.status === 'in_progress') {
+                            // Test is running: Keep card greyed out by NOT adding 'active' [cite: 2026-02-01]
+                            btn.innerText = "Test in Progress";
+                            card.onclick = null; // Disable start/resume functionality [cite: 2026-02-01]
+                            btn.style.cursor = "not-allowed";
+                    
                         } else {
+                            // Fresh test: Make card bright and clickable [cite: 2026-02-01]
                             card.classList.add('active');
-                            btn.innerText = (progress?.status === 'in_progress') ? "Resume Test" : "Start Test";
-                            if (progress?.status === 'in_progress') card.classList.add('in-progress');
+                            btn.innerText = "Start Test";
                             card.onclick = () => startTest(test.test_name, sub, `card-${sub}`);
                         }
                     }
