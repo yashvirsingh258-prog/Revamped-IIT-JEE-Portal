@@ -194,6 +194,7 @@
 
                 if (dbError) throw dbError;
 
+                localStorage.setItem('userEmail', user.email);
                 localStorage.setItem('currentTestName', testName);
                 localStorage.setItem('currentSubjectName', subject);
                 window.location.href = 'active-test.html';
@@ -237,6 +238,7 @@
                             card.classList.add('completed');
                             btn.innerText = "View Report";
                             card.onclick = () => {
+                                localStorage.setItem('userEmail', user.email);
                                 localStorage.setItem('currentTestName', test.test_name);
                                 localStorage.setItem('currentSubjectName', subject);
                                 window.location.href = 'performance.html';
