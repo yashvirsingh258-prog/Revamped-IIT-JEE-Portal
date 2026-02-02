@@ -135,7 +135,7 @@
 
             // DIAGNOSTIC 1: Force Full Email Check
             const userEmail = user.email;
-            window.alert(user.email)
+            
             if (!userEmail || !userEmail.includes('@')) {
                 alert("CRITICAL ERROR: Valid full email address required. Found: " + userEmail);
                 return;
@@ -160,7 +160,7 @@
                     window.location.reload();
                     return;
                 }
-                window.alert(user.id)
+                
                 const payload = {
                     student_id: user.id,
                     username: userEmail,
@@ -208,8 +208,7 @@
         async function syncWithDB() {
             const user = await checkAuth();
             const userEmail = user.email;
-            window.alert(user.email)
-
+            
             const [qRes, pRes] = await Promise.all([
                 supabaseClient.from('questions_table').select('*').order('id', { ascending: false }),
                 supabaseClient.from('student_progress').select('*').eq('username', userEmail)
