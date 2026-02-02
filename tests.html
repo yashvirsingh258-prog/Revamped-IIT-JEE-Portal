@@ -195,7 +195,7 @@
                 if (dbError) throw dbError;
 
                 localStorage.setItem('currentTestName', testName);
-                localStorage.setItem('subjectName', subject);
+                localStorage.setItem('currentSubjectName', subject);
                 window.location.href = 'active-test.html';
 
             } catch (err) {
@@ -238,7 +238,7 @@
                             btn.innerText = "View Report";
                             card.onclick = () => {
                                 localStorage.setItem('currentTestName', test.test_name);
-                                localStorage.setItem('subjectName', subject);
+                                localStorage.setItem('currentSubjectName', subject);
                                 window.location.href = 'performance.html';
                             };
                             
