@@ -35,27 +35,39 @@
 
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 30px; }
         
-        /* DEFAULT STATE: Greyed out / Inactive */
+        /* CARD STATES */
         .test-card { 
             background: white; padding: 32px; border-radius: 24px; border: 1px solid #e2e8f0; 
             transition: 0.3s; position: relative; overflow: hidden; 
             opacity: 0.6; pointer-events: none; 
         }
         
-        .progress-loader { position: absolute; top: 0; left: 0; height: 4px; background: #0b4a8f; width: 0; transition: 0.4s; display: none; }
-        .test-card.loading .progress-loader { display: block; animation: loadWidth 1.5s infinite ease-in-out; }
-        @keyframes loadWidth { 0% { width: 0; left: 0; } 50% { width: 70%; } 100% { width: 100%; left: 100%; } }
+        /* SLEEK CENTERED LOADER */
+        .premium-loader-wrap {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.8); display: none;
+            align-items: center; justify-content: center; z-index: 5;
+        }
+        .loader-bar {
+            width: 60%; height: 4px; background: #e2e8f0;
+            border-radius: 10px; overflow: hidden; position: relative;
+        }
+        .loader-bar::after {
+            content: ''; position: absolute; top: 0; left: -100%;
+            width: 100%; height: 100%; background: #0b4a8f;
+            animation: slide 1.2s infinite ease-in-out;
+        }
+        @keyframes slide { 0% { left: -100%; } 50% { left: 0%; } 100% { left: 100%; } }
+        
+        .test-card.loading .premium-loader-wrap { display: flex; }
 
-        /* ACTIVE STATE: For Fresh Tests */
         .test-card.active { border-left: 5px solid #0b4a8f; opacity: 1; pointer-events: auto; cursor: pointer; }
         .test-card.active:hover { transform: translateY(-8px); box-shadow: 0 12px 24px rgba(11, 74, 143, 0.1); }
         .test-card.hidden { display: none; }
 
-        /* COMPLETED STATE: For Submitted Tests */
         .test-card.completed { border-left: 5px solid #10b981; opacity: 1; pointer-events: auto; cursor: default; }
         .test-card.completed .launch-btn { background: #10b981 !important; cursor: not-allowed; pointer-events: none; }
 
-        /* IN-PROGRESS STATE: Greyed out / Locked */
         .test-card.in-progress { opacity: 0.6; pointer-events: none; border-left: 5px solid #64748b; }
         .test-card.in-progress .launch-btn { background: #94a3b8 !important; }
 
@@ -99,7 +111,7 @@
 
         <div class="grid" id="test-grid">
             <div class="test-card" id="card-physics" data-subject="physics">
-                <div class="progress-loader"></div>
+                <div class="premium-loader-wrap"><div class="loader-bar"></div></div>
                 <span class="subject-badge">Physics</span>
                 <h3 class="test-title">Physics Mock</h3>
                 <div class="test-name-db" id="name-physics"></div>
@@ -110,7 +122,7 @@
             </div>
             
             <div class="test-card" id="card-chemistry" data-subject="chemistry">
-                <div class="progress-loader"></div>
+                <div class="premium-loader-wrap"><div class="loader-bar"></div></div>
                 <span class="subject-badge">Chemistry</span>
                 <h3 class="test-title">Chemistry Mock</h3>
                 <div class="test-name-db" id="name-chemistry"></div>
@@ -121,7 +133,7 @@
             </div>
 
             <div class="test-card" id="card-mathematics" data-subject="mathematics">
-                <div class="progress-loader"></div>
+                <div class="premium-loader-wrap"><div class="loader-bar"></div></div>
                 <span class="subject-badge">Mathematics</span>
                 <h3 class="test-title">Maths Mock</h3>
                 <div class="test-name-db" id="name-mathematics"></div>
@@ -150,25 +162,34 @@
             const card = document.getElementById(cardId);
             const btn = document.getElementById(`btn-${subject}`);
 
+            // 1. Instant grey out and show premium centered loader
             card.classList.add('loading', 'in-progress');
-            btn.innerText = "Initializing...";
+            btn.innerText = "Loading Questions...";
 
             try {
-                // Fetch the existing record first to get its ID
+                // 2. Fetch questions as requested before doing anything else
+                const { data: questionData, error: qError } = await supabaseClient
+                    .from('questions_table')
+                    .select('*')
+                    .eq('test_name', testName)
+                    .single();
+
+                if (qError) throw qError;
+
+                // 3. Check for existing record to get ID (Avoids duplicates)
                 const { data: existingProgress } = await supabaseClient
                     .from('student_progress')
-                    .select('id, is_finished')
-                    .eq('student_id', user.id)
+                    .select('id, status')
+                    .eq('username', user.email)
                     .eq('test_name', testName)
                     .maybeSingle();
 
-                if (existingProgress?.is_finished) {
+                if (existingProgress?.status === 'completed') {
                     alert(`This test is already submitted.`);
                     window.location.reload();
                     return;
                 }
 
-                // Prepare payload - include the ID if it exists to force an update on the same row
                 const payload = {
                     student_id: user.id,
                     username: user.email, 
@@ -179,25 +200,23 @@
                     user_answers: {},
                     confirmed_answered: {},
                     marked_for_review: {},
-                    is_finished: false
+                    is_finished: false,
+                    status: 'in_progress' // Setting status as requested
                 };
 
-                if (existingProgress?.id) {
-                    payload.id = existingProgress.id;
-                }
+                // Use the ID if found to force an update on the SAME row
+                if (existingProgress?.id) payload.id = existingProgress.id;
 
-                const { error } = await supabaseClient.from('student_progress').upsert(payload);
+                const { error: upsertError } = await supabaseClient.from('student_progress').upsert(payload);
 
-                if (!error) {
+                if (!upsertError) {
                     localStorage.setItem('currentTestName', testName);
                     window.location.href = 'active-test.html';
-                } else { 
-                    console.error("Upsert Error:", error);
-                    throw error; 
-                }
+                } else { throw upsertError; }
 
             } catch (err) {
-                alert("System error. Please refresh.");
+                console.error("Initialization Error:", err);
+                alert("Failed to load test. Please check connection.");
                 card.classList.remove('loading', 'in-progress');
                 btn.innerText = "Start Test";
             }
@@ -230,8 +249,9 @@
                         
                         const attempt = pRes.data ? pRes.data.find(p => p.test_name === testData.test_name) : null;
 
+                        // Use the new 'status' column for state logic
                         if (attempt) {
-                            if (attempt.is_finished) {
+                            if (attempt.status === 'completed') {
                                 card.classList.add('completed');
                                 card.classList.remove('active', 'in-progress');
                                 btn.innerText = "Submitted";
@@ -246,7 +266,7 @@
                                 });
                                 document.getElementById(`val-${sub}`).innerText = `${correctCount}/${questions.length}`;
                                 document.getElementById(`pct-${sub}`).innerText = `${Math.round((correctCount / (questions.length || 1)) * 100)}%`;
-                            } else {
+                            } else if (attempt.status === 'in_progress') {
                                 card.classList.add('in-progress');
                                 card.classList.remove('active', 'completed');
                                 btn.innerText = "In Progress";
@@ -259,7 +279,6 @@
                             card.onclick = () => startTest(testData.test_name, sub, `card-${sub}`);
                         }
                     } else {
-                        nameDisplay.innerText = "";
                         btn.innerText = "No Test Available";
                     }
                 });
