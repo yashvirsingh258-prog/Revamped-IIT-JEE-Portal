@@ -135,6 +135,7 @@
 
             // DIAGNOSTIC 1: Force Full Email Check
             const userEmail = user.email;
+            window.alert(user.email)
             if (!userEmail || !userEmail.includes('@')) {
                 alert("CRITICAL ERROR: Valid full email address required. Found: " + userEmail);
                 return;
