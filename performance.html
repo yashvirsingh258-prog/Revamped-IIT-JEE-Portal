@@ -226,7 +226,7 @@
                         <div style="display:flex; gap: 10px; align-items: center;">
                             <span style="font-weight:700; font-size: 1.1em;">Q${originalIdx+1}</span>
                             <span class="meta-badge ${diffClass}">${diff}</span>
-                            <span class="meta-badge badge-type">${(q.type || 'MCQ').toUpperCase()}</span>
+                            <span class="meta-badge badge-type">${q.topic || (q.type || 'MCQ').toUpperCase()}</span>
                         </div>
                         <span class="badge ${statusClass}">${statusText}</span>
                     </div>
