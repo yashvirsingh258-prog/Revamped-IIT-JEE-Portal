@@ -180,7 +180,7 @@
         try {
             const { data: { user } } = await supabaseClient.auth.getUser();
             if (!user) { window.location.href = 'login.html'; return; }
-            const username = user.email.split('@')[0];
+            const username = user.email;
 
             const { data: qData } = await supabaseClient.from('questions_table').select('*').eq('test_name', testName);
             if (!qData || qData.length === 0) return;
