@@ -154,23 +154,22 @@
             btn.innerText = "Initializing...";
 
             try {
-                // Check if test is already finished based on your schema 'is_finished'
-                const { data: latestStatus } = await supabaseClient
+                // Fetch the existing record first to get its ID
+                const { data: existingProgress } = await supabaseClient
                     .from('student_progress')
-                    .select('is_finished')
+                    .select('id, is_finished')
                     .eq('student_id', user.id)
                     .eq('test_name', testName)
                     .maybeSingle();
 
-                if (latestStatus) {
-                    const statusText = latestStatus.is_finished ? "Submitted" : "In Progress";
-                    alert(`This test is already ${statusText}.`);
+                if (existingProgress?.is_finished) {
+                    alert(`This test is already submitted.`);
                     window.location.reload();
                     return;
                 }
 
-                // Satisfying your unique constraint (username, subject, test_name)
-                const { error } = await supabaseClient.from('student_progress').upsert({
+                // Prepare payload - include the ID if it exists to force an update on the same row
+                const payload = {
                     student_id: user.id,
                     username: user.email, 
                     test_name: testName,
@@ -181,7 +180,13 @@
                     confirmed_answered: {},
                     marked_for_review: {},
                     is_finished: false
-                });
+                };
+
+                if (existingProgress?.id) {
+                    payload.id = existingProgress.id;
+                }
+
+                const { error } = await supabaseClient.from('student_progress').upsert(payload);
 
                 if (!error) {
                     localStorage.setItem('currentTestName', testName);
@@ -223,7 +228,6 @@
                         nameDisplay.innerText = testData.test_name;
                         activeTestNames[sub] = testData.test_name;
                         
-                        // Check progress using is_finished from your schema
                         const attempt = pRes.data ? pRes.data.find(p => p.test_name === testData.test_name) : null;
 
                         if (attempt) {
