@@ -35,19 +35,27 @@
 
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 30px; }
         
-        .test-card { background: white; padding: 32px; border-radius: 24px; border: 1px solid #e2e8f0; transition: 0.3s; position: relative; overflow: hidden; opacity: 1; pointer-events: auto; }
+        /* DEFAULT STATE: Greyed out / Inactive */
+        .test-card { 
+            background: white; padding: 32px; border-radius: 24px; border: 1px solid #e2e8f0; 
+            transition: 0.3s; position: relative; overflow: hidden; 
+            opacity: 0.6; pointer-events: none; 
+        }
         
         .progress-loader { position: absolute; top: 0; left: 0; height: 4px; background: #0b4a8f; width: 0; transition: 0.4s; display: none; }
         .test-card.loading .progress-loader { display: block; animation: loadWidth 1.5s infinite ease-in-out; }
         @keyframes loadWidth { 0% { width: 0; left: 0; } 50% { width: 70%; } 100% { width: 100%; left: 100%; } }
 
-        .test-card.active { border-left: 5px solid #0b4a8f; cursor: pointer; }
+        /* ACTIVE STATE: For Fresh Tests */
+        .test-card.active { border-left: 5px solid #0b4a8f; opacity: 1; pointer-events: auto; cursor: pointer; }
         .test-card.active:hover { transform: translateY(-8px); box-shadow: 0 12px 24px rgba(11, 74, 143, 0.1); }
         .test-card.hidden { display: none; }
 
-        .test-card.completed { border-left: 5px solid #10b981; pointer-events: auto; cursor: default; }
+        /* COMPLETED STATE: For Submitted Tests */
+        .test-card.completed { border-left: 5px solid #10b981; opacity: 1; pointer-events: auto; cursor: default; }
         .test-card.completed .launch-btn { background: #10b981 !important; cursor: not-allowed; pointer-events: none; }
 
+        /* IN-PROGRESS STATE: Greyed out / Locked */
         .test-card.in-progress { opacity: 0.6; pointer-events: none; border-left: 5px solid #64748b; }
         .test-card.in-progress .launch-btn { background: #94a3b8 !important; }
 
@@ -67,7 +75,8 @@
         .test-title { font-size: 1.4rem; font-weight: 700; margin-bottom: 4px; color: #0f172a; }
         .test-name-db { font-size: 0.9rem; color: #64748b; font-weight: 500; margin-bottom: 20px; }
         
-        .launch-btn { background: #0b4a8f; color: white; border: none; padding: 14px; border-radius: 12px; font-weight: 600; width: 100%; cursor: pointer; transition: 0.3s; }
+        .launch-btn { background: #cbd5e1; color: white; border: none; padding: 14px; border-radius: 12px; font-weight: 600; width: 100%; cursor: pointer; transition: 0.3s; }
+        .active .launch-btn { background: #0b4a8f; }
     </style>
 </head>
 <body>
@@ -181,14 +190,14 @@
         async function syncWithDB() {
             const user = await checkAuth();
             
-            // 1. Fetch questions (sorted by newest ID first) and user progress
+            // Order by ID descending to get the latest record first
             const [qRes, pRes] = await Promise.all([
                 supabaseClient.from('questions_table').select('*').order('id', { ascending: false }),
                 supabaseClient.from('student_progress').select('*').eq('student_id', user.id)
             ]);
 
             if (qRes.data) {
-                // LOGIC: Isolate only the LATEST test name for each subject
+                // Pick only the single latest record for each subject
                 const latestTestsMap = qRes.data.reduce((acc, current) => {
                     const sub = current.subject.toLowerCase();
                     if (!acc[sub]) acc[sub] = current;
@@ -201,11 +210,8 @@
                     const btn = document.getElementById(`btn-${sub}`);
                     const testData = latestTestsMap[sub];
 
-                    // Reset card state before applying logic
-                    card.classList.remove('active', 'in-progress', 'completed', 'loading');
-
+                    // 1. STRICTURE: If no testData, keep it greyed out (default CSS state)
                     if (testData) {
-                        // Found test in DB: Populate name immediately
                         nameDisplay.innerText = testData.test_name;
                         activeTestNames[sub] = testData.test_name;
                         
@@ -213,8 +219,8 @@
 
                         if (attempt) {
                             if (attempt.is_submitted) {
-                                // CASE: SUBMITTED
                                 card.classList.add('completed');
+                                card.classList.remove('active', 'in-progress');
                                 btn.innerText = "Submitted";
                                 
                                 let correctCount = 0;
@@ -228,22 +234,23 @@
                                 document.getElementById(`val-${sub}`).innerText = `${correctCount}/${questions.length}`;
                                 document.getElementById(`pct-${sub}`).innerText = `${Math.round((correctCount / (questions.length || 1)) * 100)}%`;
                             } else {
-                                // CASE: IN PROGRESS
+                                // STATUS: IN PROGRESS (Greyed out)
                                 card.classList.add('in-progress');
+                                card.classList.remove('active', 'completed');
                                 btn.innerText = "In Progress";
                                 card.onclick = null;
                             }
                         } else {
-                            // CASE: AVAILABLE
+                            // STATUS: AVAILABLE (Blue Border / Clickable)
                             card.classList.add('active');
+                            card.classList.remove('in-progress', 'completed');
                             btn.innerText = "Start Test";
                             card.onclick = () => startTest(testData.test_name, sub, `card-${sub}`);
                         }
                     } else {
-                        // NO RECORD IN DB: Name remains blank, card is inactive
-                        nameDisplay.innerText = ""; 
-                        btn.innerText = "Start Test";
-                        card.onclick = null;
+                        // NO RECORD FOUND: Keep card greyed out, name blank
+                        nameDisplay.innerText = "";
+                        btn.innerText = "No Test Available";
                     }
                 });
             }
