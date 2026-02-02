@@ -300,21 +300,28 @@
         }, 1000);
     }
 
-    async function finalSubmit(auto = false) {
-        if(!auto && !confirm("Finish test?")) return;
-        let correct = 0;
-        questions.forEach((q, i) => {
-            const cIdx = q.options.findIndex(o => o.trim() === q.correct.trim());
-            if(userAnswers[i] === cIdx) correct++;
-        });
-        const acc = Math.round((correct / questions.length) * 100);
-        window.alert(recordId)
-        if (recordId) {
-            await supabaseClient.from('student_progress').update({ 
-                accuracy: acc, user_answers: userAnswers, is_finished: true, score: correct, updated_at: new Date()
-            }).eq('id', recordId);
+    async function finalSubmit() {
+        // 1. Get current test details
+        const testName = document.getElementById('testTitle').innerText;
+        const username = localStorage.getItem('userEmail');
+    
+        // 2. Update the database
+        const { error } = await supabase
+            .from('student_progress')
+            .update({ 
+                is_finished: true, 
+                status: 'completed' // Updating status to completed as well
+            })
+            .eq('test_name', testName)
+            .eq('username', username);
+    
+        if (error) {
+            console.error('Error finishing test:', error);
+            alert('Failed to submit test. Please try again.');
+        } else {
+            // 3. Redirect to results or performance page
+            window.location.href = 'performance.html';
         }
-        window.location.href = 'performance.html';
     }
 
     start();
