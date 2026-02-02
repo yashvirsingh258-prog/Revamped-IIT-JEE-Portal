@@ -306,7 +306,7 @@
         const username = localStorage.getItem('userEmail');
     
         // 2. Update the database
-        const { error } = await supabase
+        const { error } = await supabaseClient
             .from('student_progress')
             .update({ 
                 is_finished: true, 
