@@ -15,7 +15,7 @@
             --glass-border: rgba(255, 255, 255, 0.5);
             --navy: #0f172a;
             --navy-hover: #1e293b;
-            --grey-btn: #f1f5f9;
+            --grey-btn: #f1f5f9; /* LIGHT GREY */
             --grey-hover: #e2e8f0;
             --correct: #10b981;
             --purple: #8b5cf6;
@@ -43,7 +43,6 @@
             100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
         }
 
-        /* Slide Animations */
         @keyframes slideInRight { from { transform: translateX(30px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         @keyframes slideInLeft { from { transform: translateX(-30px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         .slide-right { animation: slideInRight 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
@@ -80,7 +79,6 @@
             box-shadow: 0 4px 20px rgba(0,0,0,0.03); margin-bottom: 25px;
         }
 
-        /* Option Cards & Radio Buttons */
         .option-sub-card {
             background: white; padding: 20px 25px; border-radius: 15px;
             margin-bottom: 12px; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -114,15 +112,30 @@
 
         #timer { font-size: 1.6rem; font-weight: 800; color: var(--navy); font-variant-numeric: tabular-nums; }
         
+        /* THE CIRCLE STYLES YOU REQUESTED */
         .p-circle { 
             aspect-ratio: 1/1; border-radius: 50%; display: flex; align-items: center; justify-content: center; 
-            font-weight: 600; cursor: pointer; background: var(--grey-btn); color: #64748b; font-size: 0.85rem; 
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 2px solid transparent; margin: 3px; 
+            font-weight: 600; cursor: pointer; 
+            background: var(--grey-btn); /* DEFAULT LIGHT GREY */
+            color: #64748b; font-size: 0.85rem; 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+            border: 2px solid transparent; margin: 3px; 
         }
+        /* Hover: Blue border appears, bg shifts to white */
         .p-circle:hover { border-color: var(--accent-blue); transform: scale(1.15); background: white; box-shadow: 0 5px 15px rgba(0,0,0,0.08); }
-        .p-circle.active { border: 3px solid var(--accent-blue); background: white; color: var(--accent-blue); transform: scale(1.05); animation: pulse-blue 2s infinite; }
-        .p-circle.answered { background: var(--correct); color: white; border-color: transparent; }
-        .p-circle.marked { background: var(--purple); color: white; border-color: transparent; }
+        
+        /* Active: Blue Border Pulse + Light Grey Background */
+        .p-circle.active { 
+            border: 3px solid var(--accent-blue) !important; 
+            background: var(--grey-btn) !important; 
+            color: var(--accent-blue); 
+            transform: scale(1.05); 
+            animation: pulse-blue 2s infinite; 
+        }
+        
+        /* Status Colors (Overrides the Grey) */
+        .p-circle.answered { background: var(--correct) !important; color: white; border-color: transparent; }
+        .p-circle.marked { background: var(--purple) !important; color: white; border-color: transparent; }
     </style>
 </head>
 <body>
@@ -193,22 +206,23 @@
                 const record = existingRecords[0];
                 if (record.is_finished === true) { window.location.href = 'performance.html'; return; }
                 recordId = record.id;
-                userAnswers = record.user_answers || new Array(questions.length).fill(null);
-                marked = record.marked_for_review || new Array(questions.length).fill(false);
+                
+                // DATA SANITIZATION: Force answers into an array to avoid the "Object" bug
+                let rawAns = record.user_answers;
+                userAnswers = Array.isArray(rawAns) ? rawAns : new Array(questions.length).fill(null);
+                
+                let rawMarked = record.marked_for_review;
+                marked = Array.isArray(rawMarked) ? rawMarked : new Array(questions.length).fill(false);
+                
                 currentIdx = record.current_index || 0;
                 const startAt = new Date(record.updated_at).getTime();
                 timeLeft = Math.max(0, 2400 - Math.floor((new Date().getTime() - startAt) / 1000));
             } else {
-                userAnswers = new Array(questions.length).fill(null); marked = new Array(questions.length).fill(false);
+                userAnswers = new Array(questions.length).fill(null); 
+                marked = new Array(questions.length).fill(false);
                 const { data: newRec } = await supabaseClient.from('student_progress').insert([{ 
-                    student_id: user.id,
-                    username: username, 
-                    subject: testName, 
-                    test_name: testName,
-                    current_index: 0, 
-                    user_answers: userAnswers, 
-                    marked_for_review: marked,
-                    is_finished: false
+                    student_id: user.id, username: username, subject: testName, test_name: testName,
+                    current_index: 0, user_answers: userAnswers, marked_for_review: marked, is_finished: false
                 }]).select();
                 if (newRec) recordId = newRec[0].id;
             }
@@ -222,10 +236,7 @@
         if (!recordId) return;
         document.getElementById('syncStatus').innerText = "● Syncing...";
         await supabaseClient.from('student_progress').update({ 
-            user_answers: userAnswers, 
-            marked_for_review: marked, 
-            current_index: currentIdx,
-            updated_at: new Date()
+            user_answers: userAnswers, marked_for_review: marked, current_index: currentIdx, updated_at: new Date()
         }).eq('id', recordId);
         document.getElementById('syncStatus').innerText = "● Synced";
     }
@@ -267,8 +278,15 @@
         questions.forEach((_, i) => {
             const el = document.getElementById(`pc-${i}`); if(!el) return;
             el.className = 'p-circle';
+            
+            // Priority Check
             if(i === currentIdx) el.classList.add('active');
-            if(marked[i]) el.classList.add('marked'); else if(userAnswers[i] !== null) el.classList.add('answered');
+            
+            if(marked[i]) {
+                el.classList.add('marked');
+            } else if(userAnswers[i] !== null && userAnswers[i] !== undefined && typeof userAnswers[i] === 'number') {
+                el.classList.add('answered');
+            }
         });
     }
 
@@ -292,11 +310,7 @@
         const acc = Math.round((correct / questions.length) * 100);
         if (recordId) {
             await supabaseClient.from('student_progress').update({ 
-                accuracy: acc, 
-                user_answers: userAnswers,
-                is_finished: true,
-                score: correct,
-                updated_at: new Date()
+                accuracy: acc, user_answers: userAnswers, is_finished: true, score: correct, updated_at: new Date()
             }).eq('id', recordId);
         }
         window.location.href = 'performance.html';
