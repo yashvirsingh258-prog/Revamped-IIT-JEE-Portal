@@ -35,25 +35,26 @@
 
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 30px; }
         
-        /* Base Card Style (Greyed/Disabled by default until loaded) */
-        .test-card { background: white; padding: 32px; border-radius: 24px; border: 1px solid #e2e8f0; transition: 0.3s; opacity: 0.6; pointer-events: none; position: relative; }
+        .test-card { background: white; padding: 32px; border-radius: 24px; border: 1px solid #e2e8f0; transition: 0.3s; opacity: 0.6; pointer-events: none; position: relative; overflow: hidden; }
         
-        /* Active State (Fresh Start) */
+        /* SLEEK PROGRESS BAR */
+        .progress-loader { position: absolute; top: 0; left: 0; height: 4px; background: #0b4a8f; width: 0; transition: 0.4s; display: none; }
+        .test-card.loading .progress-loader { display: block; animation: loadWidth 2s infinite ease-in-out; }
+        @keyframes loadWidth { 0% { width: 0; left: 0; } 50% { width: 70%; } 100% { width: 100%; left: 100%; } }
+
         .test-card.active { opacity: 1; pointer-events: auto; cursor: pointer; border-left: 5px solid #0b4a8f; }
         .test-card.active:hover { transform: translateY(-8px); box-shadow: 0 12px 24px rgba(11, 74, 143, 0.1); }
         .test-card.hidden { display: none; }
 
-        /* Submitted State (Preserved original look) */
         .test-card.completed { border-left: 5px solid #10b981; opacity: 1; pointer-events: auto; cursor: default; }
         .test-card.completed .launch-btn { background: #10b981 !important; cursor: not-allowed; pointer-events: none; }
 
-        /* IN PROGRESS STATE (New Requirement) */
+        /* IN PROGRESS STYLE */
         .test-card.in-progress { opacity: 0.5; pointer-events: none; border-left: 5px solid #64748b; cursor: not-allowed; }
         .test-card.in-progress .launch-btn { background: #94a3b8 !important; color: white; }
 
         .score-info { display: none; margin-bottom: 24px; font-size: 0.95rem; color: #1e293b; }
         .completed .score-info { display: block; }
-        
         .score-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
         
         .accuracy-pill {
@@ -62,7 +63,6 @@
             cursor: pointer; border: 1px solid transparent; display: inline-block;
         }
         .accuracy-pill:hover { background: #0b4a8f; color: white; transform: scale(1.05); }
-        .accuracy-pill:hover::after { content: ' → Review'; }
 
         .subject-badge { display: inline-block; padding: 6px 12px; background: #f1f5f9; color: #64748b; border-radius: 8px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; margin-bottom: 16px; }
         .active .subject-badge { background: #eff6ff; color: #0b4a8f; }
@@ -94,38 +94,34 @@
 
         <div class="grid" id="test-grid">
             <div class="test-card" id="card-physics" data-subject="physics">
+                <div class="progress-loader"></div>
                 <span class="subject-badge">Physics</span>
                 <h3 class="test-title">Physics Mock</h3>
                 <div class="test-name-db" id="name-physics">No active tests</div>
                 <div class="score-info">
-                    <div class="score-row">
-                        <span>Correct: <strong id="val-physics" style="color:#10b981">0/0</strong></span>
-                        <div class="accuracy-pill" id="pct-physics" onclick="viewReport('physics')">0%</div>
-                    </div>
+                    <div class="score-row"><span>Correct: <strong id="val-physics" style="color:#10b981">0/0</strong></span><div class="accuracy-pill" id="pct-physics" onclick="viewReport('physics')">0%</div></div>
                 </div>
                 <button class="launch-btn" id="btn-physics">Start Test</button>
             </div>
+            
             <div class="test-card" id="card-chemistry" data-subject="chemistry">
+                <div class="progress-loader"></div>
                 <span class="subject-badge">Chemistry</span>
                 <h3 class="test-title">Chemistry Mock</h3>
                 <div class="test-name-db" id="name-chemistry">No active tests</div>
                 <div class="score-info">
-                    <div class="score-row">
-                        <span>Correct: <strong id="val-chemistry" style="color:#10b981">0/0</strong></span>
-                        <div class="accuracy-pill" id="pct-chemistry" onclick="viewReport('chemistry')">0%</div>
-                    </div>
+                    <div class="score-row"><span>Correct: <strong id="val-chemistry" style="color:#10b981">0/0</strong></span><div class="accuracy-pill" id="pct-chemistry" onclick="viewReport('chemistry')">0%</div></div>
                 </div>
                 <button class="launch-btn" id="btn-chemistry">Start Test</button>
             </div>
+
             <div class="test-card" id="card-mathematics" data-subject="mathematics">
+                <div class="progress-loader"></div>
                 <span class="subject-badge">Mathematics</span>
                 <h3 class="test-title">Maths Mock</h3>
                 <div class="test-name-db" id="name-mathematics">No active tests</div>
                 <div class="score-info">
-                    <div class="score-row">
-                        <span>Correct: <strong id="val-mathematics" style="color:#10b981">0/0</strong></span>
-                        <div class="accuracy-pill" id="pct-mathematics" onclick="viewReport('mathematics')">0%</div>
-                    </div>
+                    <div class="score-row"><span>Correct: <strong id="val-mathematics" style="color:#10b981">0/0</strong></span><div class="accuracy-pill" id="pct-mathematics" onclick="viewReport('mathematics')">0%</div></div>
                 </div>
                 <button class="launch-btn" id="btn-mathematics">Start Test</button>
             </div>
@@ -145,17 +141,51 @@
             return session.user;
         }
 
-        function filterTests(subject, btn) {
-            document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active-tab'));
-            btn.classList.add('active-tab');
-            document.querySelectorAll('.test-card').forEach(card => {
-                card.classList.toggle('hidden', subject !== 'all' && card.getAttribute('data-subject') !== subject);
-            });
-        }
+        async function startTest(testName, subject, cardId) {
+            const user = await checkAuth();
+            const card = document.getElementById(cardId);
+            const btn = document.getElementById(`btn-${subject}`);
 
-        function viewReport(subject) {
-            const testName = activeTestNames[subject];
-            if (testName) { localStorage.setItem('currentTestName', testName); window.location.href = 'performance.html'; }
+            // 1. Immediate Sleek UI Feedback
+            card.classList.add('loading', 'in-progress');
+            card.classList.remove('active');
+            btn.innerText = "Initializing...";
+            
+            // 2. FOOLPROOF: Fresh DB Check before launching
+            const { data: latestStatus } = await supabaseClient
+                .from('student_progress')
+                .select('is_submitted')
+                .eq('student_id', user.id)
+                .eq('test_name', testName)
+                .single();
+
+            if (latestStatus) {
+                const status = latestStatus.is_submitted ? "Submitted" : "In Progress";
+                alert(`Cannot start test. This exam is already ${status} on another device.`);
+                window.location.reload(); // Re-sync the page UI
+                return;
+            }
+
+            // 3. Mark in DB as In Progress immediately
+            const { error } = await supabaseClient.from('student_progress').insert([
+                { 
+                    student_id: user.id, 
+                    test_name: testName, 
+                    subject: testName, 
+                    is_submitted: false, 
+                    updated_at: new Date().toISOString() 
+                }
+            ]);
+
+            if (!error || error.code === '23505') { // Success or already exists
+                localStorage.setItem('currentTestName', testName);
+                window.location.href = 'active-test.html';
+            } else {
+                alert("Error starting test. Please try again.");
+                card.classList.remove('loading', 'in-progress');
+                card.classList.add('active');
+                btn.innerText = "Start Test";
+            }
         }
 
         async function syncWithDB() {
@@ -177,43 +207,44 @@
                     const attempt = pRes.data ? pRes.data.find(p => p.test_name === row.test_name || p.subject === row.test_name) : null;
 
                     if (attempt) {
-                        // Check if the exam is actually finished (submitted)
                         if (attempt.is_submitted === true) {
-                            // CASE 1: SUBMITTED (Existing logic preserved)
                             card.classList.add('completed');
                             document.getElementById(`btn-${subject}`).innerText = "Submitted";
-
+                            // Score calculation logic remains untouched...
                             let correctCount = 0;
                             const questions = row.question_data || [];
                             const userAnswers = attempt.user_answers || {};
-
                             questions.forEach((q, idx) => {
                                 const userAnsRaw = userAnswers[idx] !== undefined ? userAnswers[idx] : null;
-                                const correctText = q.correct ? q.correct.trim() : "";
-                                const correctIdx = q.options.findIndex(opt => opt.trim() === correctText);
-                                const userChoiceIdx = userAnsRaw !== null ? parseInt(userAnsRaw) : null;
-
-                                if (userChoiceIdx !== null && userChoiceIdx === correctIdx) {
-                                    correctCount++;
-                                }
+                                const correctIdx = q.options.findIndex(opt => opt.trim() === q.correct.trim());
+                                if (userAnsRaw !== null && parseInt(userAnsRaw) === correctIdx) correctCount++;
                             });
-
                             const percentage = questions.length > 0 ? Math.round((correctCount / questions.length) * 100) : 0;
                             document.getElementById(`val-${subject}`).innerText = `${correctCount}/${questions.length}`;
                             document.getElementById(`pct-${subject}`).innerText = `${percentage}%`;
                         } else {
-                            // CASE 2: IN PROGRESS (New Logic)
                             card.classList.add('in-progress');
                             document.getElementById(`btn-${subject}`).innerText = "In Progress";
-                            card.onclick = null; // Ensure no device-hopping
                         }
                     } else {
-                        // CASE 3: NOT STARTED (Available)
                         card.classList.add('active');
-                        card.onclick = () => { localStorage.setItem('currentTestName', row.test_name); window.location.href = 'active-test.html'; };
+                        card.onclick = () => startTest(row.test_name, subject, `card-${subject}`);
                     }
                 });
             }
+        }
+
+        function filterTests(subject, btn) {
+            document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active-tab'));
+            btn.classList.add('active-tab');
+            document.querySelectorAll('.test-card').forEach(card => {
+                card.classList.toggle('hidden', subject !== 'all' && card.getAttribute('data-subject') !== subject);
+            });
+        }
+
+        function viewReport(subject) {
+            const testName = activeTestNames[subject];
+            if (testName) { localStorage.setItem('currentTestName', testName); window.location.href = 'performance.html'; }
         }
 
         async function handleLogout() { await supabaseClient.auth.signOut(); window.location.href = 'login.html'; }
