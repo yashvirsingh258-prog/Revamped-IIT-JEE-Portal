@@ -188,7 +188,7 @@
 
     let questions = []; let currentIdx = 0; let userAnswers = []; let marked = []; let timeLeft = 2400; let recordId = null; 
     const testName = localStorage.getItem('currentTestName');
-    const subjectName = localStorage.getItem('currentSubjectName');
+    const subjectName = localStorage.getItem('currentSubjectName').charAt(0).toUpperCase() + localStorage.getItem('currentSubjectName').slice(1);
 
     async function start() {
         try {
