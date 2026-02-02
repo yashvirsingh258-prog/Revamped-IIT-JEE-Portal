@@ -23,7 +23,6 @@
             --thin-line: #e2e8f0; 
         }
 
-        /* Full-Screen Loading Guard */
         #loadingOverlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: radial-gradient(circle at top left, #e0e7ff, #f8fafc);
@@ -43,7 +42,6 @@
             100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
         }
 
-        /* Slide Animations */
         @keyframes slideInRight { from { transform: translateX(30px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         @keyframes slideInLeft { from { transform: translateX(-30px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         .slide-right { animation: slideInRight 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
@@ -80,7 +78,6 @@
             box-shadow: 0 4px 20px rgba(0,0,0,0.03); margin-bottom: 25px;
         }
 
-        /* Option Cards & Radio Buttons */
         .option-sub-card {
             background: white; padding: 20px 25px; border-radius: 15px;
             margin-bottom: 12px; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -114,14 +111,23 @@
 
         #timer { font-size: 1.6rem; font-weight: 800; color: var(--navy); font-variant-numeric: tabular-nums; }
         
+        /* THE PALETTE CIRCLE SYSTEM */
         .p-circle { 
             aspect-ratio: 1/1; border-radius: 50%; display: flex; align-items: center; justify-content: center; 
             font-weight: 600; cursor: pointer; background: var(--grey-btn); color: #64748b; font-size: 0.85rem; 
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 2px solid transparent; margin: 3px; 
         }
+        
+        /* Rule: Hover shows Blue Border */
         .p-circle:hover { border-color: var(--accent-blue); transform: scale(1.15); background: white; box-shadow: 0 5px 15px rgba(0,0,0,0.08); }
+        
+        /* Rule: Active shows Pulsating Blue Border */
         .p-circle.active { border: 3px solid var(--accent-blue); background: white; color: var(--accent-blue); transform: scale(1.05); animation: pulse-blue 2s infinite; }
+        
+        /* Rule: Answered shows Green Background */
         .p-circle.answered { background: var(--correct); color: white; border-color: transparent; }
+        
+        /* Rule: Marked shows Purple Background */
         .p-circle.marked { background: var(--purple); color: white; border-color: transparent; }
     </style>
 </head>
@@ -180,6 +186,8 @@
         try {
             const { data: { user } } = await supabaseClient.auth.getUser();
             if (!user) { window.location.href = 'login.html'; return; }
+            
+            // Search by full email
             const username = user.email;
 
             const { data: qData } = await supabaseClient.from('questions_table').select('*').eq('test_name', testName);
@@ -187,7 +195,7 @@
             questions = qData[0].question_data;
             document.getElementById('testTitle').innerText = testName;
 
-            // FETCH EXISTING PROGRESS ONLY
+            // Fetch existing progress - Insert logic removed to prevent duplicates
             const { data: existingRecords } = await supabaseClient.from('student_progress').select('*').eq('username', username).eq('test_name', testName);
 
             if (existingRecords && existingRecords.length > 0) {
@@ -198,12 +206,9 @@
                 marked = record.marked_for_review || new Array(questions.length).fill(false);
                 currentIdx = record.current_index || 0;
                 
-                // Set time based on last sync
                 const startAt = new Date(record.updated_at).getTime();
                 timeLeft = Math.max(0, 2400 - Math.floor((new Date().getTime() - startAt) / 1000));
             } else {
-                // REDUNDANT INSERT REMOVED
-                // If no record exists, redirect back to selection to ensure tests.html creates it.
                 alert("Session not found. Please restart the test from the selection page.");
                 window.location.href = 'tests.html';
                 return;
@@ -264,8 +269,10 @@
         questions.forEach((_, i) => {
             const el = document.getElementById(`pc-${i}`); if(!el) return;
             el.className = 'p-circle';
+            // Order of priority: Active Pulse > Marked Purple > Answered Green > Default Grey
             if(i === currentIdx) el.classList.add('active');
-            if(marked[i]) el.classList.add('marked'); else if(userAnswers[i] !== null) el.classList.add('answered');
+            if(marked[i]) el.classList.add('marked'); 
+            else if(userAnswers[i] !== null) el.classList.add('answered');
         });
     }
 
