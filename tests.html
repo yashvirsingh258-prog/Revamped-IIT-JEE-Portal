@@ -52,11 +52,14 @@
         .test-card.loading .premium-loader-wrap { display: flex; }
         .test-card.active { border-left: 5px solid #0b4a8f; opacity: 1; pointer-events: auto; cursor: pointer; }
         .test-card.active:hover { transform: translateY(-8px); box-shadow: 0 12px 24px rgba(11, 74, 143, 0.1); }
-        .test-card.completed { border-left: 5px solid #10b981; opacity: 1; pointer-events: auto; }
+        
+        /* Updated Completed State */
+        .test-card.completed { border-left: 5px solid #10b981; opacity: 0.8; pointer-events: none; transform: none; box-shadow: none; }
+        
         .test-card.in-progress { border-left: 5px solid #f59e0b; opacity: 1; pointer-events: auto; }
         
         .score-info { display: none; margin-top: 20px; font-size: 0.95rem; }
-        .completed .score-info { display: block; }
+        .completed .score-info { display: block; margin-bottom: 8px; }
         .accuracy-pill { background: #f1f5f9; color: #0b4a8f; padding: 6px 14px; border-radius: 20px; font-weight: 700; cursor: pointer; }
         
         .subject-badge { display: inline-block; padding: 6px 12px; background: #eff6ff; color: #0b4a8f; border-radius: 8px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; margin-bottom: 16px; }
@@ -65,7 +68,17 @@
         .launch-btn { background: #cbd5e1; color: white; border: none; padding: 14px; border-radius: 12px; font-weight: 600; width: 100%; cursor: pointer; transition: 0.3s; }
         .active .launch-btn { background: #0b4a8f; }
         .in-progress .launch-btn { background: #f59e0b; }
-        .completed .launch-btn { background: #10b981; }
+        
+        /* Updated View Report Styling */
+        .completed .launch-btn { 
+            background: transparent; 
+            color: #10b981; 
+            padding: 0; 
+            width: auto; 
+            font-size: 0.8rem; 
+            text-transform: uppercase; 
+            letter-spacing: 0.5px;
+        }
     </style>
 </head>
 <body>
@@ -132,8 +145,6 @@
             const user = await checkAuth();
             const card = document.getElementById(cardId);
             const btn = document.getElementById(`btn-${subject}`);
-
-            // DIAGNOSTIC 1: Force Full Email Check
             const userEmail = user.email;
             
             if (!userEmail || !userEmail.includes('@')) {
@@ -145,7 +156,6 @@
             btn.innerText = "Syncing...";
 
             try {
-                // DIAGNOSTIC 2: Search for record using Primary Key ID
                 const { data: existing, error: searchError } = await supabaseClient
                     .from('student_progress')
                     .select('id, status')
@@ -175,17 +185,14 @@
                     status: 'in_progress'
                 };
 
-                // DIAGNOSTIC 3: Targeted Update vs Insert
                 let dbError;
                 if (existing?.id) {
-                    console.log("DIAGNOSTIC: Found existing record ID:", existing.id, "Updating now...");
                     const { error } = await supabaseClient
                         .from('student_progress')
                         .update(payload)
-                        .eq('id', existing.id); // Targeted update using Primary Key
+                        .eq('id', existing.id);
                     dbError = error;
                 } else {
-                    console.log(payload );
                     const { error } = await supabaseClient
                         .from('student_progress')
                         .insert(payload);
@@ -237,14 +244,8 @@
                         if (progress?.status === 'completed') {
                             card.classList.add('completed');
                             btn.innerText = "View Report";
-                            card.onclick = () => {
-                                localStorage.setItem('userEmail', user.email);
-                                localStorage.setItem('currentTestName', test.test_name);
-                                localStorage.setItem('currentSubjectName', subject);
-                                window.location.href = 'performance.html';
-                            };
+                            card.onclick = null; // Strictly disabled interaction as requested
                             
-                            // Score Calculation
                             let correct = 0;
                             const questions = test.question_data || [];
                             const answers = progress.user_answers || {};
