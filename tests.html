@@ -246,9 +246,6 @@
                             btn.innerText = "View Report";
                             card.onclick = null; /* Disabled card interaction [cite: 2026-02-01] */
                             btn.onclick = (e) => {
-                                window.alert(userEmail)
-                                window.alert(test.test_name)
-                                window.alert(sub)
                                 e.stopPropagation(); 
                                 localStorage.setItem('userEmail', userEmail);
                                 localStorage.setItem('currentTestName', test.test_name);
