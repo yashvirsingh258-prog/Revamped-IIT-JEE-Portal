@@ -248,11 +248,11 @@
                             btn.onclick = (e) => {
                                 window.alert(userEmail)
                                 window.alert(test.test_name)
-                                window.alert(subject)
+                                window.alert(sub)
                                 e.stopPropagation(); 
                                 localStorage.setItem('userEmail', userEmail);
                                 localStorage.setItem('currentTestName', test.test_name);
-                                localStorage.setItem('currentSubjectName', subject); 
+                                localStorage.setItem('currentSubjectName', sub); 
                                 window.location.href = 'performance.html';
                             };
                             
