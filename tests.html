@@ -9,7 +9,6 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: #f8fafc; display: flex; color: #1e293b; }
         
-        /* --- SIDEBAR STYLE FROM INDEX --- */
         nav { 
             width: 280px; background: #0b4a8f; color: white; padding: 60px 0; 
             position: fixed; height: 100vh; z-index: 100; display: flex; flex-direction: column; 
@@ -36,13 +35,21 @@
 
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 30px; }
         
+        /* Base Card Style (Greyed/Disabled by default until loaded) */
         .test-card { background: white; padding: 32px; border-radius: 24px; border: 1px solid #e2e8f0; transition: 0.3s; opacity: 0.6; pointer-events: none; position: relative; }
+        
+        /* Active State (Fresh Start) */
         .test-card.active { opacity: 1; pointer-events: auto; cursor: pointer; border-left: 5px solid #0b4a8f; }
         .test-card.active:hover { transform: translateY(-8px); box-shadow: 0 12px 24px rgba(11, 74, 143, 0.1); }
         .test-card.hidden { display: none; }
 
+        /* Submitted State (Preserved original look) */
         .test-card.completed { border-left: 5px solid #10b981; opacity: 1; pointer-events: auto; cursor: default; }
         .test-card.completed .launch-btn { background: #10b981 !important; cursor: not-allowed; pointer-events: none; }
+
+        /* IN PROGRESS STATE (New Requirement) */
+        .test-card.in-progress { opacity: 0.5; pointer-events: none; border-left: 5px solid #64748b; cursor: not-allowed; }
+        .test-card.in-progress .launch-btn { background: #94a3b8 !important; color: white; }
 
         .score-info { display: none; margin-bottom: 24px; font-size: 0.95rem; color: #1e293b; }
         .completed .score-info { display: block; }
@@ -73,7 +80,6 @@
         <a href="index.html" class="nav-link">Dashboard</a>
         <a href="tests.html" class="nav-link active-link">Available Tests</a>
         <a href="performance.html" class="nav-link">Performance</a>
-        
         <a onclick="handleLogout()" class="nav-link" style="margin-top: auto; border-top: 1px solid rgba(255,255,255,0.1);">Logout</a>
     </nav>
 
@@ -168,33 +174,41 @@
                     document.getElementById(`name-${subject}`).innerText = row.test_name;
                     activeTestNames[subject] = row.test_name;
                     
-                    // Match attempt using the OR logic from performance.html
                     const attempt = pRes.data ? pRes.data.find(p => p.test_name === row.test_name || p.subject === row.test_name) : null;
 
                     if (attempt) {
-                        card.classList.add('completed');
-                        document.getElementById(`btn-${subject}`).innerText = "Submitted";
+                        // Check if the exam is actually finished (submitted)
+                        if (attempt.is_submitted === true) {
+                            // CASE 1: SUBMITTED (Existing logic preserved)
+                            card.classList.add('completed');
+                            document.getElementById(`btn-${subject}`).innerText = "Submitted";
 
-                        // --- THE EXACT LOGIC FROM PERFORMANCE.HTML ---
-                        let correctCount = 0;
-                        const questions = row.question_data || [];
-                        const userAnswers = attempt.user_answers || {};
+                            let correctCount = 0;
+                            const questions = row.question_data || [];
+                            const userAnswers = attempt.user_answers || {};
 
-                        questions.forEach((q, idx) => {
-                            const userAnsRaw = userAnswers[idx] !== undefined ? userAnswers[idx] : null;
-                            const correctText = q.correct ? q.correct.trim() : "";
-                            const correctIdx = q.options.findIndex(opt => opt.trim() === correctText);
-                            const userChoiceIdx = userAnsRaw !== null ? parseInt(userAnsRaw) : null;
+                            questions.forEach((q, idx) => {
+                                const userAnsRaw = userAnswers[idx] !== undefined ? userAnswers[idx] : null;
+                                const correctText = q.correct ? q.correct.trim() : "";
+                                const correctIdx = q.options.findIndex(opt => opt.trim() === correctText);
+                                const userChoiceIdx = userAnsRaw !== null ? parseInt(userAnsRaw) : null;
 
-                            if (userChoiceIdx !== null && userChoiceIdx === correctIdx) {
-                                correctCount++;
-                            }
-                        });
+                                if (userChoiceIdx !== null && userChoiceIdx === correctIdx) {
+                                    correctCount++;
+                                }
+                            });
 
-                        const percentage = questions.length > 0 ? Math.round((correctCount / questions.length) * 100) : 0;
-                        document.getElementById(`val-${subject}`).innerText = `${correctCount}/${questions.length}`;
-                        document.getElementById(`pct-${subject}`).innerText = `${percentage}%`;
+                            const percentage = questions.length > 0 ? Math.round((correctCount / questions.length) * 100) : 0;
+                            document.getElementById(`val-${subject}`).innerText = `${correctCount}/${questions.length}`;
+                            document.getElementById(`pct-${subject}`).innerText = `${percentage}%`;
+                        } else {
+                            // CASE 2: IN PROGRESS (New Logic)
+                            card.classList.add('in-progress');
+                            document.getElementById(`btn-${subject}`).innerText = "In Progress";
+                            card.onclick = null; // Ensure no device-hopping
+                        }
                     } else {
+                        // CASE 3: NOT STARTED (Available)
                         card.classList.add('active');
                         card.onclick = () => { localStorage.setItem('currentTestName', row.test_name); window.location.href = 'active-test.html'; };
                     }
