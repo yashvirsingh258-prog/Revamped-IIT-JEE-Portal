@@ -187,6 +187,7 @@
             questions = qData[0].question_data;
             document.getElementById('testTitle').innerText = testName;
 
+            // FETCH EXISTING PROGRESS ONLY
             const { data: existingRecords } = await supabaseClient.from('student_progress').select('*').eq('username', username).eq('test_name', testName);
 
             if (existingRecords && existingRecords.length > 0) {
@@ -196,22 +197,18 @@
                 userAnswers = record.user_answers || new Array(questions.length).fill(null);
                 marked = record.marked_for_review || new Array(questions.length).fill(false);
                 currentIdx = record.current_index || 0;
+                
+                // Set time based on last sync
                 const startAt = new Date(record.updated_at).getTime();
                 timeLeft = Math.max(0, 2400 - Math.floor((new Date().getTime() - startAt) / 1000));
             } else {
-                userAnswers = new Array(questions.length).fill(null); marked = new Array(questions.length).fill(false);
-                const { data: newRec } = await supabaseClient.from('student_progress').insert([{ 
-                    student_id: user.id,
-                    username: username, 
-                    subject: testName, 
-                    test_name: testName,
-                    current_index: 0, 
-                    user_answers: userAnswers, 
-                    marked_for_review: marked,
-                    is_finished: false
-                }]).select();
-                if (newRec) recordId = newRec[0].id;
+                // REDUNDANT INSERT REMOVED
+                // If no record exists, redirect back to selection to ensure tests.html creates it.
+                alert("Session not found. Please restart the test from the selection page.");
+                window.location.href = 'tests.html';
+                return;
             }
+            
             setupPalette(); render(); runTimer();
             document.getElementById('loadingOverlay').style.opacity = '0';
             setTimeout(() => { document.getElementById('loadingOverlay').style.display = 'none'; }, 500);
