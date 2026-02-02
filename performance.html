@@ -56,11 +56,11 @@
         .bg-red { background: #fed7d7; color: #822727; }
 
         /* Minimalist "Soft Line" Filter Styles */
-        .filter-container { display: flex; gap: 30px; margin-bottom: 40px; padding: 5px 0; border-bottom: 1.5px solid #e2e8f0; align-items: flex-end; }
+        .filter-container { display: flex; gap: 30px; margin-bottom: 40px; padding: 5px 0; border-bottom: 1px solid #e2e8f0; align-items: flex-end; }
         .filter-item { display: flex; flex-direction: column; gap: 4px; }
         .filter-item label { font-size: 10px; text-transform: uppercase; font-weight: 700; color: #94a3b8; letter-spacing: 0.8px; }
         .search-grow { flex-grow: 1; }
-        .modern-input, .modern-select { border: none; background: transparent; color: #1e293b; font-size: 14px; outline: none; padding: 8px 0; transition: 0.2s; }
+        .modern-input, .modern-select { border: none; background: transparent; color: #1e293b; font-size: 13px; outline: none; padding: 8px 0; transition: 0.2s; }
         .modern-input { width: 100%; }
         .modern-input:focus { color: var(--primary-blue); }
         .modern-select { cursor: pointer; font-weight: 600; padding-right: 10px; }
@@ -92,7 +92,13 @@
             <div class="filter-container">
                 <div class="filter-item search-grow">
                     <label>Search Analysis</label>
-                    <input type="text" id="searchInput" placeholder="Find topic or keyword..." class="modern-input">
+                    <input type="text" id="searchInput" placeholder="Find keyword..." class="modern-input">
+                </div>
+                <div class="filter-item">
+                    <label>Topic</label>
+                    <select id="topicFilter" class="modern-select">
+                        <option value="all">All Topics</option>
+                    </select>
                 </div>
                 <div class="filter-item">
                     <label>Status</label>
@@ -127,10 +133,9 @@
         const supabaseKey = 'sb_publishable_V-KT1zvp-73dqHHvmx3fNA_iHw53TCl';
         const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-        // Global state for filtering
         let allQuestionsRaw = [];
         let currentAttemptRaw = null;
-        let currentFilters = { status: 'all', diff: 'all', search: '' };
+        let currentFilters = { status: 'all', diff: 'all', search: '', topic: 'all' };
 
         async function handleLogout() { await supabaseClient.auth.signOut(); window.location.href = 'login.html'; }
 
@@ -161,14 +166,27 @@
             if (qRes.data && pRes.data[0]) {
                 allQuestionsRaw = qRes.data.question_data;
                 currentAttemptRaw = pRes.data[0];
+                populateTopicFilter(allQuestionsRaw);
                 renderReport(allQuestionsRaw, currentAttemptRaw, qRes.data.test_name);
             }
         }
 
-        // Filter event listeners
+        function populateTopicFilter(questions) {
+            const topicSelect = document.getElementById('topicFilter');
+            const topics = [...new Set(questions.map(q => q.topic).filter(Boolean))].sort();
+            topicSelect.innerHTML = '<option value="all">All Topics</option>';
+            topics.forEach(t => {
+                const opt = document.createElement('option');
+                opt.value = t.toLowerCase();
+                opt.textContent = t;
+                topicSelect.appendChild(opt);
+            });
+        }
+
         document.getElementById('searchInput').addEventListener('input', e => { currentFilters.search = e.target.value.toLowerCase(); applyFilters(); });
         document.getElementById('statusFilter').addEventListener('change', e => { currentFilters.status = e.target.value; applyFilters(); });
         document.getElementById('diffFilter').addEventListener('change', e => { currentFilters.diff = e.target.value; applyFilters(); });
+        document.getElementById('topicFilter').addEventListener('change', e => { currentFilters.topic = e.target.value; applyFilters(); });
 
         function applyFilters() {
             const filtered = allQuestionsRaw.filter((q, idx) => {
@@ -183,9 +201,10 @@
                 else if(currentFilters.status === 'skipped') sMatch = !isAttempted;
 
                 let dMatch = currentFilters.diff === 'all' || (q.difficulty || '').toLowerCase() === currentFilters.diff;
+                let tMatch = currentFilters.topic === 'all' || (q.topic || '').toLowerCase() === currentFilters.topic;
                 let qMatch = currentFilters.search === '' || (q.q + (q.topic || '')).toLowerCase().includes(currentFilters.search);
 
-                return sMatch && dMatch && qMatch;
+                return sMatch && dMatch && tMatch && qMatch;
             });
             renderReport(filtered, currentAttemptRaw, localStorage.getItem('currentTestName'), true);
         }
