@@ -223,6 +223,7 @@
             } else {
                 userAnswers = new Array(questions.length).fill(null); 
                 marked = new Array(questions.length).fill(false);
+                window.alert("teri maa ka")
                 const { data: newRec } = await supabaseClient.from('student_progress').insert([{ 
                     student_id: user.id, username: username, subject: testName, test_name: testName,
                     current_index: 0, user_answers: userAnswers, marked_for_review: marked, is_finished: false
