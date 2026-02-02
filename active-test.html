@@ -196,16 +196,13 @@
             if (!user) { window.location.href = 'login.html'; return; }
             const username = user.email;
 
-            window.alert(subjectName)
-            window.alert(testName)
-            window.alert(username)
             const { data: qData } = await supabaseClient.from('questions_table').select('*').eq('test_name', testName).eq('subject', subjectName); // Double filtering for accuracy;
             if (!qData || qData.length === 0) return;
             questions = qData[0].question_data;
             document.getElementById('testTitle').innerText = testName;
-            window.alert(testName)
+
             const { data: existingRecords } = await supabaseClient.from('student_progress').select('*').eq('username', username).eq('test_name', testName).eq('subject', subjectName);
-            window.alert(existingRecords.length)
+
             if (existingRecords && existingRecords.length > 0) {
                 const record = existingRecords[0];
                 if (record.is_finished === true) { window.location.href = 'performance.html'; return; }
@@ -224,7 +221,6 @@
             } else {
                 userAnswers = new Array(questions.length).fill(null); 
                 marked = new Array(questions.length).fill(false);
-                window.alert("teri maa ka")
                 const { data: newRec } = await supabaseClient.from('student_progress').insert([{ 
                     student_id: user.id, username: username, subject: testName, test_name: testName,
                     current_index: 0, user_answers: userAnswers, marked_for_review: marked, is_finished: false
@@ -309,7 +305,9 @@
         // 1. Get current test details
         const testName = document.getElementById('testTitle').innerText;
         const username = localStorage.getItem('userEmail');
-    
+        window.alert(testName)
+        window.alert(subjectName)
+        window.alert(username)
         // 2. Update the database
         const { error } = await supabaseClient
             .from('student_progress')
