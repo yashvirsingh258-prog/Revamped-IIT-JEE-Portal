@@ -6,7 +6,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* CSS remains identical to your layout to maintain the premium feel */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: #f8fafc; display: flex; color: #1e293b; }
         
@@ -38,7 +37,6 @@
             transition: 0.3s; position: relative; overflow: hidden; opacity: 0.6; pointer-events: none; 
         }
         
-        /* Premium Centered Loader */
         .premium-loader-wrap {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(255,255,255,0.9); display: none;
@@ -57,7 +55,7 @@
         .test-card.completed { border-left: 5px solid #10b981; opacity: 1; pointer-events: auto; }
         .test-card.in-progress { border-left: 5px solid #f59e0b; opacity: 1; pointer-events: auto; }
         
-        .score-info { display: none; margin-bottom: 24px; font-size: 0.95rem; }
+        .score-info { display: none; margin-top: 20px; font-size: 0.95rem; }
         .completed .score-info { display: block; }
         .accuracy-pill { background: #f1f5f9; color: #0b4a8f; padding: 6px 14px; border-radius: 20px; font-weight: 700; cursor: pointer; }
         
@@ -81,7 +79,7 @@
 
     <main>
         <h1 style="margin-bottom: 10px; font-weight: 700; font-size: 2.2rem;">Select Subject</h1>
-        <div class="tabs-container" id="tabs">
+        <div class="tabs-container">
             <button class="tab-btn active-tab" onclick="filterTests('all', this)">All Tests</button>
             <button class="tab-btn" onclick="filterTests('physics', this)">Physics</button>
             <button class="tab-btn" onclick="filterTests('chemistry', this)">Chemistry</button>
@@ -90,27 +88,29 @@
 
         <div class="grid" id="test-grid">
             <div class="test-card" id="card-physics" data-subject="physics">
-                <div class="premium-loader-wrap"><div class="loader-bar-bg"><div class="loader-bar-fill"></div></div><p style="margin-top:10px; font-size:10px;">SYNCING DATA...</p></div>
+                <div class="premium-loader-wrap"><div class="loader-bar-bg"><div class="loader-bar-fill"></div></div></div>
                 <span class="subject-badge">Physics</span>
                 <h3 class="test-title">Physics Mock</h3>
                 <div class="test-name-db" id="name-physics">No active test</div>
-                <div class="score-info"><div class="score-row">Correct: <strong id="val-physics">0/0</strong> <span class="accuracy-pill" id="pct-physics">0%</span></div></div>
+                <div class="score-info">Correct: <strong id="val-physics">0/0</strong> <span class="accuracy-pill" id="pct-physics">0%</span></div>
                 <button class="launch-btn" id="btn-physics">Start Test</button>
             </div>
+
             <div class="test-card" id="card-chemistry" data-subject="chemistry">
-                <div class="premium-loader-wrap"><div class="loader-bar-bg"><div class="loader-bar-fill"></div></div><p style="margin-top:10px; font-size:10px;">SYNCING DATA...</p></div>
+                <div class="premium-loader-wrap"><div class="loader-bar-bg"><div class="loader-bar-fill"></div></div></div>
                 <span class="subject-badge">Chemistry</span>
                 <h3 class="test-title">Chemistry Mock</h3>
                 <div class="test-name-db" id="name-chemistry">No active test</div>
-                <div class="score-info"><div class="score-row">Correct: <strong id="val-chemistry">0/0</strong> <span class="accuracy-pill" id="pct-chemistry">0%</span></div></div>
+                <div class="score-info">Correct: <strong id="val-chemistry">0/0</strong> <span class="accuracy-pill" id="pct-chemistry">0%</span></div>
                 <button class="launch-btn" id="btn-chemistry">Start Test</button>
             </div>
+
             <div class="test-card" id="card-mathematics" data-subject="mathematics">
-                <div class="premium-loader-wrap"><div class="loader-bar-bg"><div class="loader-bar-fill"></div></div><p style="margin-top:10px; font-size:10px;">SYNCING DATA...</p></div>
+                <div class="premium-loader-wrap"><div class="loader-bar-bg"><div class="loader-bar-fill"></div></div></div>
                 <span class="subject-badge">Mathematics</span>
                 <h3 class="test-title">Maths Mock</h3>
                 <div class="test-name-db" id="name-mathematics">No active test</div>
-                <div class="score-info"><div class="score-row">Correct: <strong id="val-mathematics">0/0</strong> <span class="accuracy-pill" id="pct-mathematics">0%</span></div></div>
+                <div class="score-info">Correct: <strong id="val-mathematics">0/0</strong> <span class="accuracy-pill" id="pct-mathematics">0%</span></div>
                 <button class="launch-btn" id="btn-mathematics">Start Test</button>
             </div>
         </div>
@@ -133,29 +133,26 @@
             const card = document.getElementById(cardId);
             const btn = document.getElementById(`btn-${subject}`);
 
-            // Diagnostic Check: Ensure full email
+            // DIAGNOSTIC 1: Force Full Email Check
             const userEmail = user.email;
             if (!userEmail || !userEmail.includes('@')) {
-                alert("Auth Error: Malformed email detected. Please log out and back in.");
+                alert("CRITICAL ERROR: Valid full email address required. Found: " + userEmail);
                 return;
             }
 
             card.classList.add('loading');
-            btn.innerText = "Initializing...";
+            btn.innerText = "Syncing...";
 
             try {
-                // 1. Fetch Question Data (Safety Check)
-                const { data: qData, error: qErr } = await supabaseClient
-                    .from('questions_table').select('*').eq('test_name', testName).single();
-                if (qErr || !qData) throw new Error("Test data not found");
-
-                // 2. Strict SEARCH for existing progress record
-                const { data: existing, error: sErr } = await supabaseClient
+                // DIAGNOSTIC 2: Search for record using Primary Key ID
+                const { data: existing, error: searchError } = await supabaseClient
                     .from('student_progress')
                     .select('id, status')
                     .eq('username', userEmail)
                     .eq('test_name', testName)
                     .maybeSingle();
+
+                if (searchError) throw searchError;
 
                 if (existing?.status === 'completed') {
                     alert("Test already submitted.");
@@ -169,25 +166,25 @@
                     test_name: testName,
                     subject: subject.charAt(0).toUpperCase() + subject.slice(1),
                     current_index: 0,
-                    time_left: 40, // [2026-02-01]
+                    time_left: 40, 
                     user_answers: {},
                     confirmed_answered: {},
                     marked_for_review: {},
                     is_finished: false,
-                    status: 'in_progress' // [2026-02-02]
+                    status: 'in_progress'
                 };
 
-                // 3. Targeted UPDATE vs INSERT Logic
+                // DIAGNOSTIC 3: Targeted Update vs Insert
                 let dbError;
                 if (existing?.id) {
-                    console.log("DIAGNOSTIC: Found existing ID. Updating record:", existing.id);
+                    console.log("DIAGNOSTIC: Found existing record ID:", existing.id, "Updating now...");
                     const { error } = await supabaseClient
                         .from('student_progress')
                         .update(payload)
-                        .eq('id', existing.id); // Match by PRIMARY KEY only
+                        .eq('id', existing.id); // Targeted update using Primary Key
                     dbError = error;
                 } else {
-                    console.log("DIAGNOSTIC: No record found. Inserting new.");
+                    console.log("DIAGNOSTIC: No record found. Inserting new record...");
                     const { error } = await supabaseClient
                         .from('student_progress')
                         .insert(payload);
@@ -196,15 +193,14 @@
 
                 if (dbError) throw dbError;
 
-                // 4. Redirect - Progress bar stays until page clears
                 localStorage.setItem('currentTestName', testName);
                 window.location.href = 'active-test.html';
 
             } catch (err) {
-                console.error("Critical Failure:", err);
-                alert("Database sync failed. See console for details.");
+                console.error("Diagnostic Failure:", err);
+                alert("Database sync failed. See console for logs.");
                 card.classList.remove('loading');
-                btn.innerText = existing ? "Resume Test" : "Start Test";
+                btn.innerText = "Start Test";
             }
         }
 
@@ -238,9 +234,12 @@
                         if (progress?.status === 'completed') {
                             card.classList.add('completed');
                             btn.innerText = "View Report";
-                            card.onclick = () => viewReport(sub);
+                            card.onclick = () => {
+                                localStorage.setItem('currentTestName', test.test_name);
+                                window.location.href = 'performance.html';
+                            };
                             
-                            // Score Calc
+                            // Score Calculation
                             let correct = 0;
                             const questions = test.question_data || [];
                             const answers = progress.user_answers || {};
@@ -250,13 +249,14 @@
                             });
                             document.getElementById(`val-${sub}`).innerText = `${correct}/${questions.length}`;
                             document.getElementById(`pct-${sub}`).innerText = `${Math.round((correct/questions.length)*100)}%`;
-                        } else if (progress?.status === 'in_progress') {
-                            card.classList.add('in-progress', 'active');
-                            btn.innerText = "Resume Test";
-                            card.onclick = () => startTest(test.test_name, sub, `card-${sub}`);
                         } else {
                             card.classList.add('active');
-                            btn.innerText = "Start Test";
+                            if (progress?.status === 'in_progress') {
+                                card.classList.add('in-progress');
+                                btn.innerText = "Resume Test";
+                            } else {
+                                btn.innerText = "Start Test";
+                            }
                             card.onclick = () => startTest(test.test_name, sub, `card-${sub}`);
                         }
                     }
@@ -270,11 +270,6 @@
             document.querySelectorAll('.test-card').forEach(c => {
                 c.style.display = (s === 'all' || c.dataset.subject === s) ? 'block' : 'none';
             });
-        }
-
-        function viewReport(sub) {
-            localStorage.setItem('currentTestName', activeTestNames[sub]);
-            window.location.href = 'performance.html';
         }
 
         async function handleLogout() { await supabaseClient.auth.signOut(); window.location.href = 'login.html'; }
