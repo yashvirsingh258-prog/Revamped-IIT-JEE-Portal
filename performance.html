@@ -141,12 +141,28 @@
             questions.forEach((q, idx) => {
                 const uAns = attempt.user_answers?.[idx];
                 const cIdx = q.options.findIndex(o => o.trim() === q.correct.trim());
-                const isCorrect = uAns !== undefined && parseInt(uAns) === cIdx;
                 
-                if(uAns !== undefined) attempted++;
+                // 1. Check if the question was actually attempted
+                const isAttempted = uAns !== undefined && uAns !== null && uAns !== "";
+                const isCorrect = isAttempted && parseInt(uAns) === cIdx;
+                
+                if(isAttempted) attempted++;
                 if(isCorrect) correct++;
         
-                // Metadata handling
+                // Status Logic: Only mark Incorrect if it was actually attempted and wrong
+                let statusText = 'Skipped';
+                let statusClass = 'bg-grey';
+        
+                if (isAttempted) {
+                    if (isCorrect) {
+                        statusText = 'Correct';
+                        statusClass = 'bg-green';
+                    } else {
+                        statusText = 'Incorrect';
+                        statusClass = 'bg-red';
+                    }
+                }
+        
                 const diff = q.difficulty || 'Medium';
                 const qType = (q.type || 'MCQ').toUpperCase();
                 const diffClass = `diff-${diff.toLowerCase()}`;
@@ -158,9 +174,7 @@
                             <span class="meta-badge ${diffClass}">${diff}</span>
                             <span class="meta-badge badge-type">${qType}</span>
                         </div>
-                        <span class="badge ${uAns === undefined ? 'bg-grey' : (isCorrect ? 'bg-green' : 'bg-red')}">
-                            ${uAns === undefined ? 'Skipped' : (isCorrect ? 'Correct' : 'Incorrect')}
-                        </span>
+                        <span class="badge ${statusClass}">${statusText}</span>
                     </div>
                     <div class="question-body" style="margin-bottom: 20px;">${q.q}</div>
                     <div class="option-review">
@@ -171,7 +185,10 @@
                                 cls += ' opt-correct'; 
                                 sol = `<div class="solution-box"><b>EXPLANATION</b><br>${formatStepSolution(q.solution)}</div>`; 
                             }
-                            if(parseInt(uAns) === i && i !== cIdx) cls += ' opt-user-wrong';
+                            // Only highlight the user's choice as "wrong" if they actually picked it
+                            if(isAttempted && parseInt(uAns) === i && i !== cIdx) {
+                                cls += ' opt-user-wrong';
+                            }
                             return `<div class="${cls}"><span style="margin-right:10px; opacity:0.5">${String.fromCharCode(65+i)}.</span>${opt}${sol}</div>`;
                         }).join('')}
                     </div>
@@ -183,7 +200,6 @@
             document.getElementById('statAttempted').innerText = attempted;
             document.getElementById('statAccuracy').innerText = `${attempted > 0 ? Math.round((correct/attempted)*100) : 0}%`;
             
-            // Ensure MathJax processes the newly injected LaTeX $...$
             if (window.MathJax && MathJax.typesetPromise) {
                 MathJax.typesetPromise();
             }
