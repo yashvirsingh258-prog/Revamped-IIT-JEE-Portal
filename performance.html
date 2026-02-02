@@ -43,27 +43,36 @@
         .history-table th { background: #f1f5f9; padding: 15px; text-align: left; font-size: 0.8rem; color: #64748b; text-transform: uppercase; }
         .history-table td { padding: 15px; border-bottom: 1px solid #f1f5f9; font-size: 0.9rem; }
         
-        /* Metadata Badges */
         .meta-badge { font-size: 0.75rem; padding: 2px 8px; border-radius: 4px; font-weight: 600; text-transform: uppercase; }
         .diff-easy { background: #e6fffa; color: #2d3748; border: 1px solid #38b2ac; }
         .diff-medium { background: #fffaf0; color: #2d3748; border: 1px solid #ed8936; }
         .diff-hard { background: #fff5f5; color: #2d3748; border: 1px solid #f56565; }
         .badge-type { background: #ebf8ff; color: #2b6cb0; border: 1px solid #4299e1; }
         
-        /* Status Badges */
         .bg-grey { background: #edf2f7; color: #4a5568; }
         .bg-green { background: #c6f6d5; color: #22543d; }
         .bg-red { background: #fed7d7; color: #822727; }
 
-        /* Minimalist "Soft Line" Filter Styles */
-        .filter-container { display: flex; gap: 30px; margin-bottom: 40px; padding: 5px 0; border-bottom: 1px solid #e2e8f0; align-items: flex-end; }
+        /* EQUAL SPACING FILTER LOGIC */
+        .filter-container { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: flex-end; 
+            margin-bottom: 40px; 
+            padding: 5px 0; 
+            border-bottom: 1px solid #e2e8f0; 
+        }
         .filter-item { display: flex; flex-direction: column; gap: 4px; }
         .filter-item label { font-size: 10px; text-transform: uppercase; font-weight: 700; color: #94a3b8; letter-spacing: 0.8px; }
-        .search-grow { flex-grow: 1; }
+        
+        /* Fixed width for dropdowns to ensure even visual distribution */
+        .filter-item:not(.search-grow) { flex: 0 0 160px; }
+        .search-grow { flex: 1; margin-right: 40px; }
+        
         .modern-input, .modern-select { border: none; background: transparent; color: #1e293b; font-size: 13px; outline: none; padding: 8px 0; transition: 0.2s; }
         .modern-input { width: 100%; }
         .modern-input:focus { color: var(--primary-blue); }
-        .modern-select { cursor: pointer; font-weight: 600; padding-right: 10px; }
+        .modern-select { cursor: pointer; font-weight: 600; width: 100%; }
         .modern-select:hover { color: var(--primary-blue); }
     </style>
 </head>
@@ -212,12 +221,10 @@
         function renderReport(questions, attempt, testName, isFiltered = false) {
             if(!isFiltered) document.getElementById('reportTitle').innerText = testName;
             let html = '', correct = 0, attempted = 0, totalIncorrect = 0;
-            
             allQuestionsRaw.forEach((q, idx) => {
                 const uAns = attempt.user_answers?.[idx];
                 const cIdx = q.options.findIndex(o => o.trim() === q.correct.trim());
-                const isAtt = uAns !== undefined && uAns !== null && uAns !== "";
-                if(isAtt) {
+                if(uAns !== undefined && uAns !== null && uAns !== "") {
                     attempted++;
                     if(parseInt(uAns) === cIdx) correct++;
                     else totalIncorrect++;
@@ -237,14 +244,11 @@
                     statusClass = isCorrect ? 'bg-green' : 'bg-red';
                 }
 
-                const diff = q.difficulty || 'Medium';
-                const diffClass = `diff-${diff.toLowerCase()}`;
-
                 html += `<div class="q-row">
                     <div style="display:flex; justify-content:space-between; align-items: center; margin-bottom:15px;">
                         <div style="display:flex; gap: 10px; align-items: center;">
                             <span style="font-weight:700; font-size: 1.1em;">Q${originalIdx+1}</span>
-                            <span class="meta-badge ${diffClass}">${diff}</span>
+                            <span class="meta-badge diff-${(q.difficulty || 'Medium').toLowerCase()}">${q.difficulty || 'Medium'}</span>
                             <span class="meta-badge badge-type">${q.topic || (q.type || 'MCQ').toUpperCase()}</span>
                         </div>
                         <span class="badge ${statusClass}">${statusText}</span>
@@ -270,7 +274,6 @@
             document.getElementById('statAttempted').innerText = attempted;
             document.getElementById('statIncorrect').innerText = totalIncorrect;
             document.getElementById('statAccuracy').innerText = `${attempted > 0 ? Math.round((correct/attempted)*100) : 0}%`;
-            
             if (window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise();
         }
 
