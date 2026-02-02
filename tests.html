@@ -185,7 +185,7 @@
                         .eq('id', existing.id); // Targeted update using Primary Key
                     dbError = error;
                 } else {
-                    console.log(payload );
+                    window.alert(payload );
                     const { error } = await supabaseClient
                         .from('student_progress')
                         .insert(payload);
