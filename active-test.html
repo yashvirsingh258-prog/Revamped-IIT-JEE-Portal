@@ -188,7 +188,7 @@
 
     let questions = []; let currentIdx = 0; let userAnswers = []; let marked = []; let timeLeft = 2400; let recordId = null; 
     const testName = localStorage.getItem('currentTestName');
-    window.alert(localStorage.values)
+    const subjectName = localStorage.getItem('currentSubject');
 
     async function start() {
         try {
@@ -196,12 +196,12 @@
             if (!user) { window.location.href = 'login.html'; return; }
             const username = user.email;
 
-            const { data: qData } = await supabaseClient.from('questions_table').select('*').eq('test_name', testName);
+            const { data: qData } = await supabaseClient.from('questions_table').select('*').eq('test_name', testName).eq('subject', subjectName); // Double filtering for accuracy;
             if (!qData || qData.length === 0) return;
             questions = qData[0].question_data;
             document.getElementById('testTitle').innerText = testName;
 
-            const { data: existingRecords } = await supabaseClient.from('student_progress').select('*').eq('username', username).eq('test_name', testName);
+            const { data: existingRecords } = await supabaseClient.from('student_progress').select('*').eq('username', username).eq('test_name', testName).eq('subject', subjectName);
 
             if (existingRecords && existingRecords.length > 0) {
                 const record = existingRecords[0];
@@ -314,6 +314,7 @@
                 status: 'completed' // Updating status to completed as well
             })
             .eq('test_name', testName)
+            .eq('subject', subjectName) // Double filtering for accuracy
             .eq('username', username);
     
         if (error) {
