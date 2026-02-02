@@ -61,8 +61,15 @@
         .completed .score-info { display: block; margin-bottom: 8px; }
         
         /* Accuracy Label: Matching Score Visibility */
-        .accuracy-label { margin-left: 10px; color: #1e293b; }
-        // .accuracy-pill { background: #f1f5f9; color: #0b4a8f; padding: 6px 14px; border-radius: 20px; font-weight: 700; }
+        .accuracy-pill { 
+            color: #0b4a8f; 
+            font-weight: 700; 
+        }
+        
+        .accuracy-label { 
+            margin-left: 10px; 
+            color: #1e293b; 
+        }
         
         .subject-badge { display: inline-block; padding: 6px 12px; background: #eff6ff; color: #0b4a8f; border-radius: 8px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; margin-bottom: 16px; }
         .test-title { font-size: 1.4rem; font-weight: 700; color: #0f172a; margin-bottom: 20px; }
@@ -236,6 +243,13 @@
                             card.classList.add('completed');
                             btn.innerText = "View Report";
                             card.onclick = null; /* Disabled card interaction [cite: 2026-02-01] */
+                            btn.onclick = (e) => {
+                                e.stopPropagation(); 
+                                localStorage.setItem('userEmail', userEmail);
+                                localStorage.setItem('currentTestName', testName);
+                                localStorage.setItem('currentSubjectName', subject); 
+                                window.location.href = 'performance.html';
+                            };
                             
                             let correct = 0;
                             const questions = test.question_data || [];
