@@ -53,24 +53,25 @@
         .test-card.active { border-left: 5px solid #0b4a8f; opacity: 1; pointer-events: auto; cursor: pointer; }
         .test-card.active:hover { transform: translateY(-8px); box-shadow: 0 12px 24px rgba(11, 74, 143, 0.1); }
         
-        /* Updated Completed State: Disabled interaction [cite: 2026-02-01] */
+        /* Completed State: Strictly disabled [cite: 2026-02-01] */
         .test-card.completed { border-left: 5px solid #10b981; opacity: 1; pointer-events: none; transform: none; box-shadow: none; }
-        
         .test-card.in-progress { border-left: 5px solid #f59e0b; opacity: 1; pointer-events: auto; }
         
-        .score-info { display: none; margin-top: 20px; font-size: 0.95rem; }
-        .completed .score-info { display: block; margin-bottom: 8px; color: #1e293b; }
+        .score-info { display: none; margin-top: 20px; font-size: 0.95rem; color: #1e293b; }
+        .completed .score-info { display: block; margin-bottom: 8px; }
+        
+        /* Accuracy Label: Matching Score Visibility */
+        .accuracy-label { margin-left: 10px; color: #1e293b; }
         .accuracy-pill { background: #f1f5f9; color: #0b4a8f; padding: 6px 14px; border-radius: 20px; font-weight: 700; }
         
         .subject-badge { display: inline-block; padding: 6px 12px; background: #eff6ff; color: #0b4a8f; border-radius: 8px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; margin-bottom: 16px; }
-        .test-title { font-size: 1.4rem; font-weight: 700; color: #0f172a; }
-        .test-name-db { font-size: 0.9rem; color: #64748b; margin-bottom: 20px; }
+        .test-title { font-size: 1.4rem; font-weight: 700; color: #0f172a; margin-bottom: 20px; }
         
         .launch-btn { background: #cbd5e1; color: white; border: none; padding: 14px; border-radius: 12px; font-weight: 600; width: 100%; cursor: pointer; transition: 0.3s; }
         .active .launch-btn { background: #0b4a8f; }
         .in-progress .launch-btn { background: #f59e0b; }
         
-        /* Updated View Report: Centered text, slightly lower */
+        /* View Report: Green text, centered, nudged down */
         .completed .launch-btn { 
             background: transparent; 
             color: #10b981; 
@@ -81,7 +82,7 @@
             font-size: 0.8rem; 
             text-transform: uppercase; 
             letter-spacing: 0.5px;
-            cursor: default;
+            font-weight: 700;
         }
     </style>
 </head>
@@ -108,8 +109,11 @@
                 <div class="premium-loader-wrap"><div class="loader-bar-bg"><div class="loader-bar-fill"></div></div></div>
                 <span class="subject-badge">Physics</span>
                 <h3 class="test-title">Physics Mock</h3>
-                <div class="test-name-db" id="name-physics">No active test</div>
-                <div class="score-info">Correct: <strong id="val-physics">0/0</strong> <span style="margin-left:10px">Accuracy:</span> <span class="accuracy-pill" id="pct-physics">0%</span></div>
+                <div class="score-info">
+                    Correct: <strong id="val-physics">0/0</strong> 
+                    <span class="accuracy-label">Accuracy:</span> 
+                    <span class="accuracy-pill" id="pct-physics">0%</span>
+                </div>
                 <button class="launch-btn" id="btn-physics">Start Test</button>
             </div>
 
@@ -117,8 +121,11 @@
                 <div class="premium-loader-wrap"><div class="loader-bar-bg"><div class="loader-bar-fill"></div></div></div>
                 <span class="subject-badge">Chemistry</span>
                 <h3 class="test-title">Chemistry Mock</h3>
-                <div class="test-name-db" id="name-chemistry">No active test</div>
-                <div class="score-info">Correct: <strong id="val-chemistry">0/0</strong> <span style="margin-left:10px">Accuracy:</span> <span class="accuracy-pill" id="pct-chemistry">0%</span></div>
+                <div class="score-info">
+                    Correct: <strong id="val-chemistry">0/0</strong> 
+                    <span class="accuracy-label">Accuracy:</span> 
+                    <span class="accuracy-pill" id="pct-chemistry">0%</span>
+                </div>
                 <button class="launch-btn" id="btn-chemistry">Start Test</button>
             </div>
 
@@ -126,8 +133,11 @@
                 <div class="premium-loader-wrap"><div class="loader-bar-bg"><div class="loader-bar-fill"></div></div></div>
                 <span class="subject-badge">Mathematics</span>
                 <h3 class="test-title">Maths Mock</h3>
-                <div class="test-name-db" id="name-mathematics">No active test</div>
-                <div class="score-info">Correct: <strong id="val-mathematics">0/0</strong> <span style="margin-left:10px">Accuracy:</span> <span class="accuracy-pill" id="pct-mathematics">0%</span></div>
+                <div class="score-info">
+                    Correct: <strong id="val-mathematics">0/0</strong> 
+                    <span class="accuracy-label">Accuracy:</span> 
+                    <span class="accuracy-pill" id="pct-mathematics">0%</span>
+                </div>
                 <button class="launch-btn" id="btn-mathematics">Start Test</button>
             </div>
         </div>
@@ -137,7 +147,6 @@
         const supabaseUrl = 'https://ijxsnunkfhudwnkrwmzk.supabase.co';
         const supabaseKey = 'sb_publishable_V-KT1zvp-73dqHHvmx3fNA_iHw53TCl';
         const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
-        let activeTestNames = {};
 
         async function checkAuth() {
             const { data: { session } } = await supabaseClient.auth.getSession();
@@ -151,26 +160,19 @@
             const btn = document.getElementById(`btn-${subject}`);
             const userEmail = user.email;
             
-            if (!userEmail || !userEmail.includes('@')) {
-                alert("CRITICAL ERROR: Valid full email address required.");
-                return;
-            }
-
+            if (!userEmail) return;
             card.classList.add('loading');
             btn.innerText = "Syncing...";
 
             try {
-                const { data: existing, error: searchError } = await supabaseClient
+                const { data: existing } = await supabaseClient
                     .from('student_progress')
                     .select('id, status')
                     .eq('username', userEmail)
                     .eq('test_name', testName)
                     .maybeSingle();
 
-                if (searchError) throw searchError;
-
                 if (existing?.status === 'completed') {
-                    alert("Test already submitted.");
                     window.location.reload();
                     return;
                 }
@@ -181,7 +183,7 @@
                     test_name: testName,
                     subject: subject.charAt(0).toUpperCase() + subject.slice(1),
                     current_index: 0,
-                    time_left: 40, /* Timer requirement [cite: 2026-02-01] */
+                    time_left: 40, /* [cite: 2026-02-01] */
                     user_answers: {},
                     confirmed_answered: {},
                     marked_for_review: {},
@@ -189,29 +191,18 @@
                     status: 'in_progress'
                 };
 
-                let dbError;
                 if (existing?.id) {
-                    const { error } = await supabaseClient
-                        .from('student_progress')
-                        .update(payload)
-                        .eq('id', existing.id);
-                    dbError = error;
+                    await supabaseClient.from('student_progress').update(payload).eq('id', existing.id);
                 } else {
-                    const { error } = await supabaseClient
-                        .from('student_progress')
-                        .insert(payload);
-                    dbError = error;
+                    await supabaseClient.from('student_progress').insert(payload);
                 }
-
-                if (dbError) throw dbError;
 
                 localStorage.setItem('userEmail', user.email);
                 localStorage.setItem('currentTestName', testName);
-                localStorage.setItem('currentSubjectName', subject); /* Standardized key [cite: 2026-02-01] */
+                localStorage.setItem('currentSubjectName', subject); /* [cite: 2026-02-01] */
                 window.location.href = 'active-test.html';
 
             } catch (err) {
-                console.error("Failure:", err);
                 card.classList.remove('loading');
                 btn.innerText = "Start Test";
             }
@@ -235,19 +226,16 @@
 
                 ['physics', 'chemistry', 'mathematics'].forEach(sub => {
                     const card = document.getElementById(`card-${sub}`);
-                    const nameDisp = document.getElementById(`name-${sub}`);
                     const btn = document.getElementById(`btn-${sub}`);
                     const test = latestTests[sub];
 
                     if (test) {
-                        nameDisp.innerText = test.test_name;
-                        activeTestNames[sub] = test.test_name;
                         const progress = pRes.data?.find(p => p.test_name === test.test_name);
 
                         if (progress?.status === 'completed') {
                             card.classList.add('completed');
                             btn.innerText = "View Report";
-                            card.onclick = null; /* Disable click logic [cite: 2026-02-01] */
+                            card.onclick = null; /* Disabled card interaction [cite: 2026-02-01] */
                             
                             let correct = 0;
                             const questions = test.question_data || [];
@@ -260,12 +248,8 @@
                             document.getElementById(`pct-${sub}`).innerText = `${Math.round((correct/questions.length)*100)}%`;
                         } else {
                             card.classList.add('active');
-                            if (progress?.status === 'in_progress') {
-                                card.classList.add('in-progress');
-                                btn.innerText = "Resume Test";
-                            } else {
-                                btn.innerText = "Start Test";
-                            }
+                            btn.innerText = (progress?.status === 'in_progress') ? "Resume Test" : "Start Test";
+                            if (progress?.status === 'in_progress') card.classList.add('in-progress');
                             card.onclick = () => startTest(test.test_name, sub, `card-${sub}`);
                         }
                     }
@@ -282,7 +266,6 @@
         }
 
         async function handleLogout() { await supabaseClient.auth.signOut(); window.location.href = 'login.html'; }
-        
         syncWithDB();
     </script>
 </body>
