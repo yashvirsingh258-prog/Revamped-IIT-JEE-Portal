@@ -37,9 +37,9 @@
         
         .test-card { background: white; padding: 32px; border-radius: 24px; border: 1px solid #e2e8f0; transition: 0.3s; opacity: 0.6; pointer-events: none; position: relative; overflow: hidden; }
         
-        /* SLEEK PROGRESS BAR */
+        /* SLEEK MODERN PROGRESS BAR */
         .progress-loader { position: absolute; top: 0; left: 0; height: 4px; background: #0b4a8f; width: 0; transition: 0.4s; display: none; }
-        .test-card.loading .progress-loader { display: block; animation: loadWidth 2s infinite ease-in-out; }
+        .test-card.loading .progress-loader { display: block; animation: loadWidth 1.5s infinite ease-in-out; }
         @keyframes loadWidth { 0% { width: 0; left: 0; } 50% { width: 70%; } 100% { width: 100%; left: 100%; } }
 
         .test-card.active { opacity: 1; pointer-events: auto; cursor: pointer; border-left: 5px solid #0b4a8f; }
@@ -49,7 +49,7 @@
         .test-card.completed { border-left: 5px solid #10b981; opacity: 1; pointer-events: auto; cursor: default; }
         .test-card.completed .launch-btn { background: #10b981 !important; cursor: not-allowed; pointer-events: none; }
 
-        /* IN PROGRESS STYLE */
+        /* IN PROGRESS STATE */
         .test-card.in-progress { opacity: 0.5; pointer-events: none; border-left: 5px solid #64748b; cursor: not-allowed; }
         .test-card.in-progress .launch-btn { background: #94a3b8 !important; color: white; }
 
@@ -146,42 +146,43 @@
             const card = document.getElementById(cardId);
             const btn = document.getElementById(`btn-${subject}`);
 
-            // 1. Immediate Sleek UI Feedback
+            // 1. Instant UI Feedback
             card.classList.add('loading', 'in-progress');
             card.classList.remove('active');
             btn.innerText = "Initializing...";
-            
-            // 2. FOOLPROOF: Fresh DB Check before launching
-            const { data: latestStatus } = await supabaseClient
-                .from('student_progress')
-                .select('is_submitted')
-                .eq('student_id', user.id)
-                .eq('test_name', testName)
-                .single();
 
-            if (latestStatus) {
-                const status = latestStatus.is_submitted ? "Submitted" : "In Progress";
-                alert(`Cannot start test. This exam is already ${status} on another device.`);
-                window.location.reload(); // Re-sync the page UI
-                return;
-            }
+            try {
+                // 2. Real-time Concurrency Check
+                const { data: latestStatus } = await supabaseClient
+                    .from('student_progress')
+                    .select('is_submitted')
+                    .eq('student_id', user.id)
+                    .eq('test_name', testName)
+                    .maybeSingle();
 
-            // 3. Mark in DB as In Progress immediately
-            const { error } = await supabaseClient.from('student_progress').insert([
-                { 
-                    student_id: user.id, 
-                    test_name: testName, 
-                    subject: testName, 
-                    is_submitted: false, 
-                    updated_at: new Date().toISOString() 
+                if (latestStatus) {
+                    const statusText = latestStatus.is_submitted ? "Submitted" : "In Progress";
+                    alert(`This test is already ${statusText}.`);
+                    window.location.reload();
+                    return;
                 }
-            ]);
 
-            if (!error || error.code === '23505') { // Success or already exists
-                localStorage.setItem('currentTestName', testName);
-                window.location.href = 'active-test.html';
-            } else {
-                alert("Error starting test. Please try again.");
+                // 3. Set In Progress in DB (Upsert is safer for rapid clicks)
+                const { error } = await supabaseClient.from('student_progress').upsert({
+                    student_id: user.id,
+                    test_name: testName,
+                    subject: testName,
+                    is_submitted: false,
+                    updated_at: new Date().toISOString()
+                });
+
+                if (!error) {
+                    localStorage.setItem('currentTestName', testName);
+                    window.location.href = 'active-test.html';
+                } else { throw error; }
+
+            } catch (err) {
+                alert("Sync error. Please refresh.");
                 card.classList.remove('loading', 'in-progress');
                 card.classList.add('active');
                 btn.innerText = "Start Test";
@@ -208,9 +209,11 @@
 
                     if (attempt) {
                         if (attempt.is_submitted === true) {
+                            // CASE: SUBMITTED
                             card.classList.add('completed');
+                            card.classList.remove('in-progress', 'active');
                             document.getElementById(`btn-${subject}`).innerText = "Submitted";
-                            // Score calculation logic remains untouched...
+
                             let correctCount = 0;
                             const questions = row.question_data || [];
                             const userAnswers = attempt.user_answers || {};
@@ -223,32 +226,8 @@
                             document.getElementById(`val-${subject}`).innerText = `${correctCount}/${questions.length}`;
                             document.getElementById(`pct-${subject}`).innerText = `${percentage}%`;
                         } else {
+                            // CASE: IN PROGRESS
                             card.classList.add('in-progress');
+                            card.classList.remove('active', 'completed');
                             document.getElementById(`btn-${subject}`).innerText = "In Progress";
-                        }
-                    } else {
-                        card.classList.add('active');
-                        card.onclick = () => startTest(row.test_name, subject, `card-${subject}`);
-                    }
-                });
-            }
-        }
-
-        function filterTests(subject, btn) {
-            document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active-tab'));
-            btn.classList.add('active-tab');
-            document.querySelectorAll('.test-card').forEach(card => {
-                card.classList.toggle('hidden', subject !== 'all' && card.getAttribute('data-subject') !== subject);
-            });
-        }
-
-        function viewReport(subject) {
-            const testName = activeTestNames[subject];
-            if (testName) { localStorage.setItem('currentTestName', testName); window.location.href = 'performance.html'; }
-        }
-
-        async function handleLogout() { await supabaseClient.auth.signOut(); window.location.href = 'login.html'; }
-        syncWithDB();
-    </script>
-</body>
-</html>
+                            card.onclick = null;
