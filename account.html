@@ -434,47 +434,66 @@
     }
 
     // Add this to your existing script
-async function fetchCountryCodes() {
-   const select = document.getElementById('country-code-select');
+    async function fetchCountryCodes() {
+        const select = document.getElementById('country-code-select');
+        
+        // Check if we already loaded them to avoid redundant calls
+        if (select.options.length > 1) return; 
     
-    if (select.options.length > 1) return; 
-
-    try {
-        // This pulls EVERYTHING you inserted into the country_codes table
-        const { data, error } = await supabaseClient
-            .from('country_codes')
-            .select('country_code, dial_code')
-            .order('country_code', { ascending: true });
-
-        if (error) throw error;
-
-        // Clear existing "..." option if needed, then loop
-        select.innerHTML = ''; 
-
-        data.forEach(item => {
-            const opt = document.createElement('option');
-            opt.value = item.dial_code;
-            // This will display "USA +1", "NGA +234", etc.
-            opt.textContent = `${item.country_code} ${item.dial_code}`;
-            select.appendChild(opt);
-        });
-
-    } catch (err) {
-        console.error("Database fetch failed:", err.message);
-        // Minimal fallback if the DB is unreachable
-        select.innerHTML = '<option value="">Error</option>';
-    }
-}    
-
-// Update your toggleEdit function to trigger the fetch
-        const originalToggleEdit = toggleEdit;
-        toggleEdit = function(section) {
-            if (section === 'sec') {
-                fetchCountryCodes();
+        try {
+            // 1. Fetch from Supabase
+            const { data, error } = await supabaseClient
+                .from('country_codes')
+                .select('country_code, dial_code')
+                .order('country_code', { ascending: true });
+    
+            if (error) throw error;
+    
+            select.innerHTML = ''; 
+    
+            data.forEach(item => {
+                const opt = document.createElement('option');
+                opt.value = item.dial_code;
+                // Store ISO code (e.g., 'USA') in a data attribute for easy matching
+                opt.dataset.iso = item.country_code; 
+                opt.textContent = `${item.country_code} ${item.dial_code}`;
+                select.appendChild(opt);
+            });
+    
+            // 2. Automatically detect IP and set default
+            try {
+                const geoResponse = await fetch('https://ipapi.co/json/');
+                const geoData = await geoResponse.json();
+                const detectedIso = geoData.country_code_iso3; // Returns 'USA', 'IND', etc.
+    
+                if (detectedIso) {
+                    // Find the option where data-iso matches the detected country
+                    for (let i = 0; i < select.options.length; i++) {
+                        if (select.options[i].dataset.iso === detectedIso) {
+                            select.selectedIndex = i;
+                            break;
+                        }
+                    }
+                }
+            } catch (geoErr) {
+                console.warn("IP Location detection failed, staying at top of list.");
             }
-            originalToggleEdit(section);
-        };
-
+    
+        } catch (err) {
+            console.error("Database fetch failed:", err.message);
+            select.innerHTML = '<option value="">Error</option>';
+        }
+    }
+    
+    // Ensure the toggleEdit handles the call
+    const originalToggleEdit = toggleEdit;
+    toggleEdit = function(section) {
+        if (section === 'sec') {
+            fetchCountryCodes();
+        }
+        originalToggleEdit(section);
+    };
+    
     function handleLogout() { console.log("Logging out..."); }
 </script>
 </body>
