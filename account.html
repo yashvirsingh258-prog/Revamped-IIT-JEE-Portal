@@ -42,7 +42,7 @@
             border-right: 6px solid white !important; 
         }
 
-        /* Fixed logout - no more margin-top auto */
+        /* Removed margin-top: auto to prevent squashing items above */
         .logout-section {
             margin-top: 20px;
             border-top: 1px solid rgba(255,255,255,0.1);
@@ -77,14 +77,13 @@
         <div class="card">
             <div class="input-group">
                 <label>Full Name</label>
-                <input type="text" id="fullName" placeholder="Loading...">
+                <input type="text" id="fullName" placeholder="Enter name">
             </div>
             <button onclick="updateProfile()">Save Profile</button>
         </div>
     </main>
 
     <script>
-        // Use your existing Supabase logic here
         async function handleLogout() { window.location.href = 'login.html'; }
     </script>
 </body>
