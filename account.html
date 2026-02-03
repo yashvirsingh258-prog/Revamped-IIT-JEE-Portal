@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>JEE Portal | Account Settings</title>
+    <title>JEE Portal | Profile Settings</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
@@ -12,77 +12,75 @@
             --bg-light: #f8fafc;
             --border-color: #e2e8f0;
             --text-main: #1e293b;
-            --text-muted: #64748b;
+            --text-muted: #94a3b8; /* Lighter grey for secondary text */
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: var(--bg-light); display: flex; min-height: 100vh; color: var(--text-main); }
         
-        /* Sidebar [cite: 2026-02-01] */
+        /* Sidebar */
         nav { width: 260px; background: var(--primary-blue); color: white; padding: 40px 0; position: fixed; height: 100vh; display: flex; flex-direction: column; }
-        .logo-area { padding: 0 30px; margin-bottom: 40px; font-weight: 800; font-size: 1.4rem; }
+        .logo-area { padding: 0 30px; margin-bottom: 40px; font-weight: 800; font-size: 1.4rem; letter-spacing: 1px; }
         .nav-link { display: block; padding: 15px 30px; text-decoration: none; color: rgba(255, 255, 255, 0.6); font-size: 0.9rem; transition: 0.3s; cursor: pointer; }
         .active-link { color: white; background: var(--active-strip); border-right: 4px solid white; }
 
-        /* Main Content Area */
+        /* Main Layout */
         main { margin-left: 260px; flex: 1; padding: 40px 60px; }
-        .page-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 30px; }
+        .page-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 25px; }
 
-        /* Layout Grid */
-        .profile-container { display: grid; grid-template-columns: 200px 1fr; gap: 40px; }
+        .profile-container { display: grid; grid-template-columns: 200px 1fr; gap: 50px; }
         
-        /* Left Navigation [cite: 2026-02-01] */
-        .settings-nav { position: relative; display: flex; flex-direction: column; gap: 10px; }
-        .settings-nav::after { content: ""; position: absolute; right: -20px; top: 0; height: 100%; width: 1px; background: var(--border-color); }
+        /* Vertical Nav & Line */
+        .settings-nav { position: relative; display: flex; flex-direction: column; gap: 8px; height: fit-content; }
+        .settings-nav::after { content: ""; position: absolute; right: -25px; top: 0; height: 100%; width: 1px; background: var(--border-color); }
         
         .s-nav-btn { 
-            text-align: left; padding: 10px 15px; border: none; background: none; 
-            border-radius: 6px; cursor: pointer; font-size: 0.95rem; color: var(--text-muted); 
-            transition: 0.2s; 
+            text-align: left; padding: 12px 15px; border: none; background: none; 
+            border-radius: 6px; cursor: pointer; font-size: 0.9rem; color: #64748b; 
+            transition: 0.2s; font-weight: 500;
         }
         .s-nav-btn.active { background: #f1f5f9; color: var(--primary-blue); font-weight: 600; }
 
-        /* Information Boxes */
+        /* Information Cards */
         .info-card { 
             background: white; border: 1px solid var(--border-color); 
-            border-radius: 12px; padding: 25px; margin-bottom: 25px; position: relative;
+            border-radius: 12px; padding: 25px; margin-bottom: 20px; position: relative;
         }
         
-        /* Avatar Section */
         .avatar-header { display: flex; align-items: center; gap: 20px; }
-        .avatar-img { width: 70px; height: 70px; border-radius: 50%; background: #e2e8f0; object-fit: cover; }
-        .user-meta h2 { font-size: 1.1rem; font-weight: 700; }
-        .user-meta p { font-size: 0.85rem; color: var(--text-muted); }
+        .avatar-img { width: 64px; height: 64px; border-radius: 50%; background: #e2e8f0; object-fit: cover; border: 2px solid #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .user-meta h2 { font-size: 1rem; font-weight: 700; }
+        .user-meta p { font-size: 0.8rem; color: #64748b; margin-top: 2px; }
 
-        /* Edit Button Box */
+        /* Subtle Edit Box [cite: 2026-02-01] */
         .edit-box { 
             position: absolute; top: 20px; right: 20px;
-            border: 1px solid var(--border-color); border-radius: 8px;
-            padding: 6px 14px; display: flex; align-items: center; gap: 8px;
-            cursor: pointer; font-size: 0.85rem; font-weight: 600; color: var(--text-main);
+            border: 1px solid #e2e8f0; border-radius: 6px;
+            padding: 4px 10px; display: flex; align-items: center; gap: 6px;
+            cursor: pointer; font-size: 0.75rem; font-weight: 600; color: #94a3b8; /* Lighter grey */
             transition: 0.2s; background: white;
         }
-        .edit-box:hover { background: #f8fafc; }
+        .edit-box:hover { color: var(--primary-blue); border-color: var(--primary-blue); }
+        .edit-box img { width: 12px; height: 12px; opacity: 0.5; }
 
-        /* Data Grid */
-        .section-title { font-size: 0.95rem; font-weight: 700; margin-bottom: 20px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; }
-        .data-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px 40px; }
-        .data-item label { display: block; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 4px; }
-        .data-item span { font-size: 0.95rem; font-weight: 600; }
+        .section-title { font-size: 0.85rem; font-weight: 700; margin-bottom: 20px; color: var(--text-main); }
+        .data-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px 40px; }
+        .data-item label { display: block; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 4px; font-weight: 500; }
+        .data-item span { font-size: 0.9rem; font-weight: 600; color: var(--text-main); }
 
-        /* Form Elements */
+        /* Form Controls */
         .edit-mode { display: none; }
         .modern-input { 
             width: 100%; padding: 10px; border: 1px solid var(--border-color); 
-            border-radius: 6px; margin-top: 5px; font-size: 0.9rem; outline: none; 
+            border-radius: 6px; margin-top: 5px; font-size: 0.85rem; outline: none; background: #fcfdfe;
         }
-        .btn-save { background: var(--primary-blue); color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 600; cursor: pointer; margin-top: 20px; }
-        .btn-cancel { background: #f1f5f9; color: var(--text-muted); border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; margin-left: 10px; }
+        .btn-save { background: var(--primary-blue); color: white; border: none; padding: 10px 18px; border-radius: 6px; font-weight: 600; cursor: pointer; margin-top: 20px; font-size: 0.85rem; }
+        .btn-cancel { background: none; color: #94a3b8; border: none; padding: 10px 18px; cursor: pointer; font-size: 0.85rem; font-weight: 500; }
     </style>
 </head>
 <body>
 
 <nav>
-    <div class="logo-area">JEE Portal</div>
+    <div class="logo-area">H22</div>
     <a href="index.html" class="nav-link">Dashboard</a>
     <a href="tests.html" class="nav-link">Available Tests</a>
     <a href="performance.html" class="nav-link">Performance</a>
@@ -95,60 +93,93 @@
     
     <div class="profile-container">
         <div class="settings-nav">
-            <button class="s-nav-btn active" onclick="showSection('personal', this)">My Profile</button>
+            <button class="s-nav-btn active" onclick="showSection('identity', this)">Identity</button>
+            <button class="s-nav-btn" onclick="showSection('aspirations', this)">Aspirations</button>
             <button class="s-nav-btn" onclick="showSection('security', this)">Security</button>
-            <button class="s-nav-btn" style="color:#ef4444">Delete Account</button>
         </div>
 
         <div id="content-area">
-            <div id="personal" class="form-section active">
+            <div id="identity" class="form-section active">
                 <div class="info-card">
                     <div class="avatar-header">
                         <img src="https://ui-avatars.com/api/?name=User&background=0b4a8f&color=fff" class="avatar-img" id="avatar-img">
                         <div class="user-meta">
                             <h2 id="meta-name">Loading...</h2>
-                            <p id="meta-role">Student</p>
-                            <p id="meta-location">India</p>
+                            <p id="meta-prep">Mode: Loading...</p>
+                            <p id="meta-state">Location: Loading...</p>
                         </div>
                     </div>
-                    <div class="edit-box" onclick="toggleEdit('personal')">
-                        Edit <img src="https://img.icons8.com/material-outlined/16/000000/edit--v1.png"/>
+                    <div class="edit-box" onclick="toggleEdit('identity')">
+                        Edit <img src="https://img.icons8.com/material-outlined/24/94a3b8/edit.png"/>
                     </div>
                 </div>
 
                 <div class="info-card">
                     <h3 class="section-title">Personal Information</h3>
-                    
-                    <div id="personal-view">
+                    <div id="identity-view">
                         <div class="data-grid">
                             <div class="data-item"><label>Full Name</label><span id="view-name">Not set</span></div>
                             <div class="data-item"><label>Gender</label><span id="view-gender">Not set</span></div>
                             <div class="data-item"><label>Email Address</label><span id="view-email">Not set</span></div>
                             <div class="data-item"><label>Phone Number</label><span id="view-phone">Not set</span></div>
+                            <div class="data-item"><label>State</label><span id="view-state">Not set</span></div>
                         </div>
                     </div>
 
-                    <div id="personal-edit" class="edit-mode">
+                    <div id="identity-edit" class="edit-mode">
                         <div class="data-grid">
                             <div class="data-item"><label>Full Name</label><input type="text" id="input-name" class="modern-input"></div>
                             <div class="data-item"><label>Gender</label>
                                 <select id="input-gender" class="modern-input">
                                     <option value="Male">Male</option>
                                     <option value="Female">Female</option>
+                                    <option value="Other">Other</option>
                                 </select>
                             </div>
                             <div class="data-item"><label>Phone Number</label><input type="text" id="input-phone" class="modern-input"></div>
+                            <div class="data-item"><label>State</label><input type="text" id="input-state" class="modern-input"></div>
                         </div>
-                        <button class="btn-save" onclick="updateProfile()">Save Changes</button>
-                        <button class="btn-cancel" onclick="toggleEdit('personal')">Cancel</button>
+                        <button class="btn-save" onclick="updateProfile('identity')">Save Changes</button>
+                        <button class="btn-cancel" onclick="toggleEdit('identity')">Cancel</button>
                     </div>
                 </div>
+            </div>
 
+            <div id="aspirations" class="form-section" style="display:none">
                 <div class="info-card">
-                    <h3 class="section-title">Academic Details</h3>
-                    <div class="data-grid">
-                        <div class="data-item"><label>Target Year</label><span id="view-target">2026</span></div>
-                        <div class="data-item"><label>Dream Institute</label><span id="view-college">Not set</span></div>
+                    <h3 class="section-title">Academic Goals</h3>
+                    <div class="edit-box" onclick="toggleEdit('aspirations')">
+                        Edit <img src="https://img.icons8.com/material-outlined/24/94a3b8/edit.png"/>
+                    </div>
+                    <div id="aspirations-view">
+                        <div class="data-grid">
+                            <div class="data-item"><label>Target Year</label><span id="view-targetYear">Not set</span></div>
+                            <div class="data-item"><label>Target College</label><span id="view-college">Not set</span></div>
+                            <div class="data-item"><label>Current Grade</label><span id="view-grade">Not set</span></div>
+                            <div class="data-item"><label>Prep Mode</label><span id="view-prep">Not set</span></div>
+                        </div>
+                    </div>
+                    <div id="aspirations-edit" class="edit-mode">
+                        <div class="data-grid">
+                            <div class="data-item"><label>Target Year (2024-2030)</label><input type="number" id="input-year" min="2024" max="2030" class="modern-input"></div>
+                            <div class="data-item"><label>Target College</label><input type="text" id="input-college" class="modern-input"></div>
+                            <div class="data-item"><label>Current Grade</label>
+                                <select id="input-grade" class="modern-input">
+                                    <option value="Class 11">Class 11</option>
+                                    <option value="Class 12">Class 12</option>
+                                    <option value="Dropper">Dropper</option>
+                                </select>
+                            </div>
+                            <div class="data-item"><label>Prep Mode</label>
+                                <select id="input-prep" class="modern-input">
+                                    <option value="Self Study">Self Study</option>
+                                    <option value="Online Coaching">Online Coaching</option>
+                                    <option value="Offline Coaching">Offline Coaching</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button class="btn-save" onclick="updateProfile('aspirations')">Save Goals</button>
+                        <button class="btn-cancel" onclick="toggleEdit('aspirations')">Cancel</button>
                     </div>
                 </div>
             </div>
@@ -160,6 +191,13 @@
     const supabaseUrl = 'https://ijxsnunkfhudwnkrwmzk.supabase.co';
     const supabaseKey = 'sb_publishable_V-KT1zvp-73dqHHvmx3fNA_iHw53TCl';
     const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+    function showSection(id, btn) {
+        document.querySelectorAll('.form-section').forEach(s => s.style.display = 'none');
+        document.querySelectorAll('.s-nav-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(id).style.display = 'block';
+        btn.classList.add('active');
+    }
 
     function toggleEdit(section) {
         const v = document.getElementById(section + '-view');
@@ -175,31 +213,52 @@
 
         const { data } = await supabaseClient.from('profiles').select('*').eq('id', session.user.id).single();
         if (data) {
-            // View Mode [cite: 2026-02-01]
+            // Meta [cite: 2026-02-01]
+            document.getElementById('meta-name').innerText = data.full_name || 'Set your name';
+            document.getElementById('meta-prep').innerText = `Mode: ${data.prep_mode || 'Not set'}`;
+            document.getElementById('meta-state').innerText = `Location: ${data.state || 'Not set'}`;
+
+            // Identity [cite: 2026-02-02]
             document.getElementById('view-name').innerText = data.full_name || 'Not set';
-            document.getElementById('meta-name').innerText = data.full_name || 'User Name';
             document.getElementById('view-email').innerText = session.user.email;
             document.getElementById('view-phone').innerText = data.phone_number || 'Not set';
             document.getElementById('view-gender').innerText = data.gender || 'Not set';
+            document.getElementById('view-state').innerText = data.state || 'Not set';
             
-            // Input Fields [cite: 2026-02-01]
+            // Aspirations [cite: 2026-02-02]
+            document.getElementById('view-targetYear').innerText = data.target_year || 'Not set';
+            document.getElementById('view-college').innerText = data.target_college || 'Not set';
+            document.getElementById('view-grade').innerText = data.current_grade || 'Not set';
+            document.getElementById('view-prep').innerText = data.prep_mode || 'Not set';
+
+            // Inputs
             document.getElementById('input-name').value = data.full_name || '';
+            document.getElementById('input-state').value = data.state || '';
             document.getElementById('input-phone').value = data.phone_number || '';
-            document.getElementById('input-gender').value = data.gender || 'Male';
+            document.getElementById('input-year').value = data.target_year || 2026;
+            document.getElementById('input-college').value = data.target_college || '';
         }
     }
 
-    async function updateProfile() {
+    async function updateProfile(section) {
         const { data: { session } } = await supabaseClient.auth.getSession();
-        const updates = {
-            id: session.user.id,
-            full_name: document.getElementById('input-name').value,
-            phone_number: document.getElementById('input-phone').value,
-            gender: document.getElementById('input-gender').value,
-            updated_at: new Date()
-        };
+        let updates = { id: session.user.id, updated_at: new Date() };
+
+        if (section === 'identity') {
+            updates.full_name = document.getElementById('input-name').value;
+            updates.gender = document.getElementById('input-gender').value;
+            updates.phone_number = document.getElementById('input-phone').value;
+            updates.state = document.getElementById('input-state').value;
+        } else {
+            updates.target_year = parseInt(document.getElementById('input-year').value);
+            updates.target_college = document.getElementById('input-college').value;
+            updates.current_grade = document.getElementById('input-grade').value;
+            updates.prep_mode = document.getElementById('input-prep').value;
+        }
+
         const { error } = await supabaseClient.from('profiles').upsert(updates);
         if (!error) location.reload();
+        else alert(error.message);
     }
 
     loadProfile();
