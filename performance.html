@@ -189,7 +189,10 @@
                     .order('updated_at', { ascending: false })
                     .limit(1)
             ]);
-        
+            
+            window.alert(pRes.data[0])
+            window.alert(qRes.data[0])
+            
             if (qRes.data && pRes.data[0]) {
                 allQuestionsRaw = qRes.data.question_data;
                 currentAttemptRaw = pRes.data[0];
