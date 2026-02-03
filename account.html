@@ -2,291 +2,120 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JEE Portal | Account Settings</title>
+    <title>JEE Portal | Accounts</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root { 
             --primary-blue: #1a408c; 
-            --active-strip: rgba(255, 255, 255, 0.1); 
             --bg-light: #f8fafc;
-            --border-color: #e2e8f0;
         }
-        
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background: var(--bg-light); 
-            display: flex; 
-            min-height: 100vh; 
-            color: #1e293b; 
-        }
-        
-        /* SIDEBAR - Fixed list flow to ensure all links appear */
+        body { font-family: 'Inter', sans-serif; background: var(--bg-light); display: flex; }
+
+        /* SIDEBAR - Standard Fixed List (No Flex Pushing) */
         nav { 
             width: 280px; 
             background: var(--primary-blue); 
-            color: white; 
-            padding: 40px 0; 
-            position: fixed; 
             height: 100vh; 
-            z-index: 1000; 
-            display: flex; 
-            flex-direction: column;
+            position: fixed; 
+            left: 0; 
+            top: 0;
+            z-index: 9999; /* Higher than everything else */
+            padding-top: 50px;
         }
 
-        .logo-area { 
-            padding: 0 40px; 
-            margin-bottom: 40px; 
-        }
-        
-        .logo-area h2 { 
-            font-size: 1.4rem; 
-            letter-spacing: 4px; 
-            font-weight: 800; 
-            text-transform: uppercase; 
-        }
-        
-        /* Links container ensures they stay together */
-        .nav-links-container {
-            display: flex;
-            flex-direction: column;
-        }
+        .logo-area { padding: 0 40px; margin-bottom: 50px; color: white; }
+        .logo-area h2 { letter-spacing: 4px; font-weight: 800; text-transform: uppercase; font-size: 1.4rem; }
 
+        /* Each link is a block—they MUST stack */
         .nav-link { 
             display: block; 
-            padding: 16px 40px; 
+            padding: 18px 40px; 
+            color: rgba(255, 255, 255, 0.6); 
             text-decoration: none; 
-            color: rgba(255, 255, 255, 0.7); 
-            font-size: 0.85rem; 
             font-weight: 700; 
-            text-transform: uppercase; 
-            cursor: pointer; 
-            transition: 0.2s; 
-            border-right: 6px solid transparent; 
-        }
-        
-        .nav-link:hover { 
-            color: white; 
-            background: rgba(255, 255, 255, 0.05); 
+            font-size: 0.85rem; 
+            text-transform: uppercase;
+            border-right: 6px solid transparent;
         }
 
-        /* Active state with the white bar from your screenshot */
+        /* Matches your screenshot with the white strip */
         .active-link { 
+            background: rgba(255,255,255,0.1); 
             color: white !important; 
-            background: var(--active-strip) !important; 
             border-right: 6px solid white !important; 
         }
 
-        .logout-btn { 
-            margin-top: 30px; /* Space after Account link */
-            padding: 20px 40px; 
-            border-top: 1px solid rgba(255,255,255,0.1); 
-            opacity: 0.8;
-        }
+        .logout-btn { color: #ff8a8a !important; margin-top: 40px; border-top: 1px solid rgba(255,255,255,0.1); }
 
-        /* MAIN CONTENT */
-        main { 
-            margin-left: 280px; 
-            flex: 1; 
-            padding: 50px 70px; 
-        }
+        /* MAIN CONTENT - Ensure it doesn't overlap */
+        main { margin-left: 280px; width: calc(100% - 280px); padding: 60px; }
         
-        .header-sec { margin-bottom: 40px; }
-        .header-sec h1 { font-size: 2.2rem; font-weight: 800; color: var(--primary-blue); }
-        .header-sec p { color: #64748b; font-size: 1rem; margin-top: 5px; }
-
-        /* SETTINGS GRID */
-        .settings-grid { 
-            display: grid; 
-            grid-template-columns: 280px 1fr; 
-            gap: 40px; 
-            align-items: start; 
-        }
-
-        .settings-nav { 
-            background: white; 
-            border-radius: 16px; 
-            border: 1px solid var(--border-color); 
-            padding: 10px; 
-        }
-
-        .s-nav-btn { 
-            width: 100%; 
-            text-align: left; 
-            padding: 14px 20px; 
-            border: none; 
-            background: none; 
-            border-radius: 10px; 
-            cursor: pointer; 
-            font-weight: 600; 
-            color: #64748b; 
-            transition: 0.2s; 
-            font-size: 0.9rem; 
-            margin-bottom: 5px; 
-        }
-
-        .s-nav-btn.active { 
-            background: #f1f5f9; 
-            color: var(--primary-blue); 
-        }
-
-        .settings-card { 
-            background: white; 
-            border-radius: 20px; 
-            border: 1px solid var(--border-color); 
-            padding: 40px; 
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05); 
-        }
-        
-        .form-section { display: none; }
-        .form-section.active { display: block; animation: fadeIn 0.4s ease; }
-        
-        @keyframes fadeIn { 
-            from { opacity: 0; transform: translateY(10px); } 
-            to { opacity: 1; transform: translateY(0); } 
-        }
-
-        .input-group { margin-bottom: 25px; }
-        .input-group label { 
-            display: block; 
-            font-size: 0.75rem; 
-            font-weight: 800; 
-            text-transform: uppercase; 
-            color: #94a3b8; 
-            margin-bottom: 8px; 
-            letter-spacing: 1px; 
-        }
-
-        .modern-input { 
-            width: 100%; 
-            padding: 14px 16px; 
-            border-radius: 12px; 
-            border: 1px solid var(--border-color); 
-            background: #fcfdfe; 
-            font-size: 1rem; 
-            transition: 0.3s; 
-            outline: none; 
-        }
-
-        .btn-save { 
-            background: var(--primary-blue); 
-            color: white; 
-            border: none; 
-            padding: 16px 32px; 
-            border-radius: 12px; 
-            font-weight: 700; 
-            cursor: pointer; 
-            transition: 0.3s; 
-        }
-
-        .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        /* Modern Form UI */
+        .card { background: white; padding: 40px; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        .input-group { margin-bottom: 20px; }
+        label { display: block; font-size: 0.75rem; font-weight: 800; color: #94a3b8; margin-bottom: 8px; text-transform: uppercase; }
+        input, select { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0; outline: none; font-size: 1rem; }
+        button { background: var(--primary-blue); color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 700; cursor: pointer; margin-top: 10px; }
     </style>
 </head>
 <body>
+
     <nav>
         <div class="logo-area"><h2>JEE PORTAL</h2></div>
-        <div class="nav-links-container">
-            <a href="index.html" class="nav-link">Dashboard</a>
-            <a href="tests.html" class="nav-link">Available Tests</a>
-            <a href="performance.html" class="nav-link">Performance</a>
-            <a href="account.html" class="nav-link active-link">Account</a>
-            <a onclick="handleLogout()" class="nav-link logout-btn">Logout</a>
-        </div>
+        
+        <a href="index.html" class="nav-link">Dashboard</a>
+        <a href="tests.html" class="nav-link">Available Tests</a>
+        <a href="performance.html" class="nav-link">Performance</a>
+        <a href="account.html" class="nav-link active-link">Account</a>
+        <a onclick="handleLogout()" class="nav-link logout-btn">Logout</a>
     </nav>
 
     <main>
-        <div class="header-sec">
-            <h1>Account Settings</h1>
-            <p>Manage your identity and preparation goals [cite: 2026-02-01].</p>
+        <div style="margin-bottom: 30px;">
+            <h1 style="font-size: 2rem; color: var(--primary-blue);">Account Settings</h1>
+            <p style="color: #64748b;">Manage your student profile and academic targets.</p>
         </div>
 
-        <div class="settings-grid">
-            <div class="settings-nav">
-                <button class="s-nav-btn active" onclick="showSection('personal', this)">Personal Profile</button>
-                <button class="s-nav-btn" onclick="showSection('academic', this)">Academic Goals</button>
-                <button class="s-nav-btn" onclick="showSection('security', this)">Security</button>
+        <div class="card">
+            <div class="input-group">
+                <label>Full Name</label>
+                <input type="text" id="fullName">
             </div>
-
-            <div class="settings-card">
-                <div id="personal" class="form-section active">
-                    <div class="input-group">
-                        <label>Full Name</label>
-                        <input type="text" id="fullName" class="modern-input">
-                    </div>
-                    <div class="row-2">
-                        <div class="input-group">
-                            <label>Phone Number</label>
-                            <input type="text" id="phone" class="modern-input">
-                        </div>
-                        <div class="input-group">
-                            <label>Gender</label>
-                            <select id="gender" class="modern-input">
-                                <option value="Male">Male</option>
-                                <option value="Female">Female</option>
-                                <option value="Other">Other</option>
-                            </select>
-                        </div>
-                    </div>
-                    <button class="btn-save" onclick="updateProfile()">Save Changes</button>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div class="input-group">
+                    <label>Target Year</label>
+                    <input type="number" id="targetYear" placeholder="2026">
                 </div>
-
-                <div id="academic" class="form-section">
-                    <div class="row-2">
-                        <div class="input-group">
-                            <label>Target Year</label>
-                            <input type="number" id="targetYear" class="modern-input">
-                        </div>
-                        <div class="input-group">
-                            <label>Current Grade</label>
-                            <select id="grade" class="modern-input">
-                                <option value="Class 11">Class 11</option>
-                                <option value="Class 12">Class 12</option>
-                                <option value="Dropper">Dropper</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="input-group">
-                        <label>Dream IIT / College</label>
-                        <input type="text" id="college" class="modern-input">
-                    </div>
-                    <button class="btn-save" onclick="updateProfile()">Update Goals</button>
-                </div>
-
-                <div id="security" class="form-section">
-                    <div class="input-group">
-                        <label>Update Password</label>
-                        <input type="password" id="newPassword" class="modern-input" placeholder="New Password">
-                    </div>
-                    <button class="btn-save" style="background: #ef4444;" onclick="changePassword()">Change Password</button>
+                <div class="input-group">
+                    <label>Current Grade</label>
+                    <select id="grade">
+                        <option value="Class 11">Class 11</option>
+                        <option value="Class 12">Class 12</option>
+                        <option value="Dropper">Dropper</option>
+                    </select>
                 </div>
             </div>
+            <div class="input-group">
+                <label>Target College</label>
+                <input type="text" id="college" placeholder="e.g. IIT Bombay">
+            </div>
+            <button onclick="updateProfile()">Save Profile</button>
         </div>
     </main>
 
     <script>
         const supabaseUrl = 'https://ijxsnunkfhudwnkrwmzk.supabase.co';
-        const supabaseKey = 'YOUR_PUBLISHABLE_KEY'; 
+        const supabaseKey = 'YOUR_KEY';
         const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-        function showSection(id, btn) {
-            document.querySelectorAll('.form-section').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.s-nav-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            btn.classList.add('active');
-        }
-
-        async function loadProfileData() {
+        async function loadProfile() {
             const { data: { session } } = await supabaseClient.auth.getSession();
             if (!session) return;
-
             const { data } = await supabaseClient.from('profiles').select('*').eq('id', session.user.id).single();
             if (data) {
                 document.getElementById('fullName').value = data.full_name || '';
-                document.getElementById('phone').value = data.phone_number || '';
-                document.getElementById('gender').value = data.gender || 'Male';
                 document.getElementById('targetYear').value = data.target_year || '';
                 document.getElementById('grade').value = data.current_grade || 'Class 11';
                 document.getElementById('college').value = data.target_college || '';
@@ -298,29 +127,17 @@
             const updates = {
                 id: session.user.id,
                 full_name: document.getElementById('fullName').value,
-                phone_number: document.getElementById('phone').value,
-                gender: document.getElementById('gender').value,
-                target_year: parseInt(document.getElementById('targetYear').value),
+                target_year: document.getElementById('targetYear').value,
                 current_grade: document.getElementById('grade').value,
                 target_college: document.getElementById('college').value,
                 updated_at: new Date()
             };
             const { error } = await supabaseClient.from('profiles').upsert(updates);
-            alert(error ? error.message : "Profile Saved!");
+            alert(error ? error.message : "Profile Updated!");
         }
 
-        async function changePassword() {
-            const newPass = document.getElementById('newPassword').value;
-            const { error } = await supabaseClient.auth.updateUser({ password: newPass });
-            alert(error ? error.message : "Password Updated!");
-        }
-
-        async function handleLogout() { 
-            await supabaseClient.auth.signOut(); 
-            window.location.href = 'login.html'; 
-        }
-
-        loadProfileData();
+        async function handleLogout() { await supabaseClient.auth.signOut(); window.location.href = 'login.html'; }
+        loadProfile();
     </script>
 </body>
 </html>
