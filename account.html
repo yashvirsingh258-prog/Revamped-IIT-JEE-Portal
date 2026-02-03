@@ -111,12 +111,31 @@
         /* 2. Create the Glass Effect for the Top Card Only */
         #card-top.ghibli-glass {
             position: relative;
-            overflow: hidden; /* Keeps the gradient inside the rounded corners */
-            background: rgba(255, 255, 255, 0.4); 
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.6);
+            overflow: hidden;
+            /* Your locked-down gradient */
+            background: linear-gradient(135deg, #FDFBF7 0%, #F5F1E9 100%) !important;
+            
+            /* THE "POPPED OUT" EFFECT */
+            /* Layer 1: Subtle edge definition. Layer 2: Soft ambient lift. */
+            box-shadow: 
+                0 4px 6px -1px rgba(0, 0, 0, 0.05), 
+                0 10px 15px -3px rgba(0, 0, 0, 0.08);
+            
+            /* Slightly thicker border on the bottom makes it look like it's catching light */
+            border: 1px solid #EAE4D9 !important;
+            border-bottom: 2px solid #dcd7c9 !important; 
+            
+            /* Smooth transition for when you hover or click */
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
             z-index: 1;
+        }
+        
+        /* Optional: Enhances the "pop" when the mouse is over the card */
+        #card-top.ghibli-glass:hover {
+            transform: translateY(-2px); /* Lifts the card slightly higher */
+            box-shadow: 
+                0 10px 20px -5px rgba(0, 0, 0, 0.1), 
+                0 8px 10px -6px rgba(0, 0, 0, 0.05);
         }
 
         /* 3. The "Hidden" Ghibli Gradient inside the card */
