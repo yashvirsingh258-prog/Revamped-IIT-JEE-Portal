@@ -54,18 +54,21 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.02);
         }
         
+        /* New Edit Button Style from image_b4d564.png */
+        .edit-box { 
+            position: absolute; top: 32px; right: 32px;
+            border: 1px solid var(--border-color); border-radius: 8px;
+            padding: 6px 12px; display: flex; align-items: center; gap: 8px;
+            cursor: pointer; background: white; transition: all 0.2s ease; z-index: 10;
+            font-size: 0.85rem; font-weight: 500; color: #475569;
+        }
+        .edit-box:hover { background: #f8fafc; border-color: #cbd5e1; transform: translateY(-1px); }
+        .edit-icon-svg { width: 16px; height: 16px; stroke: currentColor; stroke-width: 2; fill: none; }
+
         .avatar-header { display: flex; align-items: center; gap: 24px; }
         .avatar-img { width: 88px; height: 88px; border-radius: 20px; background: #f8fafc; object-fit: cover; border: 1px solid var(--border-color); }
         .user-meta h2 { font-size: 1.25rem; font-weight: 700; color: var(--text-main); }
         .user-meta p { font-size: 0.9rem; color: var(--text-muted); margin-top: 4px; }
-
-        .edit-box { 
-            position: absolute; top: 32px; right: 32px;
-            border: 1px solid var(--border-color); border-radius: 8px;
-            padding: 8px 10px; display: flex; align-items: center; justify-content: center;
-            cursor: pointer; background: white; transition: all 0.2s ease; z-index: 10;
-        }
-        .edit-box:hover { background: #f8fafc; border-color: #cbd5e1; transform: translateY(-1px); }
 
         .section-title { font-size: 1rem; font-weight: 700; margin-bottom: 24px; color: var(--text-main); }
         .data-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px 48px; }
@@ -123,7 +126,10 @@
         <div id="main-form-container">
             <div id="identity-tab" class="tab-content">
                 <div class="info-card" id="card-top">
-                    <div class="edit-box" onclick="toggleEdit('top')">✎</div>
+                    <div class="edit-box" onclick="toggleEdit('top')">
+                        <span>Edit</span>
+                        <svg class="edit-icon-svg" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                    </div>
                     <div id="top-view" class="avatar-header">
                         <img src="https://api.dicebear.com/7.x/lorelei/svg?seed=Jasper&backgroundColor=b6e3f4" class="avatar-img" id="avatar-img">
                         <div class="user-meta">
@@ -151,7 +157,10 @@
 
                 <div class="info-card" id="card-personal">
                     <h3 class="section-title">Personal Details</h3>
-                    <div class="edit-box" onclick="toggleEdit('personal')">✎</div>
+                    <div class="edit-box" onclick="toggleEdit('personal')">
+                        <span>Edit</span>
+                        <svg class="edit-icon-svg" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                    </div>
                     <div id="personal-view" class="data-grid">
                         <div class="data-item"><label>First Name</label><span id="view-fname">Ibrahim</span></div>
                         <div class="data-item"><label>Last Name</label><span id="view-lname">Mahdi</span></div>
@@ -174,7 +183,10 @@
 
                 <div class="info-card" id="card-address">
                     <h3 class="section-title">Address</h3>
-                    <div class="edit-box" onclick="toggleEdit('address')">✎</div>
+                    <div class="edit-box" onclick="toggleEdit('address')">
+                        <span>Edit</span>
+                        <svg class="edit-icon-svg" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                    </div>
                     <div id="address-view" class="data-grid">
                         <div class="data-item"><label>Address 1</label><span>---</span></div>
                         <div class="data-item"><label>Address 2</label><span>---</span></div>
@@ -201,7 +213,10 @@
             <div id="aspirations-tab" class="tab-content" style="display:none">
                 <div class="info-card" id="card-aspi">
                     <h3 class="section-title">Academic Goals</h3>
-                    <div class="edit-box" onclick="toggleEdit('aspi')">✎</div>
+                    <div class="edit-box" onclick="toggleEdit('aspi')">
+                        <span>Edit</span>
+                        <svg class="edit-icon-svg" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                    </div>
                     <div id="aspi-view" class="data-grid">
                         <div class="data-item"><label>Target Year</label><span>2026</span></div>
                         <div class="data-item"><label>Current Grade</label><span>Class 12</span></div>
@@ -222,7 +237,10 @@
             <div id="security-tab" class="tab-content" style="display:none">
                 <div class="info-card" id="card-sec">
                     <h3 class="section-title">Security</h3>
-                    <div class="edit-box" onclick="toggleEdit('sec')">✎</div>
+                    <div class="edit-box" onclick="toggleEdit('sec')">
+                        <span>Edit</span>
+                        <svg class="edit-icon-svg" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                    </div>
                     <div id="sec-view" class="data-grid">
                         <div class="data-item"><label>Email</label><span>i*******@email.com</span></div>
                         <div class="data-item"><label>Phone Number</label><span>---</span></div>
