@@ -11,248 +11,198 @@
             --active-strip: #335d91; 
             --bg-light: #f8fafc;
             --border-color: #e2e8f0;
-            --soft-grey: #f1f5f9;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg-light); display: flex; min-height: 100vh; color: #1e293b; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg-light); display: flex; min-height: 100vh; color: var(--text-main); }
         
-        /* Sidebar Styling */
-        nav { width: 280px; background: var(--primary-blue); color: white; padding: 60px 0; position: fixed; height: 100vh; z-index: 100; display: flex; flex-direction: column; }
-        .logo-area { padding: 0 40px; margin-bottom: 60px; }
-        .logo-area h2 { font-size: 1.2rem; letter-spacing: 4px; font-weight: 700; text-transform: uppercase; }
-        .nav-link { display: block; padding: 18px 40px; text-decoration: none; color: rgba(255, 255, 255, 0.5); font-size: 0.85rem; font-weight: 500; text-transform: uppercase; cursor: pointer; transition: 0.3s; }
-        .active-link { color: white !important; background: var(--active-strip) !important; border-right: 6px solid white !important; font-weight: 700; }
-        
-        /* Main Layout */
-        main { margin-left: 280px; flex: 1; padding: 50px 70px; }
-        .header-sec { margin-bottom: 40px; }
-        .header-sec h1 { font-size: 2rem; font-weight: 700; color: var(--primary-blue); }
+        /* Sidebar [cite: 2026-02-01] */
+        nav { width: 260px; background: var(--primary-blue); color: white; padding: 40px 0; position: fixed; height: 100vh; display: flex; flex-direction: column; }
+        .logo-area { padding: 0 30px; margin-bottom: 40px; font-weight: 800; font-size: 1.4rem; }
+        .nav-link { display: block; padding: 15px 30px; text-decoration: none; color: rgba(255, 255, 255, 0.6); font-size: 0.9rem; transition: 0.3s; cursor: pointer; }
+        .active-link { color: white; background: var(--active-strip); border-right: 4px solid white; }
 
-        /* Settings Card Grid */
-        .settings-grid { 
-            display: grid; 
-            grid-template-columns: 240px 1fr; 
-            background: white;
-            border-radius: 20px;
-            border: 1px solid var(--border-color);
-            overflow: hidden;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
-            position: relative;
-        }
-        
-        /* Vertical Tabs Navigation */
-        .settings-nav { 
-            padding: 30px 15px; 
-            background: #ffffff;
-            position: relative; /* Anchor for the floating line */
-        }
+        /* Main Content Area */
+        main { margin-left: 260px; flex: 1; padding: 40px 60px; }
+        .page-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 30px; }
 
-        /* The Floating Vertical Line - Does not touch top/bottom */
-        .settings-nav::after {
-            content: "";
-            position: absolute;
-            right: 0;
-            top: 15%;    /* 15% gap from top */
-            height: 70%; /* Line covers 70% of height */
-            width: 1px;
-            background-color: var(--border-color);
-        }
+        /* Layout Grid */
+        .profile-container { display: grid; grid-template-columns: 200px 1fr; gap: 40px; }
+        
+        /* Left Navigation [cite: 2026-02-01] */
+        .settings-nav { position: relative; display: flex; flex-direction: column; gap: 10px; }
+        .settings-nav::after { content: ""; position: absolute; right: -20px; top: 0; height: 100%; width: 1px; background: var(--border-color); }
         
         .s-nav-btn { 
-            width: 100%; text-align: left; padding: 12px 16px; border: none; background: none; 
-            border-radius: 8px; cursor: pointer; font-weight: 500; color: #64748b; 
-            transition: 0.2s; font-size: 0.9rem; margin-bottom: 8px; 
+            text-align: left; padding: 10px 15px; border: none; background: none; 
+            border-radius: 6px; cursor: pointer; font-size: 0.95rem; color: var(--text-muted); 
+            transition: 0.2s; 
         }
+        .s-nav-btn.active { background: #f1f5f9; color: var(--primary-blue); font-weight: 600; }
 
-        .s-nav-btn.active { background: var(--soft-grey); color: var(--primary-blue); font-weight: 600; }
-
-        /* Card Content Area */
-        .settings-card-body { padding: 40px; min-height: 500px; }
-        .form-section { display: none; }
-        .form-section.active { display: block; animation: fadeIn 0.3s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: translateX(0); } }
-
-        /* View Mode Styles */
-        .info-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; margin-bottom: 25px; }
-        .info-header h3 { font-size: 1.1rem; color: #1e293b; font-weight: 700; }
-        .edit-btn { background: white; border: 1px solid var(--border-color); padding: 6px 14px; border-radius: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer; color: #64748b; transition: 0.2s; }
-        .edit-btn:hover { background: var(--soft-grey); color: var(--primary-blue); }
-
-        .data-row { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 25px; }
-        .data-item label { display: block; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; color: #94a3b8; margin-bottom: 5px; letter-spacing: 0.5px; }
-        .data-value { font-size: 0.95rem; color: #1e293b; font-weight: 500; }
-
-        /* Edit Mode Styles */
-        .edit-mode { display: none; }
-        .input-group { margin-bottom: 20px; }
-        .input-group label { display: block; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; color: #94a3b8; margin-bottom: 8px; }
-        .modern-input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: #fcfdfe; font-size: 0.95rem; outline: none; }
+        /* Information Boxes */
+        .info-card { 
+            background: white; border: 1px solid var(--border-color); 
+            border-radius: 12px; padding: 25px; margin-bottom: 25px; position: relative;
+        }
         
-        .btn-group { display: flex; gap: 10px; margin-top: 20px; }
-        .btn-save { background: var(--primary-blue); color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 700; cursor: pointer; }
-        .btn-cancel { background: #64748b; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 700; cursor: pointer; }
+        /* Avatar Section */
+        .avatar-header { display: flex; align-items: center; gap: 20px; }
+        .avatar-img { width: 70px; height: 70px; border-radius: 50%; background: #e2e8f0; object-fit: cover; }
+        .user-meta h2 { font-size: 1.1rem; font-weight: 700; }
+        .user-meta p { font-size: 0.85rem; color: var(--text-muted); }
+
+        /* Edit Button Box */
+        .edit-box { 
+            position: absolute; top: 20px; right: 20px;
+            border: 1px solid var(--border-color); border-radius: 8px;
+            padding: 6px 14px; display: flex; align-items: center; gap: 8px;
+            cursor: pointer; font-size: 0.85rem; font-weight: 600; color: var(--text-main);
+            transition: 0.2s; background: white;
+        }
+        .edit-box:hover { background: #f8fafc; }
+
+        /* Data Grid */
+        .section-title { font-size: 0.95rem; font-weight: 700; margin-bottom: 20px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; }
+        .data-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px 40px; }
+        .data-item label { display: block; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 4px; }
+        .data-item span { font-size: 0.95rem; font-weight: 600; }
+
+        /* Form Elements */
+        .edit-mode { display: none; }
+        .modern-input { 
+            width: 100%; padding: 10px; border: 1px solid var(--border-color); 
+            border-radius: 6px; margin-top: 5px; font-size: 0.9rem; outline: none; 
+        }
+        .btn-save { background: var(--primary-blue); color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 600; cursor: pointer; margin-top: 20px; }
+        .btn-cancel { background: #f1f5f9; color: var(--text-muted); border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; margin-left: 10px; }
     </style>
 </head>
 <body>
-    <nav>
-        <div class="logo-area"><h2>JEE Portal</h2></div>
-        <a href="index.html" class="nav-link">Dashboard</a>
-        <a href="tests.html" class="nav-link">Available Tests</a>
-        <a href="performance.html" class="nav-link">Performance</a>
-        <a href="user-profile.html" class="nav-link active-link">Account</a>
-        <a onclick="handleLogout()" class="nav-link" style="margin-top: auto; border-top: 1px solid rgba(255,255,255,0.1);">Logout</a>
-    </nav>
 
-    <main>
-        <div class="header-sec">
-            <h1>Account Settings</h1>
+<nav>
+    <div class="logo-area">JEE Portal</div>
+    <a href="index.html" class="nav-link">Dashboard</a>
+    <a href="tests.html" class="nav-link">Available Tests</a>
+    <a href="performance.html" class="nav-link">Performance</a>
+    <a href="user-profile.html" class="nav-link active-link">Account</a>
+    <a onclick="handleLogout()" class="nav-link" style="margin-top:auto">Logout</a>
+</nav>
+
+<main>
+    <h1 class="page-title">My Profile</h1>
+    
+    <div class="profile-container">
+        <div class="settings-nav">
+            <button class="s-nav-btn active" onclick="showSection('personal', this)">My Profile</button>
+            <button class="s-nav-btn" onclick="showSection('security', this)">Security</button>
+            <button class="s-nav-btn" style="color:#ef4444">Delete Account</button>
         </div>
 
-        <div class="settings-grid">
-            <div class="settings-nav">
-                <button class="s-nav-btn active" onclick="showSection('personal', this)">Personal Profile</button>
-                <button class="s-nav-btn" onclick="showSection('academic', this)">Academic Goals</button>
-                <button class="s-nav-btn" onclick="showSection('security', this)">Security</button>
-            </div>
+        <div id="content-area">
+            <div id="personal" class="form-section active">
+                <div class="info-card">
+                    <div class="avatar-header">
+                        <img src="https://ui-avatars.com/api/?name=User&background=0b4a8f&color=fff" class="avatar-img" id="avatar-img">
+                        <div class="user-meta">
+                            <h2 id="meta-name">Loading...</h2>
+                            <p id="meta-role">Student</p>
+                            <p id="meta-location">India</p>
+                        </div>
+                    </div>
+                    <div class="edit-box" onclick="toggleEdit('personal')">
+                        Edit <img src="https://img.icons8.com/material-outlined/16/000000/edit--v1.png"/>
+                    </div>
+                </div>
 
-            <div class="settings-card-body">
-                <div id="personal" class="form-section active">
-                    <div class="info-header">
-                        <h3>Personal Information</h3>
-                        <button class="edit-btn" onclick="toggleEdit('personal')">Edit Profile</button>
-                    </div>
+                <div class="info-card">
+                    <h3 class="section-title">Personal Information</h3>
+                    
                     <div id="personal-view">
-                        <div class="data-row">
-                            <div class="data-item"><label>Full Name</label><div class="data-value" id="view-name">Loading...</div></div>
-                            <div class="data-item"><label>Email Address</label><div class="data-value" id="view-email">Loading...</div></div>
-                        </div>
-                        <div class="data-row">
-                            <div class="data-item"><label>Phone Number</label><div class="data-value" id="view-phone">Not set</div></div>
-                            <div class="data-item"><label>Gender</label><div class="data-value" id="view-gender">Not set</div></div>
+                        <div class="data-grid">
+                            <div class="data-item"><label>Full Name</label><span id="view-name">Not set</span></div>
+                            <div class="data-item"><label>Gender</label><span id="view-gender">Not set</span></div>
+                            <div class="data-item"><label>Email Address</label><span id="view-email">Not set</span></div>
+                            <div class="data-item"><label>Phone Number</label><span id="view-phone">Not set</span></div>
                         </div>
                     </div>
+
                     <div id="personal-edit" class="edit-mode">
-                        <div class="input-group"><label>Full Name</label><input type="text" id="input-name" class="modern-input"></div>
-                        <div class="data-row">
-                            <div class="input-group"><label>Phone Number</label><input type="text" id="input-phone" class="modern-input"></div>
-                            <div class="input-group">
-                                <label>Gender</label>
+                        <div class="data-grid">
+                            <div class="data-item"><label>Full Name</label><input type="text" id="input-name" class="modern-input"></div>
+                            <div class="data-item"><label>Gender</label>
                                 <select id="input-gender" class="modern-input">
                                     <option value="Male">Male</option>
                                     <option value="Female">Female</option>
-                                    <option value="Other">Other</option>
                                 </select>
                             </div>
+                            <div class="data-item"><label>Phone Number</label><input type="text" id="input-phone" class="modern-input"></div>
                         </div>
-                        <div class="btn-group">
-                            <button class="btn-save" onclick="updateProfile()">Save Changes</button>
-                            <button class="btn-cancel" onclick="toggleEdit('personal')">Cancel</button>
-                        </div>
+                        <button class="btn-save" onclick="updateProfile()">Save Changes</button>
+                        <button class="btn-cancel" onclick="toggleEdit('personal')">Cancel</button>
                     </div>
                 </div>
 
-                <div id="academic" class="form-section">
-                    <div class="info-header">
-                        <h3>Academic Goals</h3>
-                        <button class="edit-btn" onclick="toggleEdit('academic')">Edit Goals</button>
+                <div class="info-card">
+                    <h3 class="section-title">Academic Details</h3>
+                    <div class="data-grid">
+                        <div class="data-item"><label>Target Year</label><span id="view-target">2026</span></div>
+                        <div class="data-item"><label>Dream Institute</label><span id="view-college">Not set</span></div>
                     </div>
-                    <div id="academic-view">
-                        <div class="data-row">
-                            <div class="data-item"><label>Target Year</label><div class="data-value" id="view-targetYear">2026</div></div>
-                            <div class="data-item"><label>Current Grade</label><div class="data-value" id="view-grade">Class 12</div></div>
-                        </div>
-                        <div class="data-item"><label>Dream Institute</label><div class="data-value" id="view-college">Not set</div></div>
-                    </div>
-                    <div id="academic-edit" class="edit-mode">
-                        <div class="data-row">
-                            <div class="input-group"><label>Target Year</label><input type="number" id="input-targetYear" class="modern-input"></div>
-                            <div class="input-group">
-                                <label>Current Grade</label>
-                                <select id="input-grade" class="modern-input">
-                                    <option value="Class 11">Class 11</option>
-                                    <option value="Class 12">Class 12</option>
-                                    <option value="Dropper">Dropper</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="input-group"><label>Dream Institute</label><input type="text" id="input-college" class="modern-input"></div>
-                        <div class="btn-group">
-                            <button class="btn-save" onclick="updateProfile()">Save Goals</button>
-                            <button class="btn-cancel" onclick="toggleEdit('academic')">Cancel</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="security" class="form-section">
-                    <div class="info-header"><h3>Security Settings</h3></div>
-                    <div class="input-group"><label>New Password</label><input type="password" id="newPassword" class="modern-input"></div>
-                    <div class="input-group"><label>Confirm Password</label><input type="password" id="confirmPassword" class="modern-input"></div>
-                    <button class="btn-save" style="background: #ef4444;" onclick="changePassword()">Update Password</button>
                 </div>
             </div>
         </div>
-    </main>
+    </div>
+</main>
 
-    <script>
-        const supabaseUrl = 'https://ijxsnunkfhudwnkrwmzk.supabase.co';
-        const supabaseKey = 'sb_publishable_V-KT1zvp-73dqHHvmx3fNA_iHw53TCl';
-        const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+<script>
+    const supabaseUrl = 'https://ijxsnunkfhudwnkrwmzk.supabase.co';
+    const supabaseKey = 'sb_publishable_V-KT1zvp-73dqHHvmx3fNA_iHw53TCl';
+    const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-        function showSection(id, btn) {
-            document.querySelectorAll('.form-section').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.s-nav-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            btn.classList.add('active');
-        }
+    function toggleEdit(section) {
+        const v = document.getElementById(section + '-view');
+        const e = document.getElementById(section + '-edit');
+        const isView = v.style.display !== 'none';
+        v.style.display = isView ? 'none' : 'block';
+        e.style.display = isView ? 'block' : 'none';
+    }
 
-        function toggleEdit(sectionId) {
-            const view = document.getElementById(sectionId + '-view');
-            const edit = document.getElementById(sectionId + '-edit');
-            const isViewing = view.style.display !== 'none';
-            view.style.display = isViewing ? 'none' : 'block';
-            edit.style.display = isViewing ? 'block' : 'none';
-        }
+    async function loadProfile() {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (!session) return;
 
-        async function loadProfileData() {
-            const { data: { session } } = await supabaseClient.auth.getSession();
-            if (!session) { window.location.href = 'login.html'; return; }
+        const { data } = await supabaseClient.from('profiles').select('*').eq('id', session.user.id).single();
+        if (data) {
+            // View Mode [cite: 2026-02-01]
+            document.getElementById('view-name').innerText = data.full_name || 'Not set';
+            document.getElementById('meta-name').innerText = data.full_name || 'User Name';
             document.getElementById('view-email').innerText = session.user.email;
-            const { data } = await supabaseClient.from('profiles').select('*').eq('id', session.user.id).single();
-            if (data) {
-                document.getElementById('view-name').innerText = data.full_name || 'Not set';
-                document.getElementById('input-name').value = data.full_name || '';
-                document.getElementById('view-phone').innerText = data.phone_number || 'Not set';
-                document.getElementById('input-phone').value = data.phone_number || '';
-                document.getElementById('view-gender').innerText = data.gender || 'Male';
-                document.getElementById('input-gender').value = data.gender || 'Male';
-                document.getElementById('view-targetYear').innerText = data.target_year || '2026';
-                document.getElementById('input-targetYear').value = data.target_year || 2026;
-                document.getElementById('view-grade').innerText = data.current_grade || 'Class 11';
-                document.getElementById('input-grade').value = data.current_grade || 'Class 11';
-                document.getElementById('view-college').innerText = data.target_college || 'Not set';
-                document.getElementById('input-college').value = data.target_college || '';
-            }
+            document.getElementById('view-phone').innerText = data.phone_number || 'Not set';
+            document.getElementById('view-gender').innerText = data.gender || 'Not set';
+            
+            // Input Fields [cite: 2026-02-01]
+            document.getElementById('input-name').value = data.full_name || '';
+            document.getElementById('input-phone').value = data.phone_number || '';
+            document.getElementById('input-gender').value = data.gender || 'Male';
         }
+    }
 
-        async function updateProfile() {
-            const { data: { session } } = await supabaseClient.auth.getSession();
-            const updates = {
-                id: session.user.id,
-                full_name: document.getElementById('input-name').value,
-                phone_number: document.getElementById('input-phone').value,
-                gender: document.getElementById('input-gender').value,
-                target_year: parseInt(document.getElementById('input-targetYear').value),
-                current_grade: document.getElementById('input-grade').value,
-                target_college: document.getElementById('input-college').value,
-                updated_at: new Date()
-            };
-            const { error } = await supabaseClient.from('profiles').upsert(updates);
-            if (error) alert(error.message);
-            else { alert("Profile updated!"); location.reload(); }
-        }
+    async function updateProfile() {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        const updates = {
+            id: session.user.id,
+            full_name: document.getElementById('input-name').value,
+            phone_number: document.getElementById('input-phone').value,
+            gender: document.getElementById('input-gender').value,
+            updated_at: new Date()
+        };
+        const { error } = await supabaseClient.from('profiles').upsert(updates);
+        if (!error) location.reload();
+    }
 
-        async function handleLogout() { await supabaseClient.auth.signOut(); window.location.href = 'login.html'; }
-        loadProfileData();
-    </script>
+    loadProfile();
+</script>
 </body>
 </html>
