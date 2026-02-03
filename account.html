@@ -352,7 +352,8 @@
                             </div>
                         </div>
                         <div class="btn-group">
-                            <button class="btn-save" onclick="updateStudentPhone()">Update</button>
+                            <button class="btn-save" onclick="updateStudentPhone(this)">Update</button>
+                            <button class="btn-save" onclick="updateStudentPassword(this)">Update</button>
                             <button class="btn-cancel" onclick="toggleEdit('sec')">Cancel</button>
                         </div>
                     </div>
@@ -434,65 +435,60 @@
     }
 
     // Add this to your existing script
-    async function fetchCountryCodes() {
-        const select = document.getElementById('country-code-select');
-        
-        // Check if we already loaded them to avoid redundant calls
-        if (select.options.length > 1) return; 
+    async function updateStudentPhone(btn) {
+        // 1. Start Loading State on the clicked button
+        btn.textContent = "Updating...";
+        btn.disabled = true;
+    
+        // 2. Get the current logged-in user session
+        const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
+    
+        if (authError || !user) {
+            alert("Session expired. Please log in again.");
+            btn.textContent = "Update";
+            btn.disabled = false;
+            return;
+        }
+    
+        // 3. Grab the phone values from UI
+        const dialCode = document.getElementById('country-code-select').value;
+        const phoneInput = document.getElementById('phone-input').value.trim();
+        const fullPhoneNumber = dialCode + " " + phoneInput;
+    
+        if (!phoneInput) {
+            alert("Please enter a phone number.");
+            btn.textContent = "Update";
+            btn.disabled = false;
+            return;
+        }
     
         try {
-            // 1. Fetch from Supabase
-            const { data, error } = await supabaseClient
-                .from('country_codes')
-                .select('country_code, dial_code')
-                .order('country_code', { ascending: true });
+            // 4. Update the 'students' table using session email as Primary Key
+            const { error: updateError } = await supabaseClient
+                .from('students')
+                .update({ phone_number: fullPhoneNumber })
+                .eq('email', user.email);
     
-            if (error) throw error;
+            if (updateError) throw updateError;
     
-            select.innerHTML = ''; 
+            // 5. Success UI Updates
+            // Update the view-mode span so user sees the change immediately
+            const phoneDisplay = document.querySelector('#sec-view .data-item:nth-child(2) span');
+            if (phoneDisplay) phoneDisplay.textContent = fullPhoneNumber;
     
-            data.forEach(item => {
-                const opt = document.createElement('option');
-                opt.value = item.dial_code;
-                // Store ISO code (e.g., 'USA') in a data attribute for easy matching
-                opt.dataset.iso = item.country_code; 
-                opt.textContent = `${item.country_code} ${item.dial_code}`;
-                select.appendChild(opt);
-            });
-    
-            // 2. Automatically detect IP and set default
-            try {
-                const geoResponse = await fetch('https://ipapi.co/json/');
-                const geoData = await geoResponse.json();
-                const detectedIso = geoData.country_code_iso3; // Returns 'USA', 'IND', etc.
-    
-                if (detectedIso) {
-                    // Find the option where data-iso matches the detected country
-                    for (let i = 0; i < select.options.length; i++) {
-                        if (select.options[i].dataset.iso === detectedIso) {
-                            select.selectedIndex = i;
-                            break;
-                        }
-                    }
-                }
-            } catch (geoErr) {
-                console.warn("IP Location detection failed, staying at top of list.");
-            }
+            // Close edit mode
+            toggleEdit('sec');
+            alert("Phone number updated successfully!");
     
         } catch (err) {
-            console.error("Database fetch failed:", err.message);
-            select.innerHTML = '<option value="">Error</option>';
+            console.error("Phone update failed:", err.message);
+            alert("Could not update phone number. " + err.message);
+        } finally {
+            // 6. Reset button state
+            btn.textContent = "Update";
+            btn.disabled = false;
         }
     }
-    
-    // Ensure the toggleEdit handles the call
-    const originalToggleEdit = toggleEdit;
-    toggleEdit = function(section) {
-        if (section === 'sec') {
-            fetchCountryCodes();
-        }
-        originalToggleEdit(section);
-    };
 
     async function updateStudentPhone() {
         // 1. Get the current logged-in user from the session
@@ -524,6 +520,79 @@
             
             toggleEdit('sec');
             console.log("Success! Phone updated for:", userEmail);
+        }
+    }
+
+    async function updateStudentPassword(btn) {
+        // 1. Get input values
+        const oldPassword = document.getElementById('old-password-input').value;
+        const newPassword = document.getElementById('new-password-input').value;
+        const confirmPassword = document.getElementById('confirm-password-input').value;
+    
+        // 2. Client-side Validation
+        if (!oldPassword || !newPassword || !confirmPassword) {
+            alert("Please fill in all password fields.");
+            return;
+        }
+    
+        if (newPassword !== confirmPassword) {
+            alert("New passwords do not match!");
+            return;
+        }
+    
+        if (newPassword.length < 6) {
+            alert("New password must be at least 6 characters.");
+            return;
+        }
+    
+        if (oldPassword === newPassword) {
+            alert("New password cannot be the same as your current password.");
+            return;
+        }
+    
+        // 3. Start Loading State (Using 'btn' reference)
+        btn.textContent = "Updating...";
+        btn.disabled = true;
+    
+        try {
+            // 4. Verify Current Password (Re-authentication)
+            // Note: currentStudentEmail must be available globally or fetched from session
+            const { error: authError } = await supabaseClient.auth.signInWithPassword({
+                email: currentStudentEmail, 
+                password: oldPassword,
+            });
+    
+            if (authError) {
+                alert("Current password is incorrect.");
+                btn.textContent = "Update";
+                btn.disabled = false;
+                return;
+            }
+    
+            // 5. Update to New Password & Invalidate other sessions
+            const { error: updateError } = await supabaseClient.auth.updateUser(
+                { password: newPassword },
+                { logoutAllDevices: true }
+            );
+    
+            if (updateError) throw updateError;
+    
+            // 6. Success Sequence
+            alert("Password updated! You will be logged out of all devices for security.");
+            
+            // Final sign out for this current session
+            await supabaseClient.auth.signOut();
+            
+            // Redirect to login
+            window.location.href = "/login.html";
+    
+        } catch (err) {
+            console.error("Critical Security Error:", err.message);
+            alert("An error occurred: " + err.message);
+            
+            // Reset button so user can try again
+            btn.textContent = "Update";
+            btn.disabled = false;
         }
     }
     
