@@ -509,6 +509,7 @@
         const fullPhoneNumber = dialCode + phoneInput;
     
         try {
+                window.alert(currentStudentEmail)
             // 4. Update the consolidated 'students' table
             const { error } = await supabaseClient
                 .from('students')
