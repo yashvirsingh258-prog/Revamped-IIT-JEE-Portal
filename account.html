@@ -339,8 +339,18 @@
                     </div>
                     <div id="sec-edit" class="edit-mode">
                         <div class="data-grid">
-                            <div class="data-item"><label>Current Password</label><input type="password" class="modern-input"></div>
-                            <div class="data-item"><label>New Password</label><input type="password" class="modern-input"></div>
+                            <div class="data-item">
+                                <label>Current Password</label>
+                                <input type="password" id="old-password-input" class="modern-input">
+                            </div>
+                            <div class="data-item">
+                                <label>New Password</label>
+                                <input type="password" id="new-password-input" class="modern-input">
+                                <button class="btn-save" style="margin-top: 10px; width: 100%;" onclick="updateStudentPassword(this)">Update Password</button>
+                            </div>
+                    
+                            <hr style="grid-column: 1 / -1; border: 0; border-top: 1px solid #eee; margin: 10px 0;">
+                    
                             <div class="data-item">
                                 <label>Phone Number</label>
                                 <div style="display: flex; gap: 8px;">
@@ -349,12 +359,12 @@
                                     </select>
                                     <input type="text" id="phone-input" class="modern-input" placeholder="Phone Number">
                                 </div>
+                                <button class="btn-save" style="margin-top: 10px; width: 100%;" onclick="updateStudentPhone(this)">Update Phone</button>
                             </div>
                         </div>
-                        <div class="btn-group">
-                            <button class="btn-save" onclick="updateStudentPhone(this)">Update</button>
-                            <button class="btn-save" onclick="updateStudentPassword(this)">Update</button>
-                            <button class="btn-cancel" onclick="toggleEdit('sec')">Cancel</button>
+                    
+                        <div class="btn-group" style="margin-top: 20px; justify-content: center;">
+                            <button class="btn-cancel" onclick="toggleEdit('sec')">Close Security Settings</button>
                         </div>
                     </div>
                 </div>
