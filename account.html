@@ -17,47 +17,74 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: #fff; display: flex; min-height: 100vh; color: var(--text-main); }
         
+        /* Sidebar Navigation */
         nav { width: 280px; background: #0b4a8f; color: white; padding: 60px 0; position: fixed; height: 100vh; z-index: 100; display: flex; flex-direction: column; }
         .logo-area { padding: 0 40px; margin-bottom: 60px; font-size: 1.2rem; letter-spacing: 4px; font-weight: 700; text-transform: uppercase; }
-        .nav-link { transition: 0.3s; display: block; padding: 18px 40px; text-decoration: none; color: rgba(255, 255, 255, 0.5); font-size: 0.85rem; font-weight: 500; text-transform: uppercase; cursor: pointer; }
+
+        .nav-link {
+            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+            display: block; padding: 18px 40px; text-decoration: none;
+            color: rgba(255, 255, 255, 0.5); font-size: 0.85rem; font-weight: 500;
+            letter-spacing: 1px; text-transform: uppercase; cursor: pointer;
+        }
         .nav-link:hover { color: white; padding-left: 50px; }
         .active-link { color: white; background: rgba(255, 255, 255, 0.1); font-weight: 700; border-right: 4px solid #fff; }
 
+        /* Main Content */
         main { margin-left: 280px; flex: 1; padding: 60px 80px; }
         .page-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 40px; }
+
         .profile-container { display: grid; grid-template-columns: 220px 1fr; gap: 60px; align-items: stretch; }
         
         .settings-nav { position: relative; display: flex; flex-direction: column; gap: 4px; height: 100%; }
         .settings-nav::after { content: ""; position: absolute; right: -30px; top: 0; height: 100%; width: 1px; background: var(--border-color); }
-        .s-nav-btn { text-align: left; padding: 14px 20px; border: none; background: none; border-radius: 10px; cursor: pointer; font-size: 0.95rem; color: var(--text-muted); transition: 0.2s; font-weight: 500; }
+        
+        .s-nav-btn { 
+            text-align: left; padding: 14px 20px; border: none; background: none; 
+            border-radius: 10px; cursor: pointer; font-size: 0.95rem; color: var(--text-muted); 
+            transition: all 0.2s ease; font-weight: 500;
+        }
+        .s-nav-btn:hover { background: #f8fafc; color: var(--text-main); }
         .s-nav-btn.active { background: var(--active-strip); color: var(--primary-blue); font-weight: 600; }
 
-        .info-card { background: white; border: 1px solid var(--border-color); border-radius: 16px; padding: 32px; margin-bottom: 24px; position: relative; }
+        /* Cards */
+        .info-card { 
+            background: white; border: 1px solid var(--border-color); 
+            border-radius: 16px; padding: 32px; margin-bottom: 24px; position: relative;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+        
         .avatar-header { display: flex; align-items: center; gap: 24px; }
         .avatar-img { width: 88px; height: 88px; border-radius: 20px; background: #f8fafc; object-fit: cover; border: 1px solid var(--border-color); }
-        
-        /* Soft Touch Edit Box */
+        .user-meta h2 { font-size: 1.25rem; font-weight: 700; color: var(--text-main); }
+        .user-meta p { font-size: 0.9rem; color: var(--text-muted); margin-top: 4px; }
+
         .edit-box { 
             position: absolute; top: 32px; right: 32px;
             border: 1px solid var(--border-color); border-radius: 8px;
-            padding: 8px; display: flex; align-items: center; justify-content: center;
-            cursor: pointer; background: white; transition: 0.2s; z-index: 10;
+            padding: 8px 12px; display: flex; align-items: center; gap: 8px;
+            cursor: pointer; font-size: 0.85rem; font-weight: 600; color: #1e293b;
+            background: white; transition: all 0.2s ease; z-index: 10;
         }
-        .edit-box:hover { background: #f8fafc; border-color: #cbd5e1; }
-        .edit-box svg { width: 16px; height: 16px; color: var(--text-main); }
+        .edit-box:hover { background: #f8fafc; border-color: #cbd5e1; transform: translateY(-1px); }
 
         .section-title { font-size: 1rem; font-weight: 700; margin-bottom: 24px; color: var(--text-main); }
         .data-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px 48px; }
         .data-item label { display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 6px; font-weight: 600; text-transform: uppercase; }
         .data-item span { font-size: 1rem; font-weight: 500; color: var(--text-main); }
 
+        /* Edit States */
         .edit-mode { display: none; }
-        .modern-input { width: 100%; padding: 12px 16px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 0.95rem; outline: none; }
-        .modern-input:focus { border-color: var(--primary-blue); }
+        .modern-input { 
+            width: 100%; padding: 12px 16px; border: 1px solid var(--border-color); 
+            border-radius: 8px; font-size: 0.95rem; outline: none; background: #fff;
+        }
+        .modern-input:focus { border-color: var(--primary-blue); box-shadow: 0 0 0 3px rgba(11, 74, 143, 0.1); }
         .btn-group { margin-top: 24px; display: flex; gap: 12px; }
         .btn-save { background: var(--primary-blue); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; }
         .btn-cancel { background: #f1f5f9; color: #64748b; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; }
 
+        /* Modal */
         #avatarModal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15, 23, 42, 0.6); z-index:1000; align-items:center; justify-content:center; backdrop-filter: blur(8px); }
         .modal-content { background:white; padding:40px; border-radius:24px; width:500px; text-align:center; }
         .avatar-options { display:grid; grid-template-columns: repeat(3, 1fr); gap:20px; margin-top:24px; }
@@ -97,9 +124,7 @@
         <div id="main-form-container">
             <div id="identity-tab" class="tab-content">
                 <div class="info-card" id="card-top">
-                    <div class="edit-box" onclick="toggleEdit('top')">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                    </div>
+                    <div class="edit-box" onclick="toggleEdit('top')">Edit</div>
                     <div id="top-view" class="avatar-header">
                         <img src="https://api.dicebear.com/7.x/lorelei/svg?seed=Felix" class="avatar-img" id="avatar-img">
                         <div class="user-meta">
@@ -127,9 +152,7 @@
 
                 <div class="info-card" id="card-personal">
                     <h3 class="section-title">Personal Details</h3>
-                    <div class="edit-box" onclick="toggleEdit('personal')">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                    </div>
+                    <div class="edit-box" onclick="toggleEdit('personal')">Edit</div>
                     <div id="personal-view" class="data-grid">
                         <div class="data-item"><label>Full Name</label><span id="view-name">Ibrahim Mahdi</span></div>
                         <div class="data-item"><label>Gender</label><span id="view-gender">Male</span></div>
@@ -148,15 +171,13 @@
 
                 <div class="info-card" id="card-address">
                     <h3 class="section-title">Address</h3>
-                    <div class="edit-box" onclick="toggleEdit('address')">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                    </div>
+                    <div class="edit-box" onclick="toggleEdit('address')">Edit</div>
                     <div id="address-view" class="data-grid">
                         <div class="data-item"><label>Address 1</label><span>---</span></div>
                         <div class="data-item"><label>Address 2</label><span>---</span></div>
                         <div class="data-item"><label>City</label><span>---</span></div>
                         <div class="data-item"><label>State</label><span>---</span></div>
-                        <div class="data-item"><label>Country</label><span>NIGERIA</span></div>
+                        <div class="data-item"><label>Country</label><span>Nigeria</span></div>
                     </div>
                     <div id="address-edit" class="edit-mode">
                         <div class="data-grid">
@@ -164,7 +185,7 @@
                             <div class="data-item"><label>Address 2</label><input type="text" class="modern-input"></div>
                             <div class="data-item"><label>City</label><input type="text" class="modern-input"></div>
                             <div class="data-item"><label>State</label><input type="text" class="modern-input"></div>
-                            <div class="data-item"><label>Country</label><input type="text" class="modern-input" value="NIGERIA"></div>
+                            <div class="data-item"><label>Country</label><input type="text" class="modern-input" value="Nigeria"></div>
                         </div>
                         <div class="btn-group">
                             <button class="btn-save" onclick="saveBox('address')">Save</button>
@@ -177,9 +198,7 @@
             <div id="aspirations-tab" class="tab-content" style="display:none">
                 <div class="info-card" id="card-aspi">
                     <h3 class="section-title">Academic Goals</h3>
-                    <div class="edit-box" onclick="toggleEdit('aspi')">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                    </div>
+                    <div class="edit-box" onclick="toggleEdit('aspi')">Edit</div>
                     <div id="aspi-view" class="data-grid">
                         <div class="data-item"><label>Target Year</label><span>2026</span></div>
                         <div class="data-item"><label>Current Grade</label><span>Class 12</span></div>
@@ -200,17 +219,17 @@
             <div id="security-tab" class="tab-content" style="display:none">
                 <div class="info-card" id="card-sec">
                     <h3 class="section-title">Security</h3>
-                    <div class="edit-box" onclick="toggleEdit('sec')">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                    </div>
+                    <div class="edit-box" onclick="toggleEdit('sec')">Edit</div>
                     <div id="sec-view" class="data-grid">
                         <div class="data-item"><label>Email</label><span>i*******@email.com</span></div>
+                        <div class="data-item"><label>Phone Number</label><span>---</span></div>
                         <div class="data-item"><label>Password</label><span>••••••••</span></div>
                     </div>
                     <div id="sec-edit" class="edit-mode">
                         <div class="data-grid">
                             <div class="data-item"><label>Current Password</label><input type="password" class="modern-input"></div>
                             <div class="data-item"><label>New Password</label><input type="password" class="modern-input"></div>
+                            <div class="data-item"><label>Phone Number</label><input type="text" class="modern-input"></div>
                         </div>
                         <div class="btn-group">
                             <button class="btn-save" onclick="saveBox('sec')">Update</button>
@@ -224,14 +243,12 @@
 </main>
 
 <script>
-    // Section 3: Ghibli Colorful System (Lorelei)
     const ghibliSeeds = ["Willow", "Jasper", "Sasha", "Milo", "Luna", "Felix"];
 
     function openAvatarModal() {
         const container = document.getElementById('avatarOptions');
         container.innerHTML = '';
         ghibliSeeds.forEach(seed => {
-            // Style 2 (Lorelei) Colorful - No background params
             const url = `https://api.dicebear.com/7.x/lorelei/svg?seed=${seed}`;
             const img = document.createElement('img');
             img.src = url;
@@ -269,8 +286,13 @@
     }
 
     function saveBox(section) {
-        // Logic to update UI and DB [cite: 2026-02-02]
+        // Logic to update UI and DB goes here [cite: 2026-02-02]
         toggleEdit(section);
+    }
+
+    function handleLogout() {
+        console.log("Logging out...");
+        // Add Supabase signout logic here
     }
 </script>
 </body>
