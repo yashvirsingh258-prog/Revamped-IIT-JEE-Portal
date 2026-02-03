@@ -364,6 +364,9 @@
 
 <script>
     const ghibliOptions = ["https://raw.githubusercontent.com/yashvirsingh258-prog/Revamped-IIT-JEE-Portal/main/Studious%20James.png"];
+    const supabaseUrl = 'https://ijxsnunkfhudwnkrwmzk.supabase.co';
+    const supabaseKey = 'sb_publishable_V-KT1zvp-73dqHHvmx3fNA_iHw53TCl';
+    const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
     function openAvatarModal() {
         const container = document.getElementById('avatarOptions');
@@ -438,7 +441,7 @@ async function fetchCountryCodes() {
 
     try {
         // This pulls EVERYTHING you inserted into the country_codes table
-        const { data, error } = await supabase
+        const { data, error } = await supabaseClient
             .from('country_codes')
             .select('country_code, dial_code')
             .order('country_code', { ascending: true });
