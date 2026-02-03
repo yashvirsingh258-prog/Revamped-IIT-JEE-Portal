@@ -23,7 +23,7 @@
         main { margin-left: 280px; flex: 1; padding: 60px 80px; }
         .page-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 40px; }
 
-        /* FLOATING TOP CARD */
+        /* PERSISTENT TOP CARD */
         #card-top.ghibli-glass {
             background: linear-gradient(135deg, #FDFBF7 0%, #F5F1E9 100%) !important;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 10px 15px -3px rgba(0, 0, 0, 0.08);
@@ -47,7 +47,6 @@
         .avatar-header { display: flex; align-items: center; gap: 24px; }
         .avatar-wrapper { position: relative; width: 88px; height: 88px; flex-shrink: 0; }
         .avatar-img { width: 88px; height: 88px; border-radius: 20px; object-fit: cover; border: 1px solid var(--border-color); }
-        .edit-overlay-icon { position: absolute; bottom: 5px; right: 5px; background: white; border-radius: 50%; padding: 6px; display: flex; box-shadow: 0 2px 8px rgba(0,0,0,0.2); border: 1.5px solid #EAE4D9; }
 
         .data-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px 48px; }
         .data-item label { display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 6px; font-weight: 600; text-transform: uppercase; }
@@ -55,8 +54,8 @@
         
         .edit-mode { display: none; }
         .modern-input { width: 100%; padding: 12px 16px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 0.95rem; outline: none; }
-        /* NO COLOR CHANGE ON HOVER AS REQUESTED */
-        .modern-input:hover { border-color: var(--border-color); }
+        /* HOVER: NO COLOR CHANGE AS PER INSTRUCTION */
+        .modern-input:hover { border-color: var(--border-color); box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
 
         .btn-group { margin-top: 24px; display: flex; gap: 12px; }
         .btn-save { background: var(--primary-blue); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; }
@@ -91,12 +90,8 @@
         </div>
         <div id="top-edit" class="edit-mode">
             <div class="avatar-header">
-                <div class="avatar-wrapper">
-                    <img src="https://raw.githubusercontent.com/yashvirsingh258-prog/Revamped-IIT-JEE-Portal/main/Studious%20James.png" class="avatar-img">
-                    <div class="edit-overlay-icon"><svg style="width:14px;height:14px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg></div>
-                </div>
                 <div class="user-meta">
-                    <label style="font-size:0.7rem; font-weight:700;">FULL NAME</label>
+                    <label>Full Name</label>
                     <input type="text" class="modern-input" value="Ibrahim Mahdi">
                 </div>
             </div>
@@ -109,9 +104,9 @@
 
     <div class="profile-container">
         <div class="settings-nav">
-            <button class="s-nav-btn active" id="btn-identity" onclick="showTab('identity', this)">Identity</button>
-            <button class="s-nav-btn" id="btn-aspirations" onclick="showTab('aspirations', this)">Aspirations</button>
-            <button class="s-nav-btn" id="btn-security" onclick="showTab('security', this)">Security</button>
+            <button class="s-nav-btn active" onclick="showTab('identity', this)">Identity</button>
+            <button class="s-nav-btn" onclick="showTab('aspirations', this)">Aspirations</button>
+            <button class="s-nav-btn" onclick="showTab('security', this)">Security</button>
         </div>
 
         <div id="main-content">
@@ -124,26 +119,38 @@
                         <div class="data-item"><label>Last Name</label><span>Mahdi</span></div>
                         <div class="data-item"><label>Age</label><span>17</span></div>
                         <div class="data-item"><label>Gender</label><span>Male</span></div>
-                        <div class="data-item"><label>Phone</label><span>+91 9876543210</span></div>
+                        <div class="data-item"><label>Phone Number</label><span>+91 9876543210</span></div>
                     </div>
                     <div id="personal-edit" class="edit-mode">
                         <div class="data-grid">
-                            <input type="text" class="modern-input" value="Ibrahim">
-                            <input type="text" class="modern-input" value="Mahdi">
+                            <div class="data-item"><label>First Name</label><input type="text" class="modern-input" value="Ibrahim"></div>
+                            <div class="data-item"><label>Last Name</label><input type="text" class="modern-input" value="Mahdi"></div>
+                            <div class="data-item"><label>Age</label><input type="number" class="modern-input" value="17"></div>
+                            <div class="data-item"><label>Gender</label><input type="text" class="modern-input" value="Male"></div>
+                            <div class="data-item"><label>Phone Number</label><input type="text" class="modern-input" value="+91 9876543210"></div>
                         </div>
-                        <div class="btn-group"><button class="btn-save" onclick="saveBox('personal')">Save</button></div>
+                        <div class="btn-group"><button class="btn-save" onclick="saveBox('personal')">Save</button> <button class="btn-cancel" onclick="toggleEdit('personal')">Cancel</button></div>
                     </div>
                 </div>
                 <div class="info-card">
                     <div class="edit-box" id="edit-btn-address" onclick="toggleEdit('address')"><span>Edit</span></div>
-                    <h3>Address Details</h3>
+                    <h3>Address</h3>
                     <div id="address-view" class="data-grid">
-                        <div class="data-item"><label>House/Street</label><span>123 Galaxy St</span></div>
+                        <div class="data-item"><label>House/Flat No. & Street</label><span>123 Galaxy St</span></div>
+                        <div class="data-item"><label>Locality/Area</label><span>Sector 45</span></div>
                         <div class="data-item"><label>City</label><span>Gurgaon</span></div>
+                        <div class="data-item"><label>State</label><span>Haryana</span></div>
+                        <div class="data-item"><label>Pincode</label><span>122003</span></div>
                     </div>
                     <div id="address-edit" class="edit-mode">
-                        <input type="text" class="modern-input" value="123 Galaxy St">
-                        <div class="btn-group"><button class="btn-save" onclick="saveBox('address')">Save</button></div>
+                        <div class="data-grid">
+                            <div class="data-item"><label>House/Flat No. & Street</label><input type="text" class="modern-input" value="123 Galaxy St"></div>
+                            <div class="data-item"><label>Locality/Area</label><input type="text" class="modern-input" value="Sector 45"></div>
+                            <div class="data-item"><label>City</label><input type="text" class="modern-input" value="Gurgaon"></div>
+                            <div class="data-item"><label>State</label><input type="text" class="modern-input" value="Haryana"></div>
+                            <div class="data-item"><label>Pincode</label><input type="text" class="modern-input" value="122003"></div>
+                        </div>
+                        <div class="btn-group"><button class="btn-save" onclick="saveBox('address')">Save</button> <button class="btn-cancel" onclick="toggleEdit('address')">Cancel</button></div>
                     </div>
                 </div>
             </div>
@@ -157,7 +164,10 @@
                         <div class="data-item"><label>Grade</label><span>Class 12</span></div>
                     </div>
                     <div id="aspi-edit" class="edit-mode">
-                        <input type="text" class="modern-input" value="2026">
+                        <div class="data-grid">
+                            <div class="data-item"><label>Target Year</label><input type="text" class="modern-input" value="2026"></div>
+                            <div class="data-item"><label>Grade</label><input type="text" class="modern-input" value="Class 12"></div>
+                        </div>
                         <div class="btn-group"><button class="btn-save" onclick="saveBox('aspi')">Save</button></div>
                     </div>
                 </div>
@@ -166,14 +176,18 @@
             <div id="security-tab" class="tab-content" style="display:none">
                 <div class="info-card">
                     <div class="edit-box" id="edit-btn-sec" onclick="toggleEdit('sec')"><span>Edit</span></div>
-                    <h3>Security</h3>
+                    <h3>Security Settings</h3>
                     <div id="sec-view" class="data-grid">
-                        <div class="data-item"><label>Email</label><span>ibrahim@email.com</span></div>
-                        <div class="data-item"><label>Password</label><span>********</span></div>
+                        <div class="data-item"><label>Email Address</label><span>ibrahim@email.com</span></div>
+                        <div class="data-item"><label>Password</label><span>••••••••</span></div>
                     </div>
                     <div id="sec-edit" class="edit-mode">
-                        <input type="password" class="modern-input" placeholder="New Password">
-                        <div class="btn-group"><button class="btn-save" onclick="saveBox('sec')">Update</button></div>
+                        <div class="data-grid" style="grid-template-columns: 1fr;">
+                            <div class="data-item"><label>Email</label><input type="email" class="modern-input" value="ibrahim@email.com"></div>
+                            <div class="data-item"><label>Current Password</label><input type="password" class="modern-input" placeholder="Confirm Current"></div>
+                            <div class="data-item"><label>New Password</label><input type="password" class="modern-input" placeholder="Enter New"></div>
+                        </div>
+                        <div class="btn-group"><button class="btn-save" onclick="saveBox('sec')">Update</button> <button class="btn-cancel" onclick="toggleEdit('sec')">Cancel</button></div>
                     </div>
                 </div>
             </div>
@@ -183,15 +197,9 @@
 
 <script>
     function showTab(tabId, btn) {
-        // Corrected Tab Loading
-        const tabs = document.querySelectorAll('.tab-content');
-        tabs.forEach(t => t.style.display = 'none');
-        
-        const activeTab = document.getElementById(tabId + '-tab');
-        if(activeTab) activeTab.style.display = 'block';
-
-        const btns = document.querySelectorAll('.s-nav-btn');
-        btns.forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
+        document.getElementById(tabId + '-tab').style.display = 'block';
+        document.querySelectorAll('.s-nav-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
     }
 
@@ -204,11 +212,20 @@
             view.style.display = 'none';
             edit.style.display = 'block';
             btn.style.display = 'none';
+            setLock(true, section);
         } else {
             view.style.display = (section === 'top') ? 'flex' : 'grid';
             edit.style.display = 'none';
             btn.style.display = 'flex';
+            setLock(false, section);
         }
+    }
+
+    function setLock(locked, activeSec) {
+        document.querySelectorAll('.edit-box').forEach(b => {
+            if (b.id !== 'edit-btn-' + activeSec) locked ? b.classList.add('disabled') : b.classList.remove('disabled');
+        });
+        document.querySelectorAll('.s-nav-btn').forEach(b => locked ? b.classList.add('disabled') : b.classList.remove('disabled'));
     }
 
     function saveBox(section) { toggleEdit(section); }
