@@ -101,6 +101,23 @@
         .opt-img:hover { border-color: var(--primary-blue); transform: scale(1.05); }
 
         .s-nav-btn.disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
+
+        /* The Background Gradient for the Section */
+        #identity-tab {
+            background: linear-gradient(135deg, #a7d088 0%, #d4eec1 50%, #f9d976 100%);
+            padding: 20px;
+            border-radius: 20px;
+        }
+        
+        /* The Frosted Glass Card */
+        .ghibli-glass {
+            background: rgba(255, 255, 255, 0.4); /* Semi-transparent white */
+            backdrop-filter: blur(12px); /* This creates the frosted effect */
+            -webkit-backdrop-filter: blur(12px); /* Safari support */
+            border: 1px solid rgba(255, 255, 255, 0.3); /* Subtle white border */
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07); /* Soft shadow */
+            border-radius: 16px;
+        }
     </style>
 </head>
 <body>
