@@ -11,7 +11,7 @@
             --active-strip: #335d91; 
             --bg-light: #f8fafc;
             --border-color: #e2e8f0;
-            --soft-grey: #f1f5f9; /* The color for the active tab */
+            --soft-grey: #f1f5f9;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: var(--bg-light); display: flex; min-height: 100vh; color: #1e293b; }
@@ -23,74 +23,74 @@
         .nav-link { display: block; padding: 18px 40px; text-decoration: none; color: rgba(255, 255, 255, 0.5); font-size: 0.85rem; font-weight: 500; text-transform: uppercase; cursor: pointer; transition: 0.3s; }
         .active-link { color: white !important; background: var(--active-strip) !important; border-right: 6px solid white !important; font-weight: 700; }
         
-        /* Main Content */
+        /* Main Layout */
         main { margin-left: 280px; flex: 1; padding: 50px 70px; }
         .header-sec { margin-bottom: 40px; }
         .header-sec h1 { font-size: 2rem; font-weight: 700; color: var(--primary-blue); }
 
-        /* Settings Grid with Vertical Divider */
+        /* Settings Card Grid */
         .settings-grid { 
             display: grid; 
             grid-template-columns: 240px 1fr; 
-            gap: 0; /* Gap is 0 to allow the vertical line to look continuous */
-            align-items: start; 
             background: white;
             border-radius: 20px;
             border: 1px solid var(--border-color);
-            overflow: hidden; /* Clips children to the border radius */
+            overflow: hidden;
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+            position: relative;
         }
         
         /* Vertical Tabs Navigation */
         .settings-nav { 
             padding: 30px 15px; 
-            border-right: 1px solid var(--border-color); /* The Soft Grey Vertical Line */
-            height: 100%;
-            min-height: 500px;
+            background: #ffffff;
+            position: relative; /* Anchor for the floating line */
+        }
+
+        /* The Floating Vertical Line - Does not touch top/bottom */
+        .settings-nav::after {
+            content: "";
+            position: absolute;
+            right: 0;
+            top: 15%;    /* 15% gap from top */
+            height: 70%; /* Line covers 70% of height */
+            width: 1px;
+            background-color: var(--border-color);
         }
         
         .s-nav-btn { 
-            width: 100%; 
-            text-align: left; 
-            padding: 12px 16px; 
-            border: none; 
-            background: none; 
-            border-radius: 8px; 
-            cursor: pointer; 
-            font-weight: 500; 
-            color: #64748b; 
-            transition: 0.2s; 
-            font-size: 0.9rem; 
-            margin-bottom: 8px; 
+            width: 100%; text-align: left; padding: 12px 16px; border: none; background: none; 
+            border-radius: 8px; cursor: pointer; font-weight: 500; color: #64748b; 
+            transition: 0.2s; font-size: 0.9rem; margin-bottom: 8px; 
         }
 
-        /* Change color to soft grey when clicked/active */
-        .s-nav-btn.active { 
-            background: var(--soft-grey); 
-            color: var(--primary-blue);
-            font-weight: 600;
-        }
+        .s-nav-btn.active { background: var(--soft-grey); color: var(--primary-blue); font-weight: 600; }
 
-        /* The Right Side Card Content */
-        .settings-card-body { 
-            padding: 40px; 
-            background: white;
-        }
-        
-        /* Form Sections */
+        /* Card Content Area */
+        .settings-card-body { padding: 40px; min-height: 500px; }
         .form-section { display: none; }
-        .form-section.active { display: block; animation: fadeIn 0.4s ease; }
+        .form-section.active { display: block; animation: fadeIn 0.3s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: translateX(0); } }
 
-        .input-group { margin-bottom: 25px; }
-        .input-group label { display: block; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; color: #94a3b8; margin-bottom: 8px; letter-spacing: 0.5px; }
-        .modern-input { width: 100%; padding: 12px 16px; border-radius: 10px; border: 1px solid var(--border-color); background: #fcfdfe; font-size: 0.95rem; transition: 0.3s; outline: none; }
-        .modern-input:focus { border-color: var(--primary-blue); box-shadow: 0 0 0 4px rgba(11, 74, 143, 0.1); }
+        /* View Mode Styles */
+        .info-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; margin-bottom: 25px; }
+        .info-header h3 { font-size: 1.1rem; color: #1e293b; font-weight: 700; }
+        .edit-btn { background: white; border: 1px solid var(--border-color); padding: 6px 14px; border-radius: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer; color: #64748b; transition: 0.2s; }
+        .edit-btn:hover { background: var(--soft-grey); color: var(--primary-blue); }
+
+        .data-row { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 25px; }
+        .data-item label { display: block; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; color: #94a3b8; margin-bottom: 5px; letter-spacing: 0.5px; }
+        .data-value { font-size: 0.95rem; color: #1e293b; font-weight: 500; }
+
+        /* Edit Mode Styles */
+        .edit-mode { display: none; }
+        .input-group { margin-bottom: 20px; }
+        .input-group label { display: block; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; color: #94a3b8; margin-bottom: 8px; }
+        .modern-input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: #fcfdfe; font-size: 0.95rem; outline: none; }
         
-        .btn-save { background: var(--primary-blue); color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.3s; }
-        .btn-save:hover { opacity: 0.9; transform: translateY(-1px); }
-        
-        .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .btn-group { display: flex; gap: 10px; margin-top: 20px; }
+        .btn-save { background: var(--primary-blue); color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 700; cursor: pointer; }
+        .btn-cancel { background: #64748b; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 700; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -99,7 +99,7 @@
         <a href="index.html" class="nav-link">Dashboard</a>
         <a href="tests.html" class="nav-link">Available Tests</a>
         <a href="performance.html" class="nav-link">Performance</a>
-        <a href="account.html" class="nav-link active-link">Account</a>
+        <a href="user-profile.html" class="nav-link active-link">Account</a>
         <a onclick="handleLogout()" class="nav-link" style="margin-top: auto; border-top: 1px solid rgba(255,255,255,0.1);">Logout</a>
     </nav>
 
@@ -117,62 +117,76 @@
 
             <div class="settings-card-body">
                 <div id="personal" class="form-section active">
-                    <div class="input-group">
-                        <label>Full Name</label>
-                        <input type="text" id="fullName" class="modern-input" placeholder="Enter your name">
+                    <div class="info-header">
+                        <h3>Personal Information</h3>
+                        <button class="edit-btn" onclick="toggleEdit('personal')">Edit Profile</button>
                     </div>
-                    <div class="input-group">
-                        <label>Email Address</label>
-                        <input type="email" id="email" class="modern-input" disabled>
-                    </div>
-                    <div class="row-2">
-                        <div class="input-group">
-                            <label>Phone Number</label>
-                            <input type="text" id="phone" class="modern-input" placeholder="+91 ...">
+                    <div id="personal-view">
+                        <div class="data-row">
+                            <div class="data-item"><label>Full Name</label><div class="data-value" id="view-name">Loading...</div></div>
+                            <div class="data-item"><label>Email Address</label><div class="data-value" id="view-email">Loading...</div></div>
                         </div>
-                        <div class="input-group">
-                            <label>Gender</label>
-                            <select id="gender" class="modern-input">
-                                <option value="Male">Male</option>
-                                <option value="Female">Female</option>
-                                <option value="Other">Other</option>
-                            </select>
+                        <div class="data-row">
+                            <div class="data-item"><label>Phone Number</label><div class="data-value" id="view-phone">Not set</div></div>
+                            <div class="data-item"><label>Gender</label><div class="data-value" id="view-gender">Not set</div></div>
                         </div>
                     </div>
-                    <button class="btn-save" onclick="updateProfile()">Save Changes</button>
+                    <div id="personal-edit" class="edit-mode">
+                        <div class="input-group"><label>Full Name</label><input type="text" id="input-name" class="modern-input"></div>
+                        <div class="data-row">
+                            <div class="input-group"><label>Phone Number</label><input type="text" id="input-phone" class="modern-input"></div>
+                            <div class="input-group">
+                                <label>Gender</label>
+                                <select id="input-gender" class="modern-input">
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="btn-group">
+                            <button class="btn-save" onclick="updateProfile()">Save Changes</button>
+                            <button class="btn-cancel" onclick="toggleEdit('personal')">Cancel</button>
+                        </div>
+                    </div>
                 </div>
 
                 <div id="academic" class="form-section">
-                    <div class="row-2">
-                        <div class="input-group">
-                            <label>Target Year</label>
-                            <input type="number" id="targetYear" class="modern-input" placeholder="2026">
+                    <div class="info-header">
+                        <h3>Academic Goals</h3>
+                        <button class="edit-btn" onclick="toggleEdit('academic')">Edit Goals</button>
+                    </div>
+                    <div id="academic-view">
+                        <div class="data-row">
+                            <div class="data-item"><label>Target Year</label><div class="data-value" id="view-targetYear">2026</div></div>
+                            <div class="data-item"><label>Current Grade</label><div class="data-value" id="view-grade">Class 12</div></div>
                         </div>
-                        <div class="input-group">
-                            <label>Current Grade</label>
-                            <select id="grade" class="modern-input">
-                                <option value="Class 11">Class 11</option>
-                                <option value="Class 12">Class 12</option>
-                                <option value="Dropper">Dropper</option>
-                            </select>
+                        <div class="data-item"><label>Dream Institute</label><div class="data-value" id="view-college">Not set</div></div>
+                    </div>
+                    <div id="academic-edit" class="edit-mode">
+                        <div class="data-row">
+                            <div class="input-group"><label>Target Year</label><input type="number" id="input-targetYear" class="modern-input"></div>
+                            <div class="input-group">
+                                <label>Current Grade</label>
+                                <select id="input-grade" class="modern-input">
+                                    <option value="Class 11">Class 11</option>
+                                    <option value="Class 12">Class 12</option>
+                                    <option value="Dropper">Dropper</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="input-group"><label>Dream Institute</label><input type="text" id="input-college" class="modern-input"></div>
+                        <div class="btn-group">
+                            <button class="btn-save" onclick="updateProfile()">Save Goals</button>
+                            <button class="btn-cancel" onclick="toggleEdit('academic')">Cancel</button>
                         </div>
                     </div>
-                    <div class="input-group">
-                        <label>Dream Institute</label>
-                        <input type="text" id="college" class="modern-input" placeholder="e.g. IIT Bombay">
-                    </div>
-                    <button class="btn-save" onclick="updateProfile()">Update Goals</button>
                 </div>
 
                 <div id="security" class="form-section">
-                    <div class="input-group">
-                        <label>New Password</label>
-                        <input type="password" id="newPassword" class="modern-input">
-                    </div>
-                    <div class="input-group">
-                        <label>Confirm Password</label>
-                        <input type="password" id="confirmPassword" class="modern-input">
-                    </div>
+                    <div class="info-header"><h3>Security Settings</h3></div>
+                    <div class="input-group"><label>New Password</label><input type="password" id="newPassword" class="modern-input"></div>
+                    <div class="input-group"><label>Confirm Password</label><input type="password" id="confirmPassword" class="modern-input"></div>
                     <button class="btn-save" style="background: #ef4444;" onclick="changePassword()">Update Password</button>
                 </div>
             </div>
@@ -180,7 +194,6 @@
     </main>
 
     <script>
-        // Supabase Logic remains exactly the same as your provided code
         const supabaseUrl = 'https://ijxsnunkfhudwnkrwmzk.supabase.co';
         const supabaseKey = 'sb_publishable_V-KT1zvp-73dqHHvmx3fNA_iHw53TCl';
         const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
@@ -192,18 +205,32 @@
             btn.classList.add('active');
         }
 
+        function toggleEdit(sectionId) {
+            const view = document.getElementById(sectionId + '-view');
+            const edit = document.getElementById(sectionId + '-edit');
+            const isViewing = view.style.display !== 'none';
+            view.style.display = isViewing ? 'none' : 'block';
+            edit.style.display = isViewing ? 'block' : 'none';
+        }
+
         async function loadProfileData() {
             const { data: { session } } = await supabaseClient.auth.getSession();
             if (!session) { window.location.href = 'login.html'; return; }
-            document.getElementById('email').value = session.user.email;
+            document.getElementById('view-email').innerText = session.user.email;
             const { data } = await supabaseClient.from('profiles').select('*').eq('id', session.user.id).single();
             if (data) {
-                document.getElementById('fullName').value = data.full_name || '';
-                document.getElementById('phone').value = data.phone_number || '';
-                document.getElementById('gender').value = data.gender || 'Male';
-                document.getElementById('targetYear').value = data.target_year || '';
-                document.getElementById('grade').value = data.current_grade || 'Class 11';
-                document.getElementById('college').value = data.target_college || '';
+                document.getElementById('view-name').innerText = data.full_name || 'Not set';
+                document.getElementById('input-name').value = data.full_name || '';
+                document.getElementById('view-phone').innerText = data.phone_number || 'Not set';
+                document.getElementById('input-phone').value = data.phone_number || '';
+                document.getElementById('view-gender').innerText = data.gender || 'Male';
+                document.getElementById('input-gender').value = data.gender || 'Male';
+                document.getElementById('view-targetYear').innerText = data.target_year || '2026';
+                document.getElementById('input-targetYear').value = data.target_year || 2026;
+                document.getElementById('view-grade').innerText = data.current_grade || 'Class 11';
+                document.getElementById('input-grade').value = data.current_grade || 'Class 11';
+                document.getElementById('view-college').innerText = data.target_college || 'Not set';
+                document.getElementById('input-college').value = data.target_college || '';
             }
         }
 
@@ -211,17 +238,17 @@
             const { data: { session } } = await supabaseClient.auth.getSession();
             const updates = {
                 id: session.user.id,
-                full_name: document.getElementById('fullName').value,
-                phone_number: document.getElementById('phone').value,
-                gender: document.getElementById('gender').value,
-                target_year: parseInt(document.getElementById('targetYear').value),
-                current_grade: document.getElementById('grade').value,
-                target_college: document.getElementById('college').value,
+                full_name: document.getElementById('input-name').value,
+                phone_number: document.getElementById('input-phone').value,
+                gender: document.getElementById('input-gender').value,
+                target_year: parseInt(document.getElementById('input-targetYear').value),
+                current_grade: document.getElementById('input-grade').value,
+                target_college: document.getElementById('input-college').value,
                 updated_at: new Date()
             };
             const { error } = await supabaseClient.from('profiles').upsert(updates);
             if (error) alert(error.message);
-            else alert("Profile updated!");
+            else { alert("Profile updated!"); location.reload(); }
         }
 
         async function handleLogout() { await supabaseClient.auth.signOut(); window.location.href = 'login.html'; }
