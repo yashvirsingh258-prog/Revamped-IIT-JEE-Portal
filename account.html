@@ -352,7 +352,7 @@
                             </div>
                         </div>
                         <div class="btn-group">
-                            <button class="btn-save" onclick="saveBox('sec')">Update</button>
+                            <button class="btn-save" onclick="updateStudentPhone()">Update</button>
                             <button class="btn-cancel" onclick="toggleEdit('sec')">Cancel</button>
                         </div>
                     </div>
@@ -493,6 +493,45 @@
         }
         originalToggleEdit(section);
     };
+
+    async function updateStudentPhone() {
+        // 1. Grab values from the Security Edit Mode inputs
+        const dialCode = document.getElementById('country-code-select').value;
+        const phoneInput = document.getElementById('phone-input').value.trim();
+        
+        // 2. Validation: Don't update if the number is empty
+        if (!phoneInput) {
+            alert("Please enter a valid phone number.");
+            return;
+        }
+    
+        // 3. Combine for storage (e.g., "+91" + "9876543210")
+        const fullPhoneNumber = dialCode + phoneInput;
+    
+        try {
+            // 4. Update the consolidated 'students' table
+            const { error } = await supabaseClient
+                .from('students')
+                .update({ phone_number: fullPhoneNumber })
+                .eq('email', currentStudentEmail); // Using our Global Primary Key
+    
+            if (error) throw error;
+    
+            // 5. Success: Update the UI (View Mode)
+            const displaySpan = document.querySelector('#sec-view .data-item:nth-child(2) span');
+            if (displaySpan) {
+                displaySpan.textContent = fullPhoneNumber;
+            }
+    
+            // 6. Switch back to view mode
+            toggleEdit('sec');
+            console.log("Phone number updated successfully.");
+    
+        } catch (err) {
+            console.error("Update failed:", err.message);
+            alert("Could not update phone number. Please try again.");
+        }
+    }
     
     function handleLogout() { console.log("Logging out..."); }
 </script>
