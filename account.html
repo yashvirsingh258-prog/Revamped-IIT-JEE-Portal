@@ -13,32 +13,26 @@
             --border-color: #e2e8f0;
             --text-main: #1e293b;
             --text-muted: #94a3b8;
-            --ghibli-soft: transparent;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: #fff; display: flex; min-height: 100vh; color: var(--text-main); }
         
-        /* Sidebar Navigation */
         nav { width: 280px; background: #0b4a8f; color: white; padding: 60px 0; position: fixed; height: 100vh; z-index: 100; display: flex; flex-direction: column; }
-        .logo-area { padding: 0 40px; margin-bottom: 60px; }
-        .logo-area h2 { font-size: 1.2rem; letter-spacing: 4px; font-weight: 700; text-transform: uppercase; }
+        .logo-area { padding: 0 40px; margin-bottom: 60px; font-size: 1.2rem; letter-spacing: 4px; font-weight: 700; text-transform: uppercase; }
 
         .nav-link {
             transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
             display: block; padding: 18px 40px; text-decoration: none;
             color: rgba(255, 255, 255, 0.5); font-size: 0.85rem; font-weight: 500;
-            letter-spacing: 1px; text-transform: uppercase;
-            cursor: pointer;
+            letter-spacing: 1px; text-transform: uppercase; cursor: pointer;
         }
         .nav-link:hover { color: white; padding-left: 50px; }
         .active-link { color: white; background: rgba(255, 255, 255, 0.1); font-weight: 700; border-right: 4px solid #fff; }
 
-        /* Main Content */
         main { margin-left: 280px; flex: 1; padding: 60px 80px; }
         .page-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 40px; }
 
         .profile-container { display: grid; grid-template-columns: 220px 1fr; gap: 60px; align-items: stretch; }
-        
         .settings-nav { position: relative; display: flex; flex-direction: column; gap: 4px; height: 100%; }
         .settings-nav::after { content: ""; position: absolute; right: -30px; top: 0; height: 100%; width: 1px; background: var(--border-color); }
         
@@ -50,66 +44,55 @@
         .s-nav-btn:hover { background: #f8fafc; color: var(--text-main); }
         .s-nav-btn.active { background: var(--active-strip); color: var(--primary-blue); font-weight: 600; }
 
-        /* Card Setup */
         .info-card { 
             background: white; border: 1px solid var(--border-color); 
             border-radius: 16px; padding: 32px; margin-bottom: 24px; position: relative;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
         }
         
         .avatar-header { display: flex; align-items: center; gap: 24px; }
-        .avatar-img { width: 88px; height: 88px; border-radius: 20px; background: transparent; object-fit: cover; border: 1px solid var(--border-color); }
+        .avatar-img { width: 88px; height: 88px; border-radius: 20px; background: #fff; object-fit: cover; border: 1px solid var(--border-color); }
         .user-meta h2 { font-size: 1.25rem; font-weight: 700; color: var(--text-main); }
         .user-meta p { font-size: 0.9rem; color: var(--text-muted); margin-top: 4px; }
 
-        /* Soft Touch Edit Icon */
         .edit-box { 
             position: absolute; top: 32px; right: 32px;
             border: 1px solid var(--border-color); border-radius: 8px;
             padding: 8px 12px; display: flex; align-items: center; gap: 8px;
             cursor: pointer; font-size: 0.85rem; font-weight: 600; color: #1e293b;
-            background: white; transition: all 0.2s ease; z-index: 10;
+            background: white; transition: 0.2s; z-index: 10;
         }
-        .edit-box:hover { background: #f8fafc; border-color: #cbd5e1; transform: translateY(-1px); }
-        .edit-box svg { width: 16px; height: 16px; color: #64748b; }
+        .edit-box:hover { background: #f8fafc; transform: translateY(-1px); }
 
-        /* Form Grids */
         .section-title { font-size: 1rem; font-weight: 700; margin-bottom: 24px; color: var(--text-main); }
         .data-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px 48px; }
-        .data-item label { display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.025em; }
+        .data-item label { display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 6px; font-weight: 600; text-transform: uppercase; }
         .data-item span { font-size: 1rem; font-weight: 500; color: var(--text-main); }
 
-        /* Form Edit States */
         .edit-mode { display: none; }
-        .modern-input { 
-            width: 100%; padding: 12px 16px; border: 1px solid var(--border-color); 
-            border-radius: 8px; font-size: 0.95rem; outline: none; background: #fff; transition: 0.2s;
-        }
+        .modern-input { width: 100%; padding: 12px 16px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 0.95rem; outline: none; }
         .modern-input:focus { border-color: var(--primary-blue); box-shadow: 0 0 0 3px rgba(11, 74, 143, 0.1); }
         .btn-group { margin-top: 24px; display: flex; gap: 12px; }
         .btn-save { background: var(--primary-blue); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; }
         .btn-cancel { background: #f1f5f9; color: #64748b; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; }
 
-        /* Avatar Modal */
         #avatarModal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15, 23, 42, 0.6); z-index:1000; align-items:center; justify-content:center; backdrop-filter: blur(8px); }
         .modal-content { background:white; padding:40px; border-radius:24px; width:500px; text-align:center; }
         .avatar-options { display:grid; grid-template-columns: repeat(3, 1fr); gap:20px; margin-top:24px; }
-        .opt-img { width:110px; height:110px; cursor:pointer; border-radius:16px; border:2px solid transparent; transition: 0.3s; background: transparent; }
-        .opt-img:hover { border-color: var(--primary-blue); transform: scale(1.05); }
+        .opt-img { width:110px; height:110px; cursor:pointer; border-radius:16px; border: 2px solid #eee; background: #fff; }
     </style>
 </head>
 <body>
 
 <div id="avatarModal">
     <div class="modal-content">
-        <h3 style="font-size: 1.25rem;">Select Character</h3>
+        <h3>Select Character</h3>
         <div class="avatar-options" id="avatarOptions"></div>
         <button class="btn-cancel" onclick="closeAvatarModal()" style="margin-top:24px;">Dismiss</button>
     </div>
 </div>
 
 <nav>
-    <div class="logo-area"><h2>JEE PORTAL</h2></div>
+    <div class="logo-area">JEE PORTAL</div>
     <a href="index.html" class="nav-link">Dashboard</a>
     <a href="tests.html" class="nav-link">Available Tests</a>
     <a href="performance.html" class="nav-link">Performance</a>
@@ -119,22 +102,18 @@
 
 <main>
     <h1 class="page-title">My Profile</h1>
-    
     <div class="profile-container">
         <div class="settings-nav">
             <button class="s-nav-btn active" onclick="showTab('identity', this)">Identity</button>
-            <button class="s-nav-btn" onclick="showTab('aspirations', this)">Aspirations</button>
             <button class="s-nav-btn" onclick="showTab('security', this)">Security</button>
         </div>
 
         <div id="main-form-container">
             <div id="identity-tab" class="tab-content">
                 <div class="info-card" id="card-top">
-                    <div class="edit-box" onclick="toggleEdit('top')">
-                        Edit <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                    </div>
+                    <div class="edit-box" onclick="toggleEdit('top')">Edit</div>
                     <div id="top-view" class="avatar-header">
-                        <img src="https://api.dicebear.com/7.x/lorelei/svg?seed=Felix&backgroundType=transparent" class="avatar-img" id="avatar-img">
+                        <img src="https://api.dicebear.com/7.x/lorelei/svg?seed=Felix&backgroundColor=ffffff" class="avatar-img" id="avatar-img">
                         <div class="user-meta">
                             <h2 id="meta-name">Ibrahim Mahdi</h2>
                             <p id="meta-role">JEE Aspirant • 2026</p>
@@ -143,10 +122,10 @@
                     <div id="top-edit" class="edit-mode">
                         <div class="avatar-header">
                             <div onclick="openAvatarModal()" style="cursor:pointer; position:relative;">
-                                <img src="https://api.dicebear.com/7.x/lorelei/svg?seed=Felix&backgroundType=transparent" class="avatar-img" id="avatar-img-edit">
+                                <img src="https://api.dicebear.com/7.x/lorelei/svg?seed=Felix&backgroundColor=ffffff" class="avatar-img" id="avatar-img-edit">
                                 <span style="position:absolute; bottom:0; right:0; background:white; border-radius:50%; padding:2px; font-size:10px; border:1px solid #ddd;">📸</span>
                             </div>
-                            <div class="user-meta" style="flex:1">
+                            <div style="flex:1">
                                 <label style="font-size:0.7rem; color:var(--text-muted)">FULL NAME</label>
                                 <input type="text" id="input-top-name" class="modern-input" value="Ibrahim Mahdi">
                             </div>
@@ -160,9 +139,7 @@
 
                 <div class="info-card" id="card-personal">
                     <h3 class="section-title">Personal Details</h3>
-                    <div class="edit-box" onclick="toggleEdit('personal')">
-                        Edit <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                    </div>
+                    <div class="edit-box" onclick="toggleEdit('personal')">Edit</div>
                     <div id="personal-view" class="data-grid">
                         <div class="data-item"><label>First Name</label><span>Ibrahim</span></div>
                         <div class="data-item"><label>Last Name</label><span>Mahdi</span></div>
@@ -173,89 +150,44 @@
                         <div class="data-grid">
                             <div class="data-item"><label>First Name</label><input type="text" class="modern-input" value="Ibrahim"></div>
                             <div class="data-item"><label>Last Name</label><input type="text" class="modern-input" value="Mahdi"></div>
-                            <div class="data-item"><label>Gender</label><input type="text" class="modern-input" value="Male"></div>
-                            <div class="data-item"><label>Age</label><input type="number" class="modern-input" value="17"></div>
                         </div>
-                        <div class="btn-group">
-                            <button class="btn-save" onclick="saveBox('personal')">Save</button>
-                            <button class="btn-cancel" onclick="toggleEdit('personal')">Cancel</button>
-                        </div>
+                        <div class="btn-group"><button class="btn-save" onclick="saveBox('personal')">Save</button></div>
                     </div>
                 </div>
 
                 <div class="info-card" id="card-address">
                     <h3 class="section-title">Address</h3>
-                    <div class="edit-box" onclick="toggleEdit('address')">
-                        Edit <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                    </div>
+                    <div class="edit-box" onclick="toggleEdit('address')">Edit</div>
                     <div id="address-view" class="data-grid">
-                        <div class="data-item"><label>Recipient Name</label><span>Ibrahim Mahdi</span></div>
-                        <div class="data-item"><label>Street Address</label><span>123 Knowledge Lane</span></div>
-                        <div class="data-item"><label>Apt/Suite</label><span>Suite 4B</span></div>
                         <div class="data-item"><label>City</label><span>Maiduguri</span></div>
                         <div class="data-item"><label>State</label><span>Borno</span></div>
-                        <div class="data-item"><label>Postal Code</label><span>600001</span></div>
-                        <div class="data-item"><label>Country</label><span style="text-transform: uppercase;">NIGERIA</span></div>
+                        <div class="data-item"><label>Country</label><span style="text-transform:uppercase">NIGERIA</span></div>
                     </div>
                     <div id="address-edit" class="edit-mode">
                         <div class="data-grid">
-                            <div class="data-item"><label>Recipient</label><input type="text" class="modern-input" value="Ibrahim Mahdi"></div>
-                            <div class="data-item"><label>Street</label><input type="text" class="modern-input" value="123 Knowledge Lane"></div>
                             <div class="data-item"><label>City</label><input type="text" class="modern-input" value="Maiduguri"></div>
                             <div class="data-item"><label>Country</label><input type="text" class="modern-input" value="NIGERIA"></div>
                         </div>
-                        <div class="btn-group">
-                            <button class="btn-save" onclick="saveBox('address')">Save</button>
-                            <button class="btn-cancel" onclick="toggleEdit('address')">Cancel</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div id="aspirations-tab" class="tab-content" style="display:none">
-                <div class="info-card" id="card-aspi">
-                    <h3 class="section-title">Academic Goals</h3>
-                    <div class="edit-box" onclick="toggleEdit('aspi')">
-                        Edit <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                    </div>
-                    <div id="aspi-view" class="data-grid">
-                        <div class="data-item"><label>Target Year</label><span>2026</span></div>
-                        <div class="data-item"><label>Current Grade</label><span>Class 12</span></div>
-                    </div>
-                    <div id="aspi-edit" class="edit-mode">
-                        <div class="data-grid">
-                            <div class="data-item"><label>Target Year</label><input type="number" class="modern-input" value="2026"></div>
-                            <div class="data-item"><label>Grade</label><input type="text" class="modern-input" value="Class 12"></div>
-                        </div>
-                        <div class="btn-group">
-                            <button class="btn-save" onclick="saveBox('aspi')">Save</button>
-                            <button class="btn-cancel" onclick="toggleEdit('aspi')">Cancel</button>
-                        </div>
+                        <div class="btn-group"><button class="btn-save" onclick="saveBox('address')">Save</button></div>
                     </div>
                 </div>
             </div>
 
             <div id="security-tab" class="tab-content" style="display:none">
                 <div class="info-card" id="card-sec">
-                    <h3 class="section-title">Security Settings</h3>
-                    <div class="edit-box" onclick="toggleEdit('sec')">
-                        Edit <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                    </div>
+                    <h3 class="section-title">Security (Masked)</h3>
+                    <div class="edit-box" onclick="toggleEdit('sec')">Edit</div>
                     <div id="sec-view" class="data-grid">
-                        <div class="data-item"><label>Email</label><span>i*******@example.com</span></div>
+                        <div class="data-item"><label>Email</label><span>i*******@email.com</span></div>
                         <div class="data-item"><label>Phone</label><span>+91 *******210</span></div>
-                        <div class="data-item"><label>Password</label><span>••••••••••••</span></div>
+                        <div class="data-item"><label>Password</label><span>••••••••</span></div>
                     </div>
                     <div id="sec-edit" class="edit-mode">
                         <div class="data-grid">
-                            <div class="data-item"><label>New Email</label><input type="email" class="modern-input" placeholder="Enter new email"></div>
-                            <div class="data-item"><label>New Phone</label><input type="text" class="modern-input" placeholder="Enter new phone"></div>
-                            <div class="data-item"><label>New Password</label><input type="password" class="modern-input" placeholder="••••••••"></div>
+                            <div class="data-item"><label>New Email</label><input type="email" class="modern-input"></div>
+                            <div class="data-item"><label>New Password</label><input type="password" class="modern-input"></div>
                         </div>
-                        <div class="btn-group">
-                            <button class="btn-save" onclick="saveBox('sec')">Update Security</button>
-                            <button class="btn-cancel" onclick="toggleEdit('sec')">Cancel</button>
-                        </div>
+                        <div class="btn-group"><button class="btn-save" onclick="saveBox('sec')">Update</button></div>
                     </div>
                 </div>
             </div>
@@ -270,7 +202,7 @@
         const container = document.getElementById('avatarOptions');
         container.innerHTML = '';
         ghibliSeeds.forEach(seed => {
-            const url = `https://api.dicebear.com/7.x/lorelei/svg?seed=${seed}&backgroundType=transparent`;
+            const url = `https://api.dicebear.com/7.x/lorelei/svg?seed=${seed}&backgroundColor=ffffff`;
             const img = document.createElement('img');
             img.src = url;
             img.className = 'opt-img';
@@ -297,11 +229,7 @@
         const v = document.getElementById(section + '-view');
         const e = document.getElementById(section + '-edit');
         const isEditing = v.style.display === 'none';
-        if (v.id === 'top-view') {
-            v.style.display = isEditing ? 'flex' : 'none';
-        } else {
-            v.style.display = isEditing ? 'grid' : 'none';
-        }
+        v.style.display = isEditing ? (v.classList.contains('avatar-header') ? 'flex' : 'grid') : 'none';
         e.style.display = isEditing ? 'none' : 'block';
     }
 
