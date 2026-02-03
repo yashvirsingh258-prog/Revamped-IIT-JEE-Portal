@@ -182,17 +182,19 @@
                     </div>
                     <div id="top-edit" class="edit-mode">
                         <div class="avatar-header">
-                            <div onclick="openAvatarModal()" style="cursor:pointer; position:relative;">
+                            <div onclick="openAvatarModal()" style="position:relative; cursor:pointer; width:88px; height:88px;">
                                 <img src="https://raw.githubusercontent.com/yashvirsingh258-prog/Revamped-IIT-JEE-Portal/main/Studious%20James.png" class="avatar-img" id="avatar-img-edit">
-                                <div style="position:absolute; bottom: -2px; right: -2px; background:white; border-radius: 4px; padding: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border: 1px solid var(--border-color);">
+                                <div class="edit-overlay-icon">
                                     <svg class="edit-icon-svg" style="width:12px; height:12px;" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
                                 </div>
                             </div>
-                            <div class="user-meta" style="flex:1">
-                                <label style="font-size:0.7rem; color:var(--text-muted); font-weight:700;">FULL NAME</label>
-                                <input type="text" id="input-top-name" class="modern-input" value="Ibrahim Mahdi" readonly style="background: #f8fafc; cursor: default;">
+                            
+                            <div class="user-meta">
+                                <label style="font-size:0.7rem; color:var(--text-muted); font-weight:700; letter-spacing: 0.5px;">FULL NAME</label>
+                                <div style="font-weight:700; font-size:1.15rem; color: #1e293b; margin-top: 4px;">Ibrahim Mahdi</div>
                             </div>
                         </div>
+                        
                         <div class="btn-group">
                             <button class="btn-save" onclick="saveBox('top')">Update</button>
                             <button class="btn-cancel" onclick="toggleEdit('top')">Cancel</button>
