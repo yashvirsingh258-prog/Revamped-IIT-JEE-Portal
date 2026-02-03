@@ -29,23 +29,18 @@
         .logo-area h2 { letter-spacing: 4px; font-weight: 800; text-transform: uppercase; font-size: 1.4rem; }
 
         /* Each link is a block—they MUST stack */
-        .nav-link { 
-            display: block; 
-            padding: 18px 40px; 
-            color: rgba(255, 255, 255, 0.8); /* Slightly brighter for visibility */
-            text-decoration: none; 
-            font-weight: 700; 
-            font-size: 0.85rem; 
-            text-transform: uppercase;
-            border-right: 6px solid transparent;
-            
-            /* ADD THIS LINE */
-            flex-shrink: 0; 
-            
-            /* ADD THIS TO ENSURE IT'S NOT HIDDEN */
-            visibility: visible !important;
-            opacity: 1 !important;
-        }
+        nav { 
+        width: 280px; 
+        background: #1a408c; 
+        color: white; 
+        padding: 40px 0; 
+        position: fixed; 
+        height: 100vh; 
+        top: 0;
+        left: 0;
+        z-index: 9999;
+        display: block !important; /* No flexbox to squash links */
+    }
 
         /* Matches your screenshot with the white strip */
         .active-link { 
