@@ -13,7 +13,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: var(--bg-light); display: flex; }
 
-        /* SIDEBAR - Standard Fixed List (No Flex Pushing) */
+        /* SIDEBAR FIXED */
         nav { 
             width: 280px; 
             background: var(--primary-blue); 
@@ -21,40 +21,42 @@
             position: fixed; 
             left: 0; 
             top: 0;
-            z-index: 9999; /* Higher than everything else */
+            z-index: 9999; 
             padding-top: 50px;
+            display: block !important;
         }
 
         .logo-area { padding: 0 40px; margin-bottom: 50px; color: white; }
         .logo-area h2 { letter-spacing: 4px; font-weight: 800; text-transform: uppercase; font-size: 1.4rem; }
 
-        /* Each link is a block—they MUST stack */
-        nav { 
-        width: 280px; 
-        background: #1a408c; 
-        color: white; 
-        padding: 40px 0; 
-        position: fixed; 
-        height: 100vh; 
-        top: 0;
-        left: 0;
-        z-index: 9999;
-        display: block !important; /* No flexbox to squash links */
-    }
+        /* THIS WAS MISSING IN YOUR PREVIOUS CODE */
+        .nav-link { 
+            display: block; 
+            padding: 18px 40px; 
+            color: rgba(255, 255, 255, 0.6); 
+            text-decoration: none; 
+            font-weight: 700; 
+            font-size: 0.85rem; 
+            text-transform: uppercase;
+            border-right: 6px solid transparent;
+            cursor: pointer;
+        }
 
-        /* Matches your screenshot with the white strip */
         .active-link { 
             background: rgba(255,255,255,0.1); 
             color: white !important; 
             border-right: 6px solid white !important; 
         }
 
-        .logout-btn { color: #ff8a8a !important; margin-top: 40px; border-top: 1px solid rgba(255,255,255,0.1); }
+        .logout-btn { 
+            color: #ff8a8a !important; 
+            margin-top: 40px; 
+            border-top: 1px solid rgba(255,255,255,0.1); 
+        }
 
-        /* MAIN CONTENT - Ensure it doesn't overlap */
+        /* MAIN CONTENT */
         main { margin-left: 280px; width: calc(100% - 280px); padding: 60px; }
         
-        /* Modern Form UI */
         .card { background: white; padding: 40px; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
         .input-group { margin-bottom: 20px; }
         label { display: block; font-size: 0.75rem; font-weight: 800; color: #94a3b8; margin-bottom: 8px; text-transform: uppercase; }
@@ -66,7 +68,6 @@
 
     <nav>
         <div class="logo-area"><h2>JEE PORTAL</h2></div>
-        
         <a href="index.html" class="nav-link">Dashboard</a>
         <a href="tests.html" class="nav-link">Available Tests</a>
         <a href="performance.html" class="nav-link">Performance</a>
@@ -138,7 +139,10 @@
             alert(error ? error.message : "Profile Updated!");
         }
 
-        async function handleLogout() { await supabaseClient.auth.signOut(); window.location.href = 'login.html'; }
+        async function handleLogout() { 
+            await supabaseClient.auth.signOut(); 
+            window.location.href = 'login.html'; 
+        }
         loadProfile();
     </script>
 </body>
