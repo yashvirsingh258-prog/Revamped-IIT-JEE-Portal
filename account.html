@@ -339,17 +339,8 @@
                     </div>
                     <div id="sec-edit" class="edit-mode">
                         <div class="data-grid">
-                            <div class="data-item">
-                                <label>Current Password</label>
-                                <input type="password" id="old-password-input" class="modern-input" placeholder="Enter current to change">
-                            </div>
-                            <div class="data-item">
-                                <label>New Password</label>
-                                <input type="password" id="new-password-input" class="modern-input" placeholder="Minimum 6 characters">
-                            </div>
-                    
-                            <hr style="grid-column: 1 / -1; border: 0; border-top: 1px solid #eee; margin: 15px 0;">
-                    
+                            <div class="data-item"><label>Current Password</label><input type="password" class="modern-input"></div>
+                            <div class="data-item"><label>New Password</label><input type="password" class="modern-input"></div>
                             <div class="data-item">
                                 <label>Phone Number</label>
                                 <div style="display: flex; gap: 8px;">
@@ -360,10 +351,10 @@
                                 </div>
                             </div>
                         </div>
-                    
-                        <div class="btn-group" style="margin-top: 20px; display: flex; flex-direction: column; gap: 10px;">
-                            <button class="btn-save" style="width: 100%;" onclick="updateSecuritySettings(this)">Update Security Settings</button>
-                            <button class="btn-cancel" style="width: 100%; background: none; border: 1px solid #ddd;" onclick="toggleEdit('sec')">Cancel</button>
+                        <div class="btn-group">
+                            <button class="btn-save" onclick="updateStudentPhone(this)">Update</button>
+                            <button class="btn-save" onclick="updateStudentPassword(this)">Update</button>
+                            <button class="btn-cancel" onclick="toggleEdit('sec')">Cancel</button>
                         </div>
                     </div>
                 </div>
