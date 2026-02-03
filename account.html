@@ -341,7 +341,15 @@
                         <div class="data-grid">
                             <div class="data-item"><label>Current Password</label><input type="password" class="modern-input"></div>
                             <div class="data-item"><label>New Password</label><input type="password" class="modern-input"></div>
-                            <div class="data-item"><label>Phone Number</label><input type="text" class="modern-input"></div>
+                            <div class="data-item">
+                                <label>Phone Number</label>
+                                <div style="display: flex; gap: 8px;">
+                                    <select id="country-code-select" class="modern-input" style="width: 100px; padding: 12px 8px;">
+                                        <option value="">...</option>
+                                    </select>
+                                    <input type="text" id="phone-input" class="modern-input" placeholder="Phone Number">
+                                </div>
+                            </div>
                         </div>
                         <div class="btn-group">
                             <button class="btn-save" onclick="saveBox('sec')">Update</button>
@@ -421,6 +429,44 @@
     function saveBox(section) {
         toggleEdit(section);
     }
+
+    // Add this to your existing script
+async function fetchCountryCodes() {
+    const select = document.getElementById('country-code-select');
+    
+    // Check if we already loaded them to avoid redundant calls
+    if (select.options.length > 1) return; 
+
+    try {
+        // Replace 'YOUR_SUPABASE_URL' and 'YOUR_KEY' or use your existing client
+        const { data, error } = await supabase
+            .from('country_codes')
+            .select('country_code, dial_code')
+            .order('country_code', { ascending: true });
+
+        if (error) throw error;
+
+        data.forEach(item => {
+            const opt = document.createElement('option');
+            opt.value = item.dial_code;
+            opt.textContent = `${item.country_code} (${item.dial_code})`;
+            select.appendChild(opt);
+        });
+    } catch (err) {
+        console.error("Error fetching codes:", err.message);
+        // Fallback option if DB fails
+        select.innerHTML = '<option value="+91">IND (+91)</option>';
+    }
+}
+
+// Update your toggleEdit function to trigger the fetch
+        const originalToggleEdit = toggleEdit;
+        toggleEdit = function(section) {
+            if (section === 'sec') {
+                fetchCountryCodes();
+            }
+            originalToggleEdit(section);
+        };
 
     function handleLogout() { console.log("Logging out..."); }
 </script>
