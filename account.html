@@ -495,42 +495,35 @@
     };
 
     async function updateStudentPhone() {
-        // 1. Grab values from the Security Edit Mode inputs
-        const dialCode = document.getElementById('country-code-select').value;
-        const phoneInput = document.getElementById('phone-input').value.trim();
-        
-        // 2. Validation: Don't update if the number is empty
-        if (!phoneInput) {
-            alert("Please enter a valid phone number.");
+        // 1. Get the current logged-in user from the session
+        const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
+    
+        if (authError || !user) {
+            alert("Session expired. Please log in again.");
             return;
         }
     
-        // 3. Combine for storage (e.g., "+91" + "9876543210")
+        const userEmail = user.email; // This is the 'Global Key' from the session
+        const dialCode = document.getElementById('country-code-select').value;
+        const phoneInput = document.getElementById('phone-input').value.trim();
         const fullPhoneNumber = dialCode + phoneInput;
     
-        try {
-                window.alert(currentStudentEmail)
-            // 4. Update the consolidated 'students' table
-            const { error } = await supabaseClient
-                .from('students')
-                .update({ phone_number: fullPhoneNumber })
-                .eq('email', currentStudentEmail); // Using our Global Primary Key
+        // 2. Update the students table using the session email
+        const { error: updateError } = await supabaseClient
+            .from('students')
+            .update({ phone_number: fullPhoneNumber })
+            .eq('email', userEmail);
     
-            if (error) throw error;
-    
-            // 5. Success: Update the UI (View Mode)
-            const displaySpan = document.querySelector('#sec-view .data-item:nth-child(2) span');
-            if (displaySpan) {
-                displaySpan.textContent = fullPhoneNumber;
-            }
-    
-            // 6. Switch back to view mode
+        if (updateError) {
+            console.error("Update failed:", updateError.message);
+            alert("Update failed: " + updateError.message);
+        } else {
+            // 3. Success: Update UI
+            const phoneDisplay = document.querySelector('#sec-view .data-item:nth-child(2) span');
+            if (phoneDisplay) phoneDisplay.textContent = fullPhoneNumber;
+            
             toggleEdit('sec');
-            console.log("Phone number updated successfully.");
-    
-        } catch (err) {
-            console.error("Update failed:", err.message);
-            alert("Could not update phone number. Please try again.");
+            console.log("Success! Phone updated for:", userEmail);
         }
     }
     
