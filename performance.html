@@ -163,7 +163,11 @@
             const tName = localStorage.getItem('currentTestName');
             const sName = localStorage.getItem('currentSubjectName');
             const uEmail = localStorage.getItem('userEmail'); // The parameter sent from tests.html
-        
+            
+            window.alert(tName)
+            window.alert(sName)
+            window.alert(uEmail)
+            
             const { data: { session } } = await supabaseClient.auth.getSession();
             if (!session) return;
         
@@ -173,12 +177,13 @@
                 supabaseClient.from('questions_table')
                     .select('*')
                     .eq('test_name', tName)
+                    .eq('subject', sName)
                     .single(),
                     
                 // Get the specific progress for this student, test, and subject
                 supabaseClient.from('student_progress')
                     .select('*')
-                    .eq('student_id', session.user.id)
+                    .eq('username', uEmail)
                     .eq('test_name', tName)
                     .eq('subject', sName) // Explicitly use the subject parameter
                     .order('updated_at', { ascending: false })
