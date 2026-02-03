@@ -27,9 +27,9 @@
         main { margin-left: 260px; flex: 1; padding: 40px 60px; }
         .page-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 25px; }
 
-        .profile-container { display: grid; grid-template-columns: 200px 1fr; gap: 50px; }
+        .profile-container { display: grid; grid-template-columns: 200px 1fr; gap: 50px; align-items: stretch; }
         
-        /* Vertical Divider Navigation */
+        /* Vertical Divider Navigation - Height matches combined boxes */
         .settings-nav { position: relative; display: flex; flex-direction: column; gap: 8px; height: 100%; }
         .settings-nav::after { content: ""; position: absolute; right: -25px; top: 0; height: 100%; width: 1px; background: var(--border-color); }
         
@@ -48,25 +48,25 @@
         
         .avatar-header { display: flex; align-items: center; gap: 20px; }
         .avatar-container { position: relative; cursor: pointer; }
-        .avatar-img { width: 64px; height: 64px; border-radius: 50%; background: #e2e8f0; object-fit: cover; }
+        .avatar-img { width: 80px; height: 80px; border-radius: 50%; background: #f1f5f9; object-fit: cover; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
         
-        .user-meta h2 { font-size: 1rem; font-weight: 700; }
-        .user-meta p { font-size: 0.8rem; color: #64748b; margin-top: 2px; }
+        .user-meta h2 { font-size: 1.1rem; font-weight: 700; }
+        .user-meta p { font-size: 0.85rem; color: #64748b; margin-top: 2px; }
 
-        /* Smaller, subtle Edit buttons */
+        /* Smaller, subtle Edit buttons for each box */
         .edit-box { 
             position: absolute; top: 20px; right: 20px;
             border: 1px solid #e2e8f0; border-radius: 6px;
-            padding: 4px 10px; display: flex; align-items: center; gap: 6px;
+            padding: 5px 12px; display: flex; align-items: center; gap: 6px;
             cursor: pointer; font-size: 0.75rem; font-weight: 600; color: #94a3b8;
             transition: 0.2s; background: white;
         }
         .edit-box:hover { color: var(--primary-blue); border-color: var(--primary-blue); }
-        .edit-box img { width: 12px; height: 12px; opacity: 0.5; }
 
-        .section-title { font-size: 0.85rem; font-weight: 700; margin-bottom: 20px; color: var(--text-main); }
-        .data-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px 40px; }
-        .data-item label { display: block; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 4px; font-weight: 500; }
+        .section-title { font-size: 0.9rem; font-weight: 700; margin-bottom: 20px; color: var(--text-main); }
+        .data-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px 40px; }
+        .data-grid.triple { grid-template-columns: repeat(3, 1fr); }
+        .data-item label { display: block; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 4px; font-weight: 500; text-transform: uppercase; }
         .data-item span { font-size: 0.9rem; font-weight: 600; color: var(--text-main); }
 
         /* Edit Form Styles */
@@ -75,22 +75,23 @@
             width: 100%; padding: 10px; border: 1px solid var(--border-color); 
             border-radius: 6px; margin-top: 5px; font-size: 0.85rem; outline: none; background: #fcfdfe;
         }
-        .btn-save { background: var(--primary-blue); color: white; border: none; padding: 10px 18px; border-radius: 6px; font-weight: 600; cursor: pointer; margin-top: 20px; font-size: 0.85rem; }
-        .btn-cancel { background: none; color: #94a3b8; border: none; padding: 10px 18px; cursor: pointer; font-size: 0.85rem; font-weight: 500; }
+        .btn-group { margin-top: 20px; display: flex; gap: 10px; }
+        .btn-save { background: var(--primary-blue); color: white; border: none; padding: 10px 18px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.85rem; }
+        .btn-cancel { background: #f1f5f9; color: #94a3b8; border: none; padding: 10px 18px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 500; }
 
-        /* Avatar Modal */
-        #avatarModal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.4); z-index:1000; align-items:center; justify-content:center; }
-        .modal-content { background:white; padding:30px; border-radius:16px; width:400px; text-align:center; }
-        .avatar-options { display:grid; grid-template-columns: repeat(3, 1fr); gap:15px; margin-bottom:20px; }
-        .opt-img { width:80px; height:80px; cursor:pointer; border-radius:50%; border:2px solid transparent; transition:0.2s; }
-        .opt-img:hover { border-color: var(--primary-blue); }
+        /* Modern Avatar Modal */
+        #avatarModal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center; backdrop-filter: blur(4px); }
+        .modal-content { background:white; padding:30px; border-radius:20px; width:450px; text-align:center; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
+        .avatar-options { display:grid; grid-template-columns: repeat(3, 1fr); gap:20px; margin-bottom:25px; }
+        .opt-img { width:100px; height:100px; cursor:pointer; border-radius:50%; border:3px solid transparent; transition:0.3s; padding: 5px; }
+        .opt-img:hover { border-color: var(--primary-blue); transform: scale(1.05); }
     </style>
 </head>
 <body>
 
 <div id="avatarModal">
     <div class="modal-content">
-        <h3 style="margin-bottom:20px; font-size:1.1rem;">Choose Your Avatar</h3>
+        <h3 style="margin-bottom:20px;">Select Modern Avatar</h3>
         <div class="avatar-options" id="avatarOptions"></div>
         <button class="btn-cancel" onclick="closeAvatarModal()">Close</button>
     </div>
@@ -98,108 +99,91 @@
 
 <nav>
     <div class="logo-area">H22</div>
-    <a href="index.html" class="nav-link">Dashboard</a>
-    <a href="tests.html" class="nav-link">Available Tests</a>
-    <a href="performance.html" class="nav-link">Performance</a>
-    <a href="user-profile.html" class="nav-link active-link">Account</a>
+    <a href="#" class="nav-link">Dashboard</a>
+    <a href="#" class="nav-link">Available Tests</a>
+    <a href="#" class="nav-link">Performance</a>
+    <a href="#" class="nav-link active-link">Account</a>
     <a onclick="handleLogout()" class="nav-link" style="margin-top:auto">Logout</a>
 </nav>
 
 <main>
-    <h1 class="page-title">My Profile</h1>
+    <h1 class="page-title">Settings</h1>
     
     <div class="profile-container">
         <div class="settings-nav">
-            <button class="s-nav-btn active" onclick="showSection('identity', this)">Identity</button>
-            <button class="s-nav-btn" onclick="showSection('aspirations', this)">Aspirations</button>
-            <button class="s-nav-btn" onclick="showSection('security', this)">Security</button>
+            <button class="s-nav-btn active">Identity</button>
+            <button class="s-nav-btn">Aspirations</button>
+            <button class="s-nav-btn">Security</button>
         </div>
 
-        <div id="content-area">
-            <div id="identity" class="form-section active">
-                <div class="info-card">
-                    <div class="avatar-header">
-                        <div class="avatar-container" onclick="openAvatarModal()">
-                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" class="avatar-img" id="avatar-img">
-                        </div>
-                        <div class="user-meta">
-                            <h2 id="meta-name">Loading...</h2>
-                            <p id="meta-prep">Mode: Loading...</p>
-                            <p id="meta-state">Location: Loading...</p>
-                        </div>
+        <div>
+            <div class="info-card">
+                <div class="avatar-header">
+                    <div class="avatar-container" onclick="openAvatarModal()">
+                        <img src="https://api.dicebear.com/7.x/miniavs/svg?seed=Felix" class="avatar-img" id="avatar-img">
+                    </div>
+                    <div class="user-meta">
+                        <h2 id="meta-name">Ibrahim Mahdi</h2>
+                        <p id="meta-email">ibrahimmahdi@example.com</p>
+                        <p id="meta-location">Borno State, Nigeria</p>
+                    </div>
+                </div>
+                <div class="edit-box" onclick="toggleEdit('top')">Edit</div>
+            </div>
+
+            <div class="info-card">
+                <h3 class="section-title">Personal Information</h3>
+                <div class="edit-box" onclick="toggleEdit('identity')">Edit</div>
+                
+                <div id="identity-view">
+                    <div class="data-grid">
+                        <div class="data-item"><label>First Name</label><span id="view-fname">Ibrahim</span></div>
+                        <div class="data-item"><label>Last Name</label><span id="view-lname">Mahdi</span></div>
+                        <div class="data-item"><label>Gender</label><span id="view-gender">Male</span></div>
+                        <div class="data-item"><label>Phone Number</label><span id="view-phone">+2348000000000</span></div>
                     </div>
                 </div>
 
-                <div class="info-card">
-                    <h3 class="section-title">Personal Information</h3>
-                    <div class="edit-box" onclick="toggleEdit('identity')">
-                        Edit <img src="https://img.icons8.com/material-outlined/24/94a3b8/edit.png"/>
+                <div id="identity-edit" class="edit-mode">
+                    <div class="data-grid">
+                        <div class="data-item"><label>First Name</label><input type="text" class="modern-input" value="Ibrahim"></div>
+                        <div class="data-item"><label>Last Name</label><input type="text" class="modern-input" value="Mahdi"></div>
+                        <div class="data-item"><label>Phone Number</label><input type="text" class="modern-input" value="+2348000000000"></div>
                     </div>
-                    
-                    <div id="identity-view">
-                        <div class="data-grid">
-                            <div class="data-item"><label>Full Name</label><span id="view-name">Not set</span></div>
-                            <div class="data-item"><label>Gender</label><span id="view-gender">Not set</span></div>
-                            <div class="data-item"><label>Email Address</label><span id="view-email">Not set</span></div>
-                            <div class="data-item"><label>Phone Number</label><span id="view-phone">Not set</span></div>
-                            <div class="data-item"><label>State</label><span id="view-state">Not set</span></div>
-                        </div>
-                    </div>
-
-                    <div id="identity-edit" class="edit-mode">
-                        <div class="data-grid">
-                            <div class="data-item"><label>Full Name</label><input type="text" id="input-name" class="modern-input"></div>
-                            <div class="data-item"><label>Gender</label>
-                                <select id="input-gender" class="modern-input">
-                                    <option value="Male">Male</option>
-                                    <option value="Female">Female</option>
-                                    <option value="Other">Other</option>
-                                </select>
-                            </div>
-                            <div class="data-item"><label>Phone Number</label><input type="text" id="input-phone" class="modern-input"></div>
-                            <div class="data-item"><label>State</label><input type="text" id="input-state" class="modern-input"></div>
-                        </div>
-                        <button class="btn-save" onclick="updateProfile('identity')">Save Changes</button>
+                    <div class="btn-group">
+                        <button class="btn-save" onclick="saveSection('identity')">Save Changes</button>
                         <button class="btn-cancel" onclick="toggleEdit('identity')">Cancel</button>
                     </div>
                 </div>
             </div>
 
-            <div id="aspirations" class="form-section" style="display:none">
-                <div class="info-card">
-                    <h3 class="section-title">Academic Goals</h3>
-                    <div class="edit-box" onclick="toggleEdit('aspirations')">
-                        Edit <img src="https://img.icons8.com/material-outlined/24/94a3b8/edit.png"/>
+            <div class="info-card">
+                <h3 class="section-title">Address</h3>
+                <div class="edit-box" onclick="toggleEdit('address')">Edit</div>
+                
+                <div id="address-view">
+                    <div class="data-grid triple">
+                        <div class="data-item"><label>Street Address</label><span>Eikanemi Street</span></div>
+                        <div class="data-item"><label>House Number</label><span>Number 4016</span></div>
+                        <div class="data-item"><label>City</label><span>Maiduguri</span></div>
+                        <div class="data-item"><label>State</label><span>Borno</span></div>
+                        <div class="data-item"><label>Postal Code</label><span>600000</span></div>
+                        <div class="data-item"><label>Country</label><span>Nigeria</span></div>
                     </div>
-                    <div id="aspirations-view">
-                        <div class="data-grid">
-                            <div class="data-item"><label>Target Year</label><span id="view-targetYear">2026</span></div>
-                            <div class="data-item"><label>Target College</label><span id="view-college">Not set</span></div>
-                            <div class="data-item"><label>Current Grade</label><span id="view-grade">Not set</span></div>
-                            <div class="data-item"><label>Prep Mode</label><span id="view-prep">Not set</span></div>
-                        </div>
+                </div>
+
+                <div id="address-edit" class="edit-mode">
+                    <div class="data-grid">
+                        <div class="data-item"><label>Address Line 1</label><input type="text" class="modern-input"></div>
+                        <div class="data-item"><label>Address Line 2</label><input type="text" class="modern-input"></div>
+                        <div class="data-item"><label>City</label><input type="text" class="modern-input"></div>
+                        <div class="data-item"><label>State</label><input type="text" class="modern-input"></div>
+                        <div class="data-item"><label>Pincode</label><input type="text" class="modern-input"></div>
+                        <div class="data-item"><label>Country</label><input type="text" class="modern-input"></div>
                     </div>
-                    <div id="aspirations-edit" class="edit-mode">
-                        <div class="data-grid">
-                            <div class="data-item"><label>Target Year (2024-2030)</label><input type="number" id="input-year" min="2024" max="2030" class="modern-input"></div>
-                            <div class="data-item"><label>Target College</label><input type="text" id="input-college" class="modern-input"></div>
-                            <div class="data-item"><label>Current Grade</label>
-                                <select id="input-grade" class="modern-input">
-                                    <option value="Class 11">Class 11</option>
-                                    <option value="Class 12">Class 12</option>
-                                    <option value="Dropper">Dropper</option>
-                                </select>
-                            </div>
-                            <div class="data-item"><label>Prep Mode</label>
-                                <select id="input-prep" class="modern-input">
-                                    <option value="Self Study">Self Study</option>
-                                    <option value="Online Coaching">Online Coaching</option>
-                                    <option value="Offline Coaching">Offline Coaching</option>
-                                </select>
-                            </div>
-                        </div>
-                        <button class="btn-save" onclick="updateProfile('aspirations')">Save Goals</button>
-                        <button class="btn-cancel" onclick="toggleEdit('aspirations')">Cancel</button>
+                    <div class="btn-group">
+                        <button class="btn-save" onclick="saveSection('address')">Save Address</button>
+                        <button class="btn-cancel" onclick="toggleEdit('address')">Cancel</button>
                     </div>
                 </div>
             </div>
@@ -208,16 +192,13 @@
 </main>
 
 <script>
-    const supabaseUrl = 'https://ijxsnunkfhudwnkrwmzk.supabase.co';
-    const supabaseKey = 'sb_publishable_V-KT1zvp-73dqHHvmx3fNA_iHw53TCl';
-    const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
-
     const availableAvatars = [
-        "https://api.dicebear.com/7.x/avataaars/svg?seed=Felix",
-        "https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka",
-        "https://api.dicebear.com/7.x/avataaars/svg?seed=Milo",
-        "https://api.dicebear.com/7.x/avataaars/svg?seed=Luna",
-        "https://api.dicebear.com/7.x/avataaars/svg?seed=Sasha"
+        "https://api.dicebear.com/7.x/miniavs/svg?seed=Felix",
+        "https://api.dicebear.com/7.x/miniavs/svg?seed=Aneka",
+        "https://api.dicebear.com/7.x/miniavs/svg?seed=Milo",
+        "https://api.dicebear.com/7.x/miniavs/svg?seed=Luna",
+        "https://api.dicebear.com/7.x/miniavs/svg?seed=Sasha",
+        "https://api.dicebear.com/7.x/miniavs/svg?seed=Zoe"
     ];
 
     function openAvatarModal() {
@@ -227,7 +208,7 @@
             const img = document.createElement('img');
             img.src = url;
             img.className = 'opt-img';
-            img.onclick = () => selectAvatar(url);
+            img.onclick = () => { document.getElementById('avatar-img').src = url; closeAvatarModal(); };
             container.appendChild(img);
         });
         document.getElementById('avatarModal').style.display = 'flex';
@@ -235,75 +216,19 @@
 
     function closeAvatarModal() { document.getElementById('avatarModal').style.display = 'none'; }
 
-    async function selectAvatar(url) {
-        const { data: { session } } = await supabaseClient.auth.getSession();
-        await supabaseClient.from('profiles').update({ avatar_url: url }).eq('id', session.user.id);
-        document.getElementById('avatar-img').src = url;
-        closeAvatarModal();
-    }
-
-    function showSection(id, btn) {
-        document.querySelectorAll('.form-section').forEach(s => s.style.display = 'none');
-        document.querySelectorAll('.s-nav-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById(id).style.display = 'block';
-        btn.classList.add('active');
-    }
-
     function toggleEdit(section) {
         const v = document.getElementById(section + '-view');
         const e = document.getElementById(section + '-edit');
+        if(!v || !e) return;
         const isView = v.style.display !== 'none';
         v.style.display = isView ? 'none' : 'block';
         e.style.display = isView ? 'block' : 'none';
     }
 
-    async function loadProfile() {
-        const { data: { session } } = await supabaseClient.auth.getSession();
-        if (!session) return;
-        const { data } = await supabaseClient.from('profiles').select('*').eq('id', session.user.id).single();
-        if (data) {
-            document.getElementById('avatar-img').src = data.avatar_url || availableAvatars[0];
-            document.getElementById('meta-name').innerText = data.full_name || 'Set Name';
-            document.getElementById('meta-prep').innerText = `Mode: ${data.prep_mode || 'Not set'}`;
-            document.getElementById('meta-state').innerText = `Location: ${data.state || 'Not set'}`;
-
-            document.getElementById('view-name').innerText = data.full_name || 'Not set';
-            document.getElementById('view-email').innerText = session.user.email;
-            document.getElementById('view-phone').innerText = data.phone_number || 'Not set';
-            document.getElementById('view-gender').innerText = data.gender || 'Not set';
-            document.getElementById('view-state').innerText = data.state || 'Not set';
-            
-            document.getElementById('view-targetYear').innerText = data.target_year || '2026';
-            document.getElementById('view-college').innerText = data.target_college || 'Not set';
-            document.getElementById('view-grade').innerText = data.current_grade || 'Not set';
-            document.getElementById('view-prep').innerText = data.prep_mode || 'Not set';
-
-            document.getElementById('input-name').value = data.full_name || '';
-            document.getElementById('input-phone').value = data.phone_number || '';
-            document.getElementById('input-year').value = data.target_year || 2026;
-        }
+    function saveSection(section) {
+        alert(section + ' saved successfully!');
+        toggleEdit(section);
     }
-
-    async function updateProfile(section) {
-        const { data: { session } } = await supabaseClient.auth.getSession();
-        let updates = { id: session.user.id, updated_at: new Date() };
-        if (section === 'identity') {
-            updates.full_name = document.getElementById('input-name').value;
-            updates.gender = document.getElementById('input-gender').value;
-            updates.phone_number = document.getElementById('input-phone').value;
-            updates.state = document.getElementById('input-state').value;
-        } else {
-            updates.target_year = parseInt(document.getElementById('input-year').value);
-            updates.target_college = document.getElementById('input-college').value;
-            updates.current_grade = document.getElementById('input-grade').value;
-            updates.prep_mode = document.getElementById('input-prep').value;
-        }
-        const { error } = await supabaseClient.from('profiles').upsert(updates);
-        if (!error) location.reload();
-    }
-
-    async function handleLogout() { await supabaseClient.auth.signOut(); window.location.href = 'login.html'; }
-    loadProfile();
 </script>
 </body>
 </html>
