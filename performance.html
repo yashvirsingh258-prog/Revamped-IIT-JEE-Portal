@@ -159,17 +159,41 @@
         }
 
         async function loadPerformance() {
+            // 1. Retrieve the three parameters you just saved [cite: 2026-02-01]
             const tName = localStorage.getItem('currentTestName');
+            const sName = localStorage.getItem('currentSubjectName');
+            const uEmail = localStorage.getItem('userEmail'); // The parameter sent from tests.html
+        
             const { data: { session } } = await supabaseClient.auth.getSession();
+            if (!session) return;
+        
+            // 2. Fetch both the Question Data and the specific Student Progress [cite: 2026-02-02]
             const [qRes, pRes] = await Promise.all([
-                supabaseClient.from('questions_table').select('*').eq('test_name', tName).single(),
-                supabaseClient.from('student_progress').select('*').eq('student_id', session.user.id).or(`test_name.eq."${tName}",subject.eq."${tName}"`).order('updated_at', { ascending: false }).limit(1)
+                // Get the actual questions for this test
+                supabaseClient.from('questions_table')
+                    .select('*')
+                    .eq('test_name', tName)
+                    .single(),
+                    
+                // Get the specific progress for this student, test, and subject
+                supabaseClient.from('student_progress')
+                    .select('*')
+                    .eq('student_id', session.user.id)
+                    .eq('test_name', tName)
+                    .eq('subject', sName) // Explicitly use the subject parameter
+                    .order('updated_at', { ascending: false })
+                    .limit(1)
             ]);
+        
             if (qRes.data && pRes.data[0]) {
                 allQuestionsRaw = qRes.data.question_data;
                 currentAttemptRaw = pRes.data[0];
+                
+                // Update Title to show Test + Subject for better UX
+                document.getElementById('reportTitle').innerText = `${tName} - ${sName}`;
+                
                 populateTopicFilter(allQuestionsRaw);
-                renderReport(allQuestionsRaw, currentAttemptRaw, qRes.data.test_name);
+                renderReport(allQuestionsRaw, currentAttemptRaw, tName);
             }
         }
 
