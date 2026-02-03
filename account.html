@@ -32,12 +32,19 @@
         .nav-link { 
             display: block; 
             padding: 18px 40px; 
-            color: rgba(255, 255, 255, 0.6); 
+            color: rgba(255, 255, 255, 0.8); /* Slightly brighter for visibility */
             text-decoration: none; 
             font-weight: 700; 
             font-size: 0.85rem; 
             text-transform: uppercase;
             border-right: 6px solid transparent;
+            
+            /* ADD THIS LINE */
+            flex-shrink: 0; 
+            
+            /* ADD THIS TO ENSURE IT'S NOT HIDDEN */
+            visibility: visible !important;
+            opacity: 1 !important;
         }
 
         /* Matches your screenshot with the white strip */
