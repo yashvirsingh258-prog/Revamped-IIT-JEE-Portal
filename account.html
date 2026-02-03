@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>JEE Portal | Account Settings</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root { 
+            --primary-blue: #0b4a8f; 
+            --active-strip: #335d91; 
+            --bg-light: #f8fafc;
+            --glass: rgba(255, 255, 255, 0.9);
+            --border-color: #e2e8f0;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg-light); display: flex; min-height: 100vh; color: #1e293b; }
+        
+        /* Sidebar Styling */
+        nav { width: 280px; background: var(--primary-blue); color: white; padding: 60px 0; position: fixed; height: 100vh; z-index: 100; display: flex; flex-direction: column; }
+        .logo-area { padding: 0 40px; margin-bottom: 60px; }
+        .logo-area h2 { font-size: 1.2rem; letter-spacing: 4px; font-weight: 700; text-transform: uppercase; }
+        .nav-link { display: block; padding: 18px 40px; text-decoration: none; color: rgba(255, 255, 255, 0.5); font-size: 0.85rem; font-weight: 500; text-transform: uppercase; cursor: pointer; transition: 0.3s; }
+        .active-link { color: white !important; background: var(--active-strip) !important; font-weight: 700; }
+        
+        /* Main Content */
+        main { margin-left: 280px; flex: 1; padding: 50px 70px; }
+        .header-sec { margin-bottom: 40px; }
+        .header-sec h1 { font-size: 2rem; font-weight: 700; color: var(--primary-blue); }
+        .header-sec p { color: #64748b; font-size: 0.95rem; margin-top: 5px; }
+
+        /* Settings Container */
+        .settings-grid { display: grid; grid-template-columns: 280px 1fr; gap: 40px; align-items: start; }
+        
+        .settings-nav { background: white; border-radius: 16px; border: 1px solid var(--border-color); padding: 10px; }
+        .s-nav-btn { width: 100%; text-align: left; padding: 14px 20px; border: none; background: none; border-radius: 10px; cursor: pointer; font-weight: 600; color: #64748b; transition: 0.2s; font-size: 0.9rem; margin-bottom: 5px; }
+        .s-nav-btn.active { background: #f1f5f9; color: var(--primary-blue); }
+
+        .settings-card { background: white; border-radius: 20px; border: 1px solid var(--border-color); padding: 40px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
+        
+        /* Form Styling */
+        .form-section { display: none; }
+        .form-section.active { display: block; animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .input-group { margin-bottom: 25px; }
+        .input-group label { display: block; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: #94a3b8; margin-bottom: 8px; letter-spacing: 0.5px; }
+        .modern-input { width: 100%; padding: 12px 16px; border-radius: 10px; border: 1px solid var(--border-color); background: #fcfdfe; font-size: 0.95rem; transition: 0.3s; outline: none; }
+        .modern-input:focus { border-color: var(--primary-blue); box-shadow: 0 0 0 4px rgba(11, 74, 143, 0.1); }
+        .modern-input:disabled { background: #f1f5f9; color: #94a3b8; cursor: not-allowed; }
+
+        .btn-save { background: var(--primary-blue); color: white; border: none; padding: 14px 30px; border-radius: 10px; font-weight: 700; cursor: pointer; transition: 0.3s; margin-top: 10px; }
+        .btn-save:hover { background: #083a72; transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(11, 74, 143, 0.2); }
+        
+        .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="logo-area"><h2>JEE Portal</h2></div>
+        <a href="index.html" class="nav-link">Dashboard</a>
+        <a href="tests.html" class="nav-link">Available Tests</a>
+        <a href="performance.html" class="nav-link">Performance</a>
+        <a href="account.html" class="nav-link active-link">Account</a>
+        <a onclick="handleLogout()" class="nav-link" style="margin-top: auto; border-top: 1px solid rgba(255,255,255,0.1);">Logout</a>
+    </nav>
+
+    <main>
+        <div class="header-sec">
+            <h1>Account Settings</h1>
+            <p>Manage your profile, academic goals, and security preferences.</p>
+        </div>
+
+        <div class="settings-grid">
+            <div class="settings-nav">
+                <button class="s-nav-btn active" onclick="showSection('personal', this)">Personal Profile</button>
+                <button class="s-nav-btn" onclick="showSection('academic', this)">Academic Goals</button>
+                <button class="s-nav-btn" onclick="showSection('security', this)">Security</button>
+            </div>
+
+            <div class="settings-card">
+                <div id="personal" class="form-section active">
+                    <div class="input-group">
+                        <label>Full Name</label>
+                        <input type="text" id="fullName" class="modern-input" placeholder="Enter your name">
+                    </div>
+                    <div class="input-group">
+                        <label>Email Address</label>
+                        <input type="email" id="email" class="modern-input" disabled>
+                    </div>
+                    <div class="row-2">
+                        <div class="input-group">
+                            <label>Phone Number</label>
+                            <input type="text" id="phone" class="modern-input" placeholder="+91 ...">
+                        </div>
+                        <div class="input-group">
+                            <label>Gender</label>
+                            <select id="gender" class="modern-input">
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button class="btn-save" onclick="updateProfile()">Save Changes</button>
+                </div>
+
+                <div id="academic" class="form-section">
+                    <div class="row-2">
+                        <div class="input-group">
+                            <label>Target Year</label>
+                            <input type="number" id="targetYear" class="modern-input" placeholder="2026">
+                        </div>
+                        <div class="input-group">
+                            <label>Current Grade</label>
+                            <select id="grade" class="modern-input">
+                                <option value="Class 11">Class 11</option>
+                                <option value="Class 12">Class 12</option>
+                                <option value="Dropper">Dropper</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>Dream Institute (Target College)</label>
+                        <input type="text" id="college" class="modern-input" placeholder="e.g. IIT Bombay">
+                    </div>
+                    <div class="input-group">
+                        <label>Preparation Mode</label>
+                        <select id="prepMode" class="modern-input">
+                            <option value="Self Study">Self Study</option>
+                            <option value="Online Coaching">Online Coaching</option>
+                            <option value="Offline Coaching">Offline Coaching</option>
+                        </select>
+                    </div>
+                    <button class="btn-save" onclick="updateProfile()">Update Goals</button>
+                </div>
+
+                <div id="security" class="form-section">
+                    <div class="input-group">
+                        <label>New Password</label>
+                        <input type="password" id="newPassword" class="modern-input" placeholder="Min. 6 characters">
+                    </div>
+                    <div class="input-group">
+                        <label>Confirm New Password</label>
+                        <input type="password" id="confirmPassword" class="modern-input" placeholder="Re-type password">
+                    </div>
+                    <button class="btn-save" style="background: #ef4444;" onclick="changePassword()">Update Password</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const supabaseUrl = 'https://ijxsnunkfhudwnkrwmzk.supabase.co';
+        const supabaseKey = 'sb_publishable_V-KT1zvp-73dqHHvmx3fNA_iHw53TCl';
+        const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+        function showSection(id, btn) {
+            document.querySelectorAll('.form-section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.s-nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            btn.classList.add('active');
+        }
+
+        async function loadProfileData() {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (!session) { window.location.href = 'login.html'; return; }
+
+            document.getElementById('email').value = session.user.email;
+
+            const { data, error } = await supabaseClient
+                .from('profiles')
+                .select('*')
+                .eq('id', session.user.id)
+                .single();
+
+            if (data) {
+                document.getElementById('fullName').value = data.full_name || '';
+                document.getElementById('phone').value = data.phone_number || '';
+                document.getElementById('gender').value = data.gender || 'Male';
+                document.getElementById('targetYear').value = data.target_year || '';
+                document.getElementById('grade').value = data.current_grade || 'Class 11';
+                document.getElementById('college').value = data.target_college || '';
+                document.getElementById('prepMode').value = data.prep_mode || 'Self Study';
+            }
+        }
+
+        async function updateProfile() {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            const updates = {
+                id: session.user.id,
+                full_name: document.getElementById('fullName').value,
+                phone_number: document.getElementById('phone').value,
+                gender: document.getElementById('gender').value,
+                target_year: parseInt(document.getElementById('targetYear').value),
+                current_grade: document.getElementById('grade').value,
+                target_college: document.getElementById('college').value,
+                prep_mode: document.getElementById('prepMode').value,
+                updated_at: new Date()
+            };
+
+            const { error } = await supabaseClient.from('profiles').upsert(updates);
+            if (error) alert(error.message);
+            else alert("Profile updated successfully!");
+        }
+
+        async function changePassword() {
+            const newPass = document.getElementById('newPassword').value;
+            const confirmPass = document.getElementById('confirmPassword').value;
+
+            if (newPass !== confirmPass) { alert("Passwords do not match!"); return; }
+            if (newPass.length < 6) { alert("Password must be at least 6 characters!"); return; }
+
+            const { error } = await supabaseClient.auth.updateUser({ password: newPass });
+            if (error) alert(error.message);
+            else {
+                alert("Password changed!");
+                document.getElementById('newPassword').value = '';
+                document.getElementById('confirmPassword').value = '';
+            }
+        }
+
+        async function handleLogout() { await supabaseClient.auth.signOut(); window.location.href = 'login.html'; }
+        
+        loadProfileData();
+    </script>
+</body>
+</html>
