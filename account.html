@@ -67,7 +67,24 @@
         .edit-icon-svg { width: 16px; height: 16px; stroke: currentColor; stroke-width: 2; fill: none; }
 
         .avatar-header { display: flex; align-items: center; gap: 24px; }
-        .avatar-img { width: 88px; height: 88px; border-radius: 20px; background: #f8fafc; object-fit: cover; border: 1px solid var(--border-color); }
+        
+        /* PERSISTENT SIZE FIX */
+        .avatar-wrapper {
+            position: relative;
+            width: 88px;
+            height: 88px;
+            flex-shrink: 0;
+        }
+        .avatar-img { 
+            width: 88px !important; 
+            height: 88px !important; 
+            border-radius: 20px; 
+            background: #f8fafc; 
+            object-fit: cover; 
+            border: 1px solid var(--border-color); 
+            display: block;
+        }
+
         .user-meta h2 { font-size: 1.25rem; font-weight: 700; color: var(--text-main); }
         .user-meta p { font-size: 0.9rem; color: var(--text-muted); margin-top: 4px; }
 
@@ -102,74 +119,27 @@
 
         .s-nav-btn.disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
 
-        /* 1. Reset the tab background (in case you added the previous code) */
-        #identity-tab {
-            background: transparent;
-            padding: 0;
-        }
-
-        /* 2. Create the Glass Effect for the Top Card Only */
+        /* GLOBAL TOP CARD GLASS & POP EFFECT */
         #card-top.ghibli-glass {
-            position: relative;
-            overflow: hidden;
-            /* Your locked-down gradient */
             background: linear-gradient(135deg, #FDFBF7 0%, #F5F1E9 100%) !important;
-            
-            /* THE "POPPED OUT" EFFECT */
-            /* Layer 1: Subtle edge definition. Layer 2: Soft ambient lift. */
-            box-shadow: 
-                0 4px 6px -1px rgba(0, 0, 0, 0.05), 
-                0 10px 15px -3px rgba(0, 0, 0, 0.08);
-            
-            /* Slightly thicker border on the bottom makes it look like it's catching light */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 10px 15px -3px rgba(0, 0, 0, 0.08);
             border: 1px solid #EAE4D9 !important;
             border-bottom: 2px solid #dcd7c9 !important; 
-            
-            /* Smooth transition for when you hover or click */
             transition: transform 0.2s ease, box-shadow 0.2s ease;
-            z-index: 1;
         }
         
-        /* Optional: Enhances the "pop" when the mouse is over the card */
         #card-top.ghibli-glass:hover {
-            transform: translateY(-2px); /* Lifts the card slightly higher */
-            box-shadow: 
-                0 10px 20px -5px rgba(0, 0, 0, 0.1), 
-                0 8px 10px -6px rgba(0, 0, 0, 0.05);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
         }
 
-        /* 3. The "Hidden" Ghibli Gradient inside the card */
-        #card-top.ghibli-glass::before {
-            content: "";
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            /* Ghibli Summer Gradient */
-            background: linear-gradient(135deg, #FDFBF7, #F5F1E9);
-            z-index: -1; /* Puts it behind the profile text and image */
-            opacity: 0.5; /* Makes it soft and dreamy */
-        }
-        
-        /* 4. Keep the bottom card standard white */
-        #card-personal {
-            background: white;
-            border: 1px solid var(--border-color);
-        }
-
-        /* This creates the 'anchor' for the icon */
-        .avatar-wrapper {
-            position: relative;
-            width: 88px;
-            height: 88px;
-            cursor: pointer;
-        }
-        
-        /* This places the pen icon INSIDE the bottom-right corner of the picture */
+        /* Edit Overlay Icon inside the frame */
         .edit-overlay-icon {
             position: absolute;
-            bottom: 5px; /* Distance from bottom edge of picture */
-            right: 5px;  /* Distance from right edge of picture */
+            bottom: 5px;
+            right: 5px;
             background: white;
-            border-radius: 50%; /* Circular looks better as an overlay */
+            border-radius: 50%;
             padding: 6px;
             display: flex;
             align-items: center;
@@ -177,14 +147,6 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.2);
             border: 1.5px solid #EAE4D9;
             z-index: 10;
-        }
-        
-        /* Ensure the image doesn't get pushed around */
-        .avatar-img {
-            display: block;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
         }
     </style>
 </head>
@@ -210,6 +172,45 @@
 <main>
     <h1 class="page-title">My Profile</h1>
     
+    <div class="info-card ghibli-glass" id="card-top">
+        <div class="edit-box" id="edit-btn-top" onclick="toggleEdit('top')">
+            <span>Edit</span>
+            <svg class="edit-icon-svg" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+        </div>
+        
+        <div id="top-view" class="avatar-header">
+            <div class="avatar-wrapper">
+                <img src="https://raw.githubusercontent.com/yashvirsingh258-prog/Revamped-IIT-JEE-Portal/main/Studious%20James.png" class="avatar-img" id="avatar-img">
+            </div>
+            <div class="user-meta">
+                <h2 id="meta-name">Ibrahim Mahdi</h2>
+                <p id="meta-role">JEE Aspirant • 2026</p>
+            </div>
+        </div>
+
+        <div id="top-edit" class="edit-mode">
+            <div class="avatar-header">
+                <div class="avatar-wrapper" onclick="openAvatarModal()" style="cursor: pointer;">
+                    <img src="https://raw.githubusercontent.com/yashvirsingh258-prog/Revamped-IIT-JEE-Portal/main/Studious%20James.png" class="avatar-img" id="avatar-img-edit">
+                    <div class="edit-overlay-icon">
+                        <svg class="edit-icon-svg" viewBox="0 0 24 24">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                        </svg>
+                    </div>
+                </div>
+                <div class="user-meta">
+                    <label style="font-size:0.7rem; color:var(--text-muted); font-weight:700;">FULL NAME</label>
+                    <div style="font-weight:700; font-size:1.15rem;">Ibrahim Mahdi</div>
+                </div>
+            </div>
+            <div class="btn-group">
+                <button class="btn-save" onclick="saveBox('top')">Update</button>
+                <button class="btn-cancel" onclick="toggleEdit('top')">Cancel</button>
+            </div>
+        </div>
+    </div>
+    
     <div class="profile-container">
         <div class="settings-nav">
             <button class="s-nav-btn active" id="btn-identity" onclick="showTab('identity', this)">Identity</button>
@@ -219,47 +220,6 @@
 
         <div id="main-form-container">
             <div id="identity-tab" class="tab-content">
-                <div class="info-card ghibli-glass" id="card-top">
-                    <div class="edit-box" id="edit-btn-top" onclick="toggleEdit('top')">
-                        <span>Edit</span>
-                        <svg class="edit-icon-svg" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                    </div>
-                    <div id="top-view" class="avatar-header">
-                        <div class="avatar-wrapper">
-                            <img src="https://raw.githubusercontent.com/yashvirsingh258-prog/Revamped-IIT-JEE-Portal/main/Studious%20James.png" class="avatar-img" id="avatar-img">
-                        </div>
-                        
-                        <div class="user-meta">
-                            <h2 id="meta-name">Ibrahim Mahdi</h2>
-                            <p id="meta-role">JEE Aspirant • 2026</p>
-                        </div>
-                    </div>
-                    <div id="top-edit" class="edit-mode">
-                        <div class="avatar-header">
-                            <div class="avatar-wrapper" onclick="openAvatarModal()">
-                                <img src="https://raw.githubusercontent.com/yashvirsingh258-prog/Revamped-IIT-JEE-Portal/main/Studious%20James.png" class="avatar-img" id="avatar-img-edit">
-                                
-                                <div class="edit-overlay-icon">
-                                    <svg class="edit-icon-svg" viewBox="0 0 24 24">
-                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                                    </svg>
-                                </div>
-                            </div>
-                        
-                            <div class="user-meta">
-                                <label style="font-size:0.7rem; color:var(--text-muted); font-weight:700;">FULL NAME</label>
-                                <div style="font-weight:700; font-size:1.15rem;">Ibrahim Mahdi</div>
-                            </div>
-                        </div>
-                        
-                        <div class="btn-group">
-                            <button class="btn-save" onclick="saveBox('top')">Update</button>
-                            <button class="btn-cancel" onclick="toggleEdit('top')">Cancel</button>
-                        </div>
-                    </div>
-                </div>
-
                 <div class="info-card" id="card-personal">
                     <h3 class="section-title">Personal Details</h3>
                     <div class="edit-box" id="edit-btn-personal" onclick="toggleEdit('personal')">
@@ -297,146 +257,4 @@
                         <div class="data-item"><label>Address 2</label><span>---</span></div>
                         <div class="data-item"><label>City</label><span>---</span></div>
                         <div class="data-item"><label>State</label><span>---</span></div>
-                        <div class="data-item"><label>Country</label><span>Nigeria</span></div>
-                    </div>
-                    <div id="address-edit" class="edit-mode">
-                        <div class="data-grid">
-                            <div class="data-item"><label>Address 1</label><input type="text" class="modern-input"></div>
-                            <div class="data-item"><label>Address 2</label><input type="text" class="modern-input"></div>
-                            <div class="data-item"><label>City</label><input type="text" class="modern-input"></div>
-                            <div class="data-item"><label>State</label><input type="text" class="modern-input"></div>
-                            <div class="data-item"><label>Country</label><input type="text" class="modern-input" value="Nigeria"></div>
-                        </div>
-                        <div class="btn-group">
-                            <button class="btn-save" onclick="saveBox('address')">Save</button>
-                            <button class="btn-cancel" onclick="toggleEdit('address')">Cancel</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div id="aspirations-tab" class="tab-content" style="display:none">
-                <div class="info-card" id="card-aspi">
-                    <h3 class="section-title">Academic Goals</h3>
-                    <div class="edit-box" id="edit-btn-aspi" onclick="toggleEdit('aspi')">
-                        <span>Edit</span>
-                        <svg class="edit-icon-svg" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                    </div>
-                    <div id="aspi-view" class="data-grid">
-                        <div class="data-item"><label>Target Year</label><span>2026</span></div>
-                        <div class="data-item"><label>Current Grade</label><span>Class 12</span></div>
-                    </div>
-                    <div id="aspi-edit" class="edit-mode">
-                        <div class="data-grid">
-                            <div class="data-item"><label>Target Year</label><input type="number" class="modern-input" value="2026"></div>
-                            <div class="data-item"><label>Current Grade</label><input type="text" class="modern-input" value="Class 12"></div>
-                        </div>
-                        <div class="btn-group">
-                            <button class="btn-save" onclick="saveBox('aspi')">Save</button>
-                            <button class="btn-cancel" onclick="toggleEdit('aspi')">Cancel</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div id="security-tab" class="tab-content" style="display:none">
-                <div class="info-card" id="card-sec">
-                    <h3 class="section-title">Security</h3>
-                    <div class="edit-box" id="edit-btn-sec" onclick="toggleEdit('sec')">
-                        <span>Edit</span>
-                        <svg class="edit-icon-svg" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                    </div>
-                    <div id="sec-view" class="data-grid">
-                        <div class="data-item"><label>Email</label><span>i*******@email.com</span></div>
-                        <div class="data-item"><label>Phone Number</label><span>---</span></div>
-                        <div class="data-item"><label>Password</label><span>••••••••</span></div>
-                    </div>
-                    <div id="sec-edit" class="edit-mode">
-                        <div class="data-grid">
-                            <div class="data-item"><label>Current Password</label><input type="password" class="modern-input"></div>
-                            <div class="data-item"><label>New Password</label><input type="password" class="modern-input"></div>
-                            <div class="data-item"><label>Phone Number</label><input type="text" class="modern-input"></div>
-                        </div>
-                        <div class="btn-group">
-                            <button class="btn-save" onclick="saveBox('sec')">Update</button>
-                            <button class="btn-cancel" onclick="toggleEdit('sec')">Cancel</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</main>
-
-<script>
-    const ghibliOptions = ["https://raw.githubusercontent.com/yashvirsingh258-prog/Revamped-IIT-JEE-Portal/main/Studious%20James.png"];
-
-    function openAvatarModal() {
-        const container = document.getElementById('avatarOptions');
-        container.innerHTML = '';
-        ghibliOptions.forEach(url => {
-            const img = document.createElement('img');
-            img.src = url;
-            img.className = 'opt-img';
-            img.onclick = () => { 
-                document.getElementById('avatar-img').src = url; 
-                document.getElementById('avatar-img-edit').src = url; 
-                closeAvatarModal(); 
-            };
-            container.appendChild(img);
-        });
-        document.getElementById('avatarModal').style.display = 'flex';
-    }
-
-    function closeAvatarModal() { document.getElementById('avatarModal').style.display = 'none'; }
-
-    function showTab(tabId, btn) {
-        document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
-        document.querySelectorAll('.s-nav-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById(tabId + '-tab').style.display = 'block';
-        btn.classList.add('active');
-    }
-
-    function setGlobalLock(isLocked, activeSection) {
-        const allEditButtons = document.querySelectorAll('.edit-box');
-        const sideNavButtons = document.querySelectorAll('.s-nav-btn');
-
-        allEditButtons.forEach(btn => {
-            if (btn.id !== `edit-btn-${activeSection}`) {
-                isLocked ? btn.classList.add('disabled') : btn.classList.remove('disabled');
-            }
-        });
-
-        sideNavButtons.forEach(btn => {
-            isLocked ? btn.classList.add('disabled') : btn.classList.remove('disabled');
-        });
-    }
-
-    function toggleEdit(section) {
-        const v = document.getElementById(section + '-view');
-        const e = document.getElementById(section + '-edit');
-        const btn = document.getElementById(`edit-btn-${section}`);
-        
-        const startingEdit = v.style.display !== 'none';
-
-        if (startingEdit) {
-            v.style.display = 'none';
-            e.style.display = 'block';
-            btn.style.display = 'none';
-            setGlobalLock(true, section);
-        } else {
-            v.style.display = (section === 'top') ? 'flex' : 'grid';
-            e.style.display = 'none';
-            btn.style.display = 'flex';
-            setGlobalLock(false, section);
-        }
-    }
-
-    function saveBox(section) {
-        toggleEdit(section);
-    }
-
-    function handleLogout() { console.log("Logging out..."); }
-</script>
-</body>
-</html>
+                        <div class="data-item"><label>Country</label><span>
