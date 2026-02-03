@@ -177,7 +177,7 @@
                 supabaseClient.from('questions_table')
                     .select('*')
                     .eq('test_name', tName)
-                    .eq('subject', sName)
+                    .ilike('subject', sName)
                     .single(),
                     
                 // Get the specific progress for this student, test, and subject
@@ -185,13 +185,10 @@
                     .select('*')
                     .eq('username', uEmail)
                     .eq('test_name', tName)
-                    .eq('subject', sName) // Explicitly use the subject parameter
+                    .ilike('subject', sName) // Explicitly use the subject parameter
                     .order('updated_at', { ascending: false })
                     .limit(1)
             ]);
-            
-            window.alert(pRes.data[0])
-            window.alert(qRes.data[0])
             
             if (qRes.data && pRes.data[0]) {
                 allQuestionsRaw = qRes.data.question_data;
