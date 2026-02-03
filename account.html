@@ -2,8 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JEE Portal | Account Settings</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root { 
@@ -12,27 +13,46 @@
             --bg-light: #f8fafc;
             --border-color: #e2e8f0;
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg-light); display: flex; min-height: 100vh; color: #1e293b; }
         
-        /* SIDEBAR - Matched to your image */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: var(--bg-light); 
+            display: flex; 
+            min-height: 100vh; 
+            color: #1e293b; 
+        }
+        
+        /* SIDEBAR - Optimized for visibility */
         nav { 
             width: 280px; 
             background: var(--primary-blue); 
             color: white; 
-            padding: 60px 0 20px 0; 
+            padding: 40px 0 0 0; /* Reduced top padding */
             position: fixed; 
             height: 100vh; 
-            z-index: 1000; /* Ensures visibility over main content */
+            z-index: 1000; 
             display: flex; 
-            flex-direction: column; 
+            flex-direction: column;
+            overflow-y: auto; /* Safety scroll for small screens */
         }
-        .logo-area { padding: 0 40px; margin-bottom: 60px; }
-        .logo-area h2 { font-size: 1.4rem; letter-spacing: 4px; font-weight: 800; text-transform: uppercase; }
+
+        .logo-area { 
+            padding: 0 40px; 
+            margin-bottom: 40px; /* Reduced margin */
+        }
+        
+        .logo-area h2 { 
+            font-size: 1.4rem; 
+            letter-spacing: 4px; 
+            font-weight: 800; 
+            text-transform: uppercase; 
+        }
         
         .nav-link { 
             display: block; 
-            padding: 20px 40px; 
+            padding: 16px 40px; /* Slimmer padding to fit all links */
             text-decoration: none; 
             color: rgba(255, 255, 255, 0.6); 
             font-size: 0.85rem; 
@@ -40,12 +60,15 @@
             text-transform: uppercase; 
             cursor: pointer; 
             transition: 0.2s; 
-            border-right: 6px solid transparent; /* Placeholder for active state */
+            border-right: 6px solid transparent; 
         }
         
-        .nav-link:hover { color: white; background: rgba(255, 255, 255, 0.05); }
+        .nav-link:hover { 
+            color: white; 
+            background: rgba(255, 255, 255, 0.05); 
+        }
 
-        /* ACTIVE STATE - Matches white bar in your image */
+        /* Active state with the white bar from your image */
         .active-link { 
             color: white !important; 
             background: var(--active-strip) !important; 
@@ -54,35 +77,112 @@
 
         .logout-btn { 
             margin-top: auto; 
-            border-top: 1px solid rgba(255,255,255,0.1); 
             padding: 25px 40px; 
+            border-top: 1px solid rgba(255,255,255,0.1); 
+            background: rgba(0,0,0,0.05);
         }
 
         /* MAIN CONTENT */
-        main { margin-left: 280px; flex: 1; padding: 50px 70px; position: relative; }
+        main { 
+            margin-left: 280px; 
+            flex: 1; 
+            padding: 50px 70px; 
+        }
+        
         .header-sec { margin-bottom: 40px; }
-        .header-sec h1 { font-size: 2rem; font-weight: 700; color: var(--primary-blue); }
-        .header-sec p { color: #64748b; font-size: 0.95rem; margin-top: 5px; }
+        .header-sec h1 { font-size: 2.2rem; font-weight: 800; color: var(--primary-blue); }
+        .header-sec p { color: #64748b; font-size: 1rem; margin-top: 5px; }
 
         /* SETTINGS LAYOUT */
-        .settings-grid { display: grid; grid-template-columns: 280px 1fr; gap: 40px; align-items: start; }
-        .settings-nav { background: white; border-radius: 16px; border: 1px solid var(--border-color); padding: 10px; }
-        .s-nav-btn { width: 100%; text-align: left; padding: 14px 20px; border: none; background: none; border-radius: 10px; cursor: pointer; font-weight: 600; color: #64748b; transition: 0.2s; font-size: 0.9rem; margin-bottom: 5px; }
-        .s-nav-btn.active { background: #f1f5f9; color: var(--primary-blue); }
+        .settings-grid { 
+            display: grid; 
+            grid-template-columns: 280px 1fr; 
+            gap: 40px; 
+            align-items: start; 
+        }
 
-        .settings-card { background: white; border-radius: 20px; border: 1px solid var(--border-color); padding: 40px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
+        .settings-nav { 
+            background: white; 
+            border-radius: 16px; 
+            border: 1px solid var(--border-color); 
+            padding: 10px; 
+        }
+
+        .s-nav-btn { 
+            width: 100%; 
+            text-align: left; 
+            padding: 14px 20px; 
+            border: none; 
+            background: none; 
+            border-radius: 10px; 
+            cursor: pointer; 
+            font-weight: 600; 
+            color: #64748b; 
+            transition: 0.2s; 
+            font-size: 0.9rem; 
+            margin-bottom: 5px; 
+        }
+
+        .s-nav-btn.active { 
+            background: #f1f5f9; 
+            color: var(--primary-blue); 
+        }
+
+        .settings-card { 
+            background: white; 
+            border-radius: 20px; 
+            border: 1px solid var(--border-color); 
+            padding: 40px; 
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05); 
+        }
         
-        /* FORM ELEMENTS */
         .form-section { display: none; }
         .form-section.active { display: block; animation: fadeIn 0.4s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        @keyframes fadeIn { 
+            from { opacity: 0; transform: translateY(10px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
 
         .input-group { margin-bottom: 25px; }
-        .input-group label { display: block; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: #94a3b8; margin-bottom: 8px; letter-spacing: 0.5px; }
-        .modern-input { width: 100%; padding: 12px 16px; border-radius: 10px; border: 1px solid var(--border-color); background: #fcfdfe; font-size: 0.95rem; transition: 0.3s; outline: none; }
-        .modern-input:focus { border-color: var(--primary-blue); box-shadow: 0 0 0 4px rgba(26, 64, 140, 0.1); }
-        .btn-save { background: var(--primary-blue); color: white; border: none; padding: 14px 30px; border-radius: 10px; font-weight: 700; cursor: pointer; transition: 0.3s; }
-        .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .input-group label { 
+            display: block; 
+            font-size: 0.75rem; 
+            font-weight: 800; 
+            text-transform: uppercase; 
+            color: #94a3b8; 
+            margin-bottom: 8px; 
+            letter-spacing: 1px; 
+        }
+
+        .modern-input { 
+            width: 100%; 
+            padding: 14px 16px; 
+            border-radius: 12px; 
+            border: 1px solid var(--border-color); 
+            background: #fcfdfe; 
+            font-size: 1rem; 
+            transition: 0.3s; 
+            outline: none; 
+        }
+
+        .modern-input:focus { 
+            border-color: var(--primary-blue); 
+            box-shadow: 0 0 0 4px rgba(26, 64, 140, 0.1); 
+        }
+
+        .btn-save { 
+            background: var(--primary-blue); 
+            color: white; 
+            border: none; 
+            padding: 16px 32px; 
+            border-radius: 12px; 
+            font-weight: 700; 
+            cursor: pointer; 
+            transition: 0.3s; 
+        }
+
+        .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
     </style>
 </head>
 <body>
@@ -98,7 +198,7 @@
     <main>
         <div class="header-sec">
             <h1>Account Settings</h1>
-            <p>Personalize your preparation profile and security [cite: 2026-02-01].</p>
+            <p>Update your academic targets and personal information [cite: 2026-02-01].</p>
         </div>
 
         <div class="settings-grid">
@@ -112,7 +212,7 @@
                 <div id="personal" class="form-section active">
                     <div class="input-group">
                         <label>Full Name</label>
-                        <input type="text" id="fullName" class="modern-input" placeholder="Your Name">
+                        <input type="text" id="fullName" class="modern-input" placeholder="Enter Full Name">
                     </div>
                     <div class="row-2">
                         <div class="input-group">
@@ -128,7 +228,7 @@
                             </select>
                         </div>
                     </div>
-                    <button class="btn-save" onclick="updateProfile()">Save Changes</button>
+                    <button class="btn-save" onclick="updateProfile()">Save Profile</button>
                 </div>
 
                 <div id="academic" class="form-section">
@@ -138,7 +238,7 @@
                             <input type="number" id="targetYear" class="modern-input" placeholder="2026">
                         </div>
                         <div class="input-group">
-                            <label>Current Grade</label>
+                            <label>Grade / Status</label>
                             <select id="grade" class="modern-input">
                                 <option value="Class 11">Class 11</option>
                                 <option value="Class 12">Class 12</option>
@@ -148,17 +248,17 @@
                     </div>
                     <div class="input-group">
                         <label>Target IIT / College</label>
-                        <input type="text" id="college" class="modern-input" placeholder="e.g. IIT Delhi">
+                        <input type="text" id="college" class="modern-input" placeholder="e.g., IIT Bombay">
                     </div>
-                    <button class="btn-save" onclick="updateProfile()">Update Goals</button>
+                    <button class="btn-save" onclick="updateProfile()">Update Academic Info</button>
                 </div>
 
                 <div id="security" class="form-section">
                     <div class="input-group">
                         <label>New Password</label>
-                        <input type="password" id="newPassword" class="modern-input">
+                        <input type="password" id="newPassword" class="modern-input" placeholder="Minimum 6 characters">
                     </div>
-                    <button class="btn-save" style="background: #ef4444;" onclick="changePassword()">Update Password</button>
+                    <button class="btn-save" style="background: #ef4444;" onclick="changePassword()">Change Password</button>
                 </div>
             </div>
         </div>
@@ -166,7 +266,7 @@
 
     <script>
         const supabaseUrl = 'https://ijxsnunkfhudwnkrwmzk.supabase.co';
-        const supabaseKey = 'YOUR_PUBLISHABLE_KEY'; // Ensure this is your key
+        const supabaseKey = 'YOUR_PUBLISHABLE_KEY'; 
         const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
         function showSection(id, btn) {
@@ -180,7 +280,12 @@
             const { data: { session } } = await supabaseClient.auth.getSession();
             if (!session) return;
 
-            const { data } = await supabaseClient.from('profiles').select('*').eq('id', session.user.id).single();
+            const { data } = await supabaseClient
+                .from('profiles')
+                .select('*')
+                .eq('id', session.user.id)
+                .single();
+
             if (data) {
                 document.getElementById('fullName').value = data.full_name || '';
                 document.getElementById('phone').value = data.phone_number || '';
@@ -203,17 +308,26 @@
                 target_college: document.getElementById('college').value,
                 updated_at: new Date()
             };
+
             const { error } = await supabaseClient.from('profiles').upsert(updates);
-            alert(error ? error.message : "Profile Saved!");
+            if (error) alert(error.message);
+            else alert("Account settings updated!");
         }
 
         async function changePassword() {
             const newPass = document.getElementById('newPassword').value;
+            if (newPass.length < 6) { alert("Password too short!"); return; }
+            
             const { error } = await supabaseClient.auth.updateUser({ password: newPass });
-            alert(error ? error.message : "Password Updated!");
+            if (error) alert(error.message);
+            else alert("Password updated successfully!");
         }
 
-        async function handleLogout() { await supabaseClient.auth.signOut(); window.location.href = 'login.html'; }
+        async function handleLogout() { 
+            await supabaseClient.auth.signOut(); 
+            window.location.href = 'login.html'; 
+        }
+
         loadProfileData();
     </script>
 </body>
